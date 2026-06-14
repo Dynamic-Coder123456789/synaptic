@@ -1,0 +1,3910 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synaptic Patient | Rehab Companion</title>
+  <meta name="description" content="Synaptic Patient dashboard for live vitals, stroke rehab pacing, and AI-supported recovery coaching.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F5F2EB;
+      --paper-deep: #ECE5D6;
+      --paper-soft: #FAF7EF;
+      --ink: #0E0E0E;
+      --signal: #FF4F1F;
+      --mist: #D6D0C4;
+      --mist-strong: #BEB6A7;
+      --slate: #3B3B40;
+      --void: #10100D;
+      --cream: #F6EDDB;
+      --green: #557C55;
+      --gold: #C99331;
+      --edge: clamp(18px, 2.2vw, 36px);
+      --radius: 6px;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-rest: 0 2px 8px rgba(14, 14, 14, 0.06);
+      --shadow-lift: 0 14px 42px rgba(14, 14, 14, 0.12);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      max-width: 100%;
+      overflow-x: clip;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle, rgba(14, 14, 14, 0.12) 0 1px, transparent 1px) 0 0 / 9px 9px,
+        var(--paper);
+      color: var(--ink);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    body[data-theme="dark"] {
+      --paper: #10100D;
+      --paper-deep: #171713;
+      --paper-soft: #171713;
+      --ink: #F6EDDB;
+      --mist: #3D3B34;
+      --mist-strong: #6F695B;
+      --slate: #D6D0C4;
+      background:
+        radial-gradient(circle, rgba(246, 237, 219, 0.12) 0 1px, transparent 1px) 0 0 / 9px 9px,
+        var(--paper);
+      color: var(--ink);
+    }
+
+    body.theme-switching,
+    body.coach-switching,
+    body.voice-switching,
+    body.exercise-switching,
+    body.emergency-switching {
+      overflow: hidden;
+    }
+
+    body.theme-switching .app-shell {
+      animation: shell-fold 1180ms var(--ease-out);
+      transform-origin: 50% 10%;
+    }
+
+    body.coach-switching .app-shell {
+      animation: coach-shell-fold 1360ms var(--ease-out);
+      transform-origin: 50% 16%;
+    }
+
+    body.voice-switching .app-shell {
+      animation: voice-shell-fold 1260ms var(--ease-out);
+      transform-origin: 58% 12%;
+    }
+
+    body.exercise-switching .app-shell {
+      animation: exercise-shell-fold 1480ms var(--ease-out);
+      transform-origin: 66% 10%;
+    }
+
+    body.emergency-switching .app-shell {
+      animation: emergency-shell-flare 1420ms var(--ease-out);
+      transform-origin: 50% 12%;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .motion-field {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0.68;
+      mix-blend-mode: multiply;
+      contain: paint;
+    }
+
+    body[data-theme="dark"] .motion-field {
+      mix-blend-mode: screen;
+      opacity: 0.42;
+    }
+
+    .motion-field::before,
+    .motion-field::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .motion-field::before {
+      inset: -22%;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 96px, rgba(255, 79, 31, 0.09) 96px 97px, transparent 97px 192px),
+        repeating-linear-gradient(0deg, transparent 0 88px, rgba(14, 14, 14, 0.05) 88px 89px, transparent 89px 176px);
+      transform: rotate(-8deg);
+      animation: field-drift 24s linear infinite;
+    }
+
+    body[data-theme="dark"] .motion-field::before {
+      background:
+        repeating-linear-gradient(90deg, transparent 0 96px, rgba(255, 79, 31, 0.12) 96px 97px, transparent 97px 192px),
+        repeating-linear-gradient(0deg, transparent 0 88px, rgba(246, 237, 219, 0.07) 88px 89px, transparent 89px 176px);
+    }
+
+    .motion-field::after {
+      left: -18vw;
+      top: 22vh;
+      width: 52vw;
+      height: 1px;
+      background: var(--signal);
+      box-shadow:
+        48vw 22vh 0 rgba(14, 14, 14, 0.24),
+        78vw 48vh 0 rgba(255, 79, 31, 0.72),
+        18vw 66vh 0 rgba(14, 14, 14, 0.18);
+      animation: signal-rail 8.5s linear infinite;
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+      min-height: 100vh;
+      isolation: isolate;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 32px;
+      min-height: 100vh;
+      padding: var(--edge);
+      border-right: 1px solid rgba(14, 14, 14, 0.16);
+      background: rgba(245, 242, 235, 0.88);
+    }
+
+    body[data-theme="dark"] .sidebar {
+      border-color: rgba(246, 237, 219, 0.14);
+      background: rgba(16, 16, 13, 0.86);
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 52px;
+      aspect-ratio: 1;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--signal);
+      box-shadow: 9px 9px 0 var(--void);
+      transform: rotate(-7deg);
+    }
+
+    body[data-theme="dark"] .brand-mark {
+      box-shadow: 9px 9px 0 var(--cream);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      position: absolute;
+      content: "";
+      inset: 12px;
+      border: 2px solid var(--paper);
+      transform: skewX(-13deg);
+    }
+
+    .brand-mark::after {
+      inset: 20px 12px 12px 24px;
+      background: var(--paper);
+      border: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(24px, 2.8vw, 34px);
+      line-height: 0.96;
+      letter-spacing: -0.07em;
+    }
+
+    .brand em {
+      display: block;
+      color: var(--signal);
+      font-family: "Lora", Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: -0.08em;
+    }
+
+    .meta-stack,
+    .nav-list,
+    .help-card {
+      font-family: "JetBrains Mono", Consolas, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .meta-stack {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      color: rgba(14, 14, 14, 0.52);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    body[data-theme="dark"] .meta-stack {
+      color: rgba(246, 237, 219, 0.48);
+    }
+
+    .meta-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 0 10px rgba(255, 79, 31, 0.12);
+      animation: live-dot 1s steps(2, end) infinite;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .nav-item {
+      display: grid;
+      grid-template-columns: 26px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.13);
+      color: rgba(14, 14, 14, 0.64);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    body[data-theme="dark"] .nav-item {
+      border-color: rgba(246, 237, 219, 0.12);
+      color: rgba(246, 237, 219, 0.62);
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: var(--signal);
+      transform: translateX(6px);
+    }
+
+    .help-card {
+      display: grid;
+      gap: 10px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(14, 14, 14, 0.16);
+      color: rgba(14, 14, 14, 0.56);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    body[data-theme="dark"] .help-card {
+      border-color: rgba(246, 237, 219, 0.14);
+      color: rgba(246, 237, 219, 0.58);
+    }
+
+    .main {
+      display: grid;
+      gap: 15px;
+      padding: var(--edge);
+      min-width: 0;
+    }
+
+    .topbar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(14, 14, 14, 0.16);
+}
+
+    body[data-theme="dark"] .topbar {
+      border-color: rgba(246, 237, 219, 0.14);
+    }
+
+    .topbar h2 {
+      margin: 0;
+      max-width: 860px;
+      color: var(--ink);
+      font-size: clamp(44px, 7vw, 104px);
+      line-height: 0.88;
+      letter-spacing: -0.085em;
+    }
+
+    .topbar .serif {
+      color: var(--signal);
+      font-family: "Lora", Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: -0.095em;
+    }
+
+    .topbar p {
+      margin: 16px 0 0;
+      max-width: 660px;
+      color: rgba(14, 14, 14, 0.62);
+      font-family: "Lora", Georgia, serif;
+      font-size: clamp(18px, 2.1vw, 28px);
+      line-height: 1.35;
+      letter-spacing: -0.035em;
+    }
+
+    body[data-theme="dark"] .topbar p {
+      color: rgba(246, 237, 219, 0.66);
+    }
+    
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .theme-toggle,
+    .coach-button,
+    .voice-button,
+    .exercise-button,
+    .ghost-button {
+      position: relative;
+      min-height: 48px;
+      border: 1px solid rgba(14, 14, 14, 0.18);
+      border-radius: var(--radius);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: transform 240ms var(--ease-out), border-color 220ms ease, box-shadow 240ms ease;
+    }
+
+    body[data-theme="dark"] .theme-toggle,
+    body[data-theme="dark"] .coach-button,
+    body[data-theme="dark"] .voice-button,
+    body[data-theme="dark"] .exercise-button,
+    body[data-theme="dark"] .ghost-button {
+      border-color: rgba(246, 237, 219, 0.18);
+    }
+
+    .theme-toggle {
+      width: 76px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.36);
+      color: var(--ink);
+      font-size: 0;
+    }
+
+    body[data-theme="dark"] .theme-toggle {
+      background: rgba(246, 237, 219, 0.08);
+    }
+
+    .theme-toggle::before,
+    .theme-toggle::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .theme-toggle::before {
+      inset: 8px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      opacity: 0.28;
+      transform: skewX(-13deg);
+    }
+
+    .theme-toggle::after {
+      left: 50%;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      transform: translate(12px, -50%);
+      box-shadow: -22px 0 0 -5px var(--signal);
+    }
+
+    body[data-theme="dark"] .theme-toggle::after {
+      transform: translate(-28px, -50%);
+      box-shadow: 22px 0 0 -5px var(--signal);
+    }
+
+    .theme-toggle:hover,
+    .coach-button:hover,
+    .voice-button:hover,
+    .exercise-button:hover,
+    .ghost-button:hover {
+      transform: translateY(-4px) rotate(-0.8deg);
+      border-color: var(--signal);
+      box-shadow: 0 18px 50px rgba(255, 79, 31, 0.2);
+      outline: none;
+    }
+
+    .theme-toggle.is-bursting::after {
+      animation: toggle-comet 980ms var(--ease-out);
+    }
+
+    .coach-button {
+      isolation: isolate;
+      display: inline-grid;
+      grid-template-columns: 22px auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+      overflow: hidden;
+      background: var(--signal);
+      color: var(--paper);
+      border-color: rgba(255, 79, 31, 0.48);
+      box-shadow: 0 16px 44px rgba(255, 79, 31, 0.22);
+    }
+
+    .coach-button::before,
+    .coach-button::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .coach-button::before {
+      inset: -80% -30%;
+      z-index: -1;
+      border: 1px solid rgba(246, 237, 219, 0.64);
+      background: var(--paper);
+      box-shadow: inset 0 0 0 14px var(--signal), inset 0 0 0 15px var(--paper), inset 0 0 0 30px var(--void);
+      opacity: 0;
+      transform: rotate(0deg) scale(0.82);
+    }
+
+    .coach-button::after {
+      inset: 6px;
+      border: 1px solid rgba(246, 237, 219, 0.5);
+      background: transparent;
+      box-shadow: inset 0 -1px 0 var(--paper), inset -1px 0 0 var(--paper), 18px -10px 0 -15px var(--paper);
+      opacity: 0.42;
+      transform: skewX(-12deg);
+      mix-blend-mode: screen;
+    }
+
+    .coach-button:hover::before,
+    .coach-button.is-summoning::before,
+    .coach-button.is-processing::before {
+      opacity: 1;
+      animation: coach-spin 920ms linear infinite;
+    }
+
+    .coach-button.is-summoning {
+      animation: coach-button-summon 1180ms var(--ease-out) infinite;
+    }
+
+    .coach-button.is-processing::after {
+      animation: coach-button-fold 1180ms var(--ease-out) infinite;
+    }
+
+    .coach-mark {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      border: 1px solid currentColor;
+      transform: rotate(-8deg);
+    }
+
+    .coach-mark::before,
+    .coach-mark::after {
+      position: absolute;
+      content: "";
+      background: currentColor;
+    }
+
+    .coach-mark::before {
+      left: 4px;
+      right: 4px;
+      top: 6px;
+      height: 2px;
+      box-shadow: 0 5px 0 currentColor, 0 10px 0 currentColor;
+    }
+
+    .coach-mark::after {
+      right: -4px;
+      top: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .coach-button:hover .coach-mark,
+    .coach-button.is-summoning .coach-mark {
+      animation: coach-mark-fold 820ms var(--ease-out) infinite;
+    }
+
+    .ghost-button {
+      display: inline-grid;
+      place-items: center;
+      padding: 0 16px;
+      background: rgba(255, 255, 255, 0.28);
+      color: var(--ink);
+    }
+
+    body[data-theme="dark"] .ghost-button {
+      background: rgba(246, 237, 219, 0.06);
+    }
+
+    .voice-button {
+      isolation: isolate;
+      display: inline-grid;
+      grid-template-columns: 18px auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 15px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.28);
+      color: var(--ink);
+    }
+
+    .voice-button::before,
+    .voice-button::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .voice-button::before {
+      inset: -70% -28%;
+      z-index: -1;
+      border: 1px solid rgba(255, 79, 31, 0.46);
+      background:
+        linear-gradient(90deg, transparent 0 12%, var(--signal) 12% 13%, transparent 13% 24%, var(--ink) 24% 25%, transparent 25% 38%, var(--signal) 38% 39%, transparent 39% 52%, var(--ink) 52% 53%, transparent 53% 66%, var(--signal) 66% 67%, transparent 67% 100%);
+      transform: translateX(-35%) rotate(-18deg) scale(0.72);
+    }
+
+    .voice-button::after {
+      inset: 7px;
+      border: 1px solid var(--signal);
+      transform: skewX(-16deg) scaleX(0.72);
+    }
+
+    body[data-theme="dark"] .voice-button {
+      background: rgba(246, 237, 219, 0.06);
+    }
+
+    .voice-core {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      color: var(--signal);
+    }
+
+    .voice-core::before,
+    .voice-core::after {
+      position: absolute;
+      content: "";
+      background: currentColor;
+    }
+
+    .voice-core::before {
+      left: 50%;
+      top: 4px;
+      width: 4px;
+      height: 8px;
+      border-radius: 8px;
+      transform: translateX(-50%);
+    }
+
+    .voice-core::after {
+      left: 50%;
+      bottom: 3px;
+      width: 10px;
+      height: 1px;
+      transform: translateX(-50%);
+      box-shadow: 0 4px 0 currentColor;
+    }
+
+    .voice-button.is-listening {
+      border-color: var(--signal);
+      animation: voice-button-tune 1120ms var(--ease-out) infinite;
+    }
+
+    .voice-button:hover::before,
+    .voice-button.is-listening::before {
+      opacity: 0.5;
+      animation: voice-button-bars 760ms steps(5, end) infinite;
+    }
+
+    .voice-button:hover::after,
+    .voice-button.is-listening::after {
+      opacity: 0.72;
+      animation: voice-button-frame 1120ms var(--ease-out) infinite;
+    }
+
+    .voice-button.is-listening .voice-core {
+      animation: voice-core-beat 640ms var(--ease-out) infinite;
+    }
+
+    .voice-button.is-success {
+      background: var(--signal);
+      color: var(--paper);
+    }
+
+    .exercise-button {
+      isolation: isolate;
+      display: inline-grid;
+      grid-template-columns: 20px auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 15px;
+      overflow: hidden;
+      background: var(--void);
+      color: var(--cream);
+      border-color: rgba(14, 14, 14, 0.34);
+      box-shadow: 0 16px 44px rgba(14, 14, 14, 0.18);
+    }
+
+    body[data-theme="dark"] .exercise-button {
+      background: var(--cream);
+      color: #10100D;
+    }
+
+    .exercise-button::before,
+    .exercise-button::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .exercise-button::before {
+      inset: -18px;
+      z-index: -1;
+      border: 1px solid rgba(255, 79, 31, 0.72);
+      background: var(--signal);
+      box-shadow: -18px 0 0 var(--void), 18px 0 0 var(--paper), inset 0 0 0 8px var(--void);
+      opacity: 0;
+      transform: translateX(-42%) skewX(-18deg) scaleX(0.46);
+    }
+
+    .exercise-button::after {
+      inset: 5px;
+      border: 1px solid currentColor;
+      opacity: 0.34;
+      transform: skewX(14deg) translateX(0);
+    }
+
+    .exercise-button:hover::before,
+    .exercise-button.is-summoning::before {
+      opacity: 1;
+      animation: exercise-door-sweep 980ms var(--ease-out) infinite;
+    }
+
+    .exercise-button.is-summoning {
+      animation: exercise-button-summon 1180ms var(--ease-out) infinite;
+    }
+
+    .exercise-button.is-summoning::after {
+      animation: exercise-button-frame 1180ms var(--ease-out) infinite;
+    }
+
+    .exercise-mark {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      border: 1px solid currentColor;
+      transform: rotate(8deg);
+    }
+
+    .exercise-mark::before,
+    .exercise-mark::after {
+      position: absolute;
+      content: "";
+      background: currentColor;
+    }
+
+    .exercise-mark::before {
+      left: 5px;
+      top: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      box-shadow: 0 11px 0 currentColor;
+    }
+
+    .exercise-mark::after {
+      left: 9px;
+      top: 9px;
+      width: 2px;
+      height: 9px;
+      transform: rotate(42deg);
+      transform-origin: top center;
+      box-shadow: -7px 5px 0 currentColor, 7px 5px 0 currentColor;
+    }
+
+    .exercise-button.is-summoning .exercise-mark,
+    .exercise-button:hover .exercise-mark {
+      animation: exercise-mark-pop 620ms var(--ease-out) infinite;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(14, 14, 14, 0.16);
+      border-radius: var(--radius);
+      background: rgba(250, 247, 239, 0.76);
+      box-shadow: var(--shadow-rest);
+      transition: transform 260ms var(--ease-out), box-shadow 260ms ease, border-color 220ms ease;
+    }
+
+    body[data-theme="dark"] .panel {
+      border-color: rgba(246, 237, 219, 0.14);
+      background: rgba(16, 16, 13, 0.82);
+    }
+
+    .panel:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 79, 31, 0.42);
+      box-shadow: var(--shadow-lift);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 22px;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.12);
+    }
+
+    body[data-theme="dark"] .panel-header {
+      border-color: rgba(246, 237, 219, 0.12);
+    }
+
+    .panel-label,
+    .micro-label {
+      margin: 0;
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .panel-title {
+      margin: 4px 0 0;
+      font-size: clamp(26px, 3vw, 42px);
+      line-height: 0.98;
+      letter-spacing: -0.07em;
+    }
+
+    .panel-title em {
+      color: var(--signal);
+      font-family: "Lora", Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .panel-body {
+      padding: 22px;
+    }
+
+    .vital-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .vital-card {
+      position: relative;
+      min-height: 142px;
+      padding: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(14, 14, 14, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.34);
+    }
+
+    body[data-theme="dark"] .vital-card {
+      border-color: rgba(246, 237, 219, 0.12);
+      background: rgba(246, 237, 219, 0.05);
+    }
+
+    .vital-card::after {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      content: "";
+      background: var(--signal);
+      transform: scaleX(var(--load, 0.5));
+      transform-origin: left center;
+      transition: transform 420ms var(--ease-out);
+    }
+
+    .vital-card span {
+      display: block;
+      color: rgba(14, 14, 14, 0.52);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    body[data-theme="dark"] .vital-card span {
+      color: rgba(246, 237, 219, 0.52);
+    }
+
+    .vital-card strong {
+      display: block;
+      margin-top: 12px;
+      font-size: clamp(34px, 4vw, 60px);
+      line-height: 0.88;
+      letter-spacing: -0.08em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .vital-card small {
+      display: block;
+      margin-top: 10px;
+      color: rgba(14, 14, 14, 0.56);
+      font-family: "Lora", Georgia, serif;
+      font-size: 15px;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+    }
+
+    body[data-theme="dark"] .vital-card small {
+      color: rgba(246, 237, 219, 0.62);
+    }
+
+    .vital-card.is-pulsing strong {
+      animation: number-shock 520ms var(--ease-out);
+    }
+
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(24, minmax(4px, 1fr));
+      gap: 6px;
+      align-items: end;
+      min-height: 260px;
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid rgba(14, 14, 14, 0.12);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(14, 14, 14, 0.08) 1px, transparent 1px) 0 0 / 100% 34px,
+        rgba(255, 255, 255, 0.22);
+    }
+
+    body[data-theme="dark"] .chart {
+      border-color: rgba(246, 237, 219, 0.12);
+      background:
+        linear-gradient(180deg, rgba(246, 237, 219, 0.09) 1px, transparent 1px) 0 0 / 100% 34px,
+        rgba(246, 237, 219, 0.04);
+    }
+
+    .bar {
+      min-height: 16px;
+      background: var(--ink);
+      border-top: 3px solid var(--signal);
+      transform-origin: bottom;
+      animation: bar-breathe 3.2s ease-in-out infinite;
+      animation-delay: var(--bar-delay, 0ms);
+    }
+
+    body[data-theme="dark"] .bar {
+      background: var(--cream);
+    }
+
+    .coach-output,
+    .routine-list,
+    .care-feed {
+      display: grid;
+      gap: 12px;
+    }
+
+    .routine-item,
+    .feed-item,
+    .coach-output {
+      border: 1px solid rgba(14, 14, 14, 0.13);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.26);
+      padding: 16px;
+    }
+
+    body[data-theme="dark"] .routine-item,
+    body[data-theme="dark"] .feed-item,
+    body[data-theme="dark"] .coach-output {
+      border-color: rgba(246, 237, 219, 0.12);
+      background: rgba(246, 237, 219, 0.05);
+    }
+
+    .routine-item {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .routine-step {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      aspect-ratio: 1;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .routine-item h3,
+    .feed-item h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.045em;
+    }
+
+    .routine-item p,
+    .feed-item p,
+    .coach-output {
+      margin: 4px 0 0;
+      color: rgba(14, 14, 14, 0.62);
+      font-family: "Lora", Georgia, serif;
+      font-size: 16px;
+      line-height: 1.45;
+      letter-spacing: -0.035em;
+    }
+
+    body[data-theme="dark"] .routine-item p,
+    body[data-theme="dark"] .feed-item p,
+    body[data-theme="dark"] .coach-output {
+      color: rgba(246, 237, 219, 0.66);
+    }
+
+    .routine-item strong {
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .coach-output {
+      min-height: 220px;
+      white-space: pre-wrap;
+    }
+
+    .coach-output.is-generating {
+      animation: output-pulse 900ms steps(2, end) infinite;
+    }
+
+    .voice-panel__box {
+      min-height: 112px;
+      padding: 16px;
+      border: 1px solid rgba(14, 14, 14, 0.13);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.26);
+      color: rgba(14, 14, 14, 0.66);
+      font-family: "Lora", Georgia, serif;
+      font-size: 17px;
+      line-height: 1.42;
+      letter-spacing: -0.035em;
+    }
+
+    body[data-theme="dark"] .voice-panel__box {
+      border-color: rgba(246, 237, 219, 0.12);
+      background: rgba(246, 237, 219, 0.05);
+      color: rgba(246, 237, 219, 0.66);
+    }
+
+    .exercise-status-toast {
+      position: fixed;
+      right: var(--edge);
+      top: var(--edge);
+      z-index: 1128;
+      padding: 18px 22px;
+      border: 1px solid rgba(14, 14, 14, 0.2);
+      border-radius: var(--radius);
+      background: var(--paper-soft);
+      color: var(--signal);
+      box-shadow: 0 28px 90px rgba(14, 14, 14, 0.24), 12px 12px 0 rgba(255, 79, 31, 0.18);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .exercise-status-toast[hidden] {
+      display: none;
+    }
+
+    .exercise-status-toast.is-active {
+      animation: exercise-toast-arrive 980ms var(--ease-out);
+    }
+
+    body[data-theme="dark"] .exercise-status-toast {
+      border-color: rgba(246, 237, 219, 0.18);
+      background: var(--void);
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42), 12px 12px 0 rgba(255, 79, 31, 0.28);
+    }
+
+    .voice-panel {
+      position: fixed;
+      right: var(--edge);
+      bottom: var(--edge);
+      z-index: 1120;
+      display: grid;
+      gap: 14px;
+      width: min(430px, calc(100vw - (var(--edge) * 2)));
+      padding: 18px;
+      border: 1px solid rgba(14, 14, 14, 0.18);
+      border-radius: var(--radius);
+      background: rgba(250, 247, 239, 0.96);
+      color: var(--ink);
+      box-shadow: 0 28px 90px rgba(14, 14, 14, 0.26);
+    }
+
+    .voice-panel[hidden] {
+      display: none;
+    }
+
+    body[data-theme="dark"] .voice-panel {
+      border-color: rgba(246, 237, 219, 0.16);
+      background: rgba(16, 16, 13, 0.96);
+    }
+
+    .voice-panel__head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .voice-panel__title {
+      margin: 4px 0 0;
+      font-size: 28px;
+      line-height: 0.96;
+      letter-spacing: -0.06em;
+    }
+
+    .voice-panel__manual {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .voice-panel__manual input {
+      min-width: 0;
+      border: 1px solid rgba(14, 14, 14, 0.16);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.34);
+      color: var(--ink);
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    body[data-theme="dark"] .voice-panel__manual input {
+      border-color: rgba(246, 237, 219, 0.14);
+      background: rgba(246, 237, 219, 0.06);
+      color: var(--cream);
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .status-cell {
+      min-height: 86px;
+      padding: 14px;
+      border-left: 2px solid var(--signal);
+      background: rgba(255, 255, 255, 0.22);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    body[data-theme="dark"] .status-cell {
+      background: rgba(246, 237, 219, 0.05);
+    }
+
+    .status-cell strong {
+      display: block;
+      margin-top: 10px;
+      color: var(--signal);
+      font-size: 18px;
+      letter-spacing: -0.04em;
+      text-transform: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 1100;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(14, 14, 14, 0.42);
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .coach-modal {
+      width: min(780px, 100%);
+      max-height: min(820px, 92vh);
+      overflow: auto;
+      border: 1px solid rgba(14, 14, 14, 0.18);
+      border-radius: var(--radius);
+      background: var(--paper-soft);
+      color: var(--ink);
+      box-shadow: 0 34px 120px rgba(14, 14, 14, 0.34);
+      transform-style: preserve-3d;
+    }
+
+    body[data-theme="dark"] .coach-modal {
+      border-color: rgba(246, 237, 219, 0.16);
+      background: #10100D;
+    }
+
+    .coach-modal.is-arriving {
+      animation: modal-materialize 960ms var(--ease-out);
+    }
+
+    .modal-head,
+    .modal-foot {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.14);
+    }
+
+    body[data-theme="dark"] .modal-head,
+    body[data-theme="dark"] .modal-foot {
+      border-color: rgba(246, 237, 219, 0.14);
+    }
+
+    .modal-foot {
+      align-items: center;
+      border-top: 1px solid rgba(14, 14, 14, 0.14);
+      border-bottom: 0;
+    }
+
+    .modal-foot > div {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-head h2 {
+      margin: 4px 0 0;
+      font-size: clamp(28px, 5vw, 54px);
+      line-height: 0.95;
+      letter-spacing: -0.075em;
+    }
+
+    .modal-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 20px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(14, 14, 14, 0.16);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.36);
+      color: var(--ink);
+      padding: 12px;
+      outline: none;
+    }
+
+    body[data-theme="dark"] .field input,
+    body[data-theme="dark"] .field textarea,
+    body[data-theme="dark"] .field select {
+      border-color: rgba(246, 237, 219, 0.14);
+      background: rgba(246, 237, 219, 0.06);
+    }
+
+    .field textarea {
+      min-height: 116px;
+      resize: vertical;
+    }
+
+    .modal-output {
+      grid-column: 1 / -1;
+      min-height: 160px;
+      padding: 16px;
+      border: 1px solid rgba(14, 14, 14, 0.13);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.28);
+      color: rgba(14, 14, 14, 0.68);
+      font-family: "Lora", Georgia, serif;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    body[data-theme="dark"] .modal-output {
+      border-color: rgba(246, 237, 219, 0.12);
+      background: rgba(246, 237, 219, 0.05);
+      color: rgba(246, 237, 219, 0.7);
+    }
+
+    .submit-button,
+    .close-button {
+      min-height: 46px;
+      border: 1px solid rgba(14, 14, 14, 0.18);
+      border-radius: var(--radius);
+      padding: 0 16px;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .submit-button {
+      background: var(--signal);
+      color: var(--paper);
+      border-color: var(--signal);
+    }
+
+    .close-button {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    body[data-theme="dark"] .close-button {
+      color: var(--cream);
+      border-color: rgba(246, 237, 219, 0.18);
+    }
+
+    .theme-rift,
+    .coach-rift,
+    .voice-rift,
+    .exercise-rift {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      perspective: 1100px;
+      contain: paint;
+    }
+
+    .coach-rift {
+      z-index: 1001;
+    }
+
+    .voice-rift,
+    .exercise-rift {
+      z-index: 1002;
+    }
+
+    .voice-rift {
+      perspective: 1400px;
+    }
+
+    .exercise-rift {
+      perspective: 900px;
+    }
+
+    .theme-rift.is-active,
+    .coach-rift.is-active,
+    .voice-rift.is-active,
+    .exercise-rift.is-active {
+      opacity: 1;
+    }
+
+    .theme-rift__burst,
+    .theme-rift__plate,
+    .theme-rift__flash,
+    .coach-rift__pulse,
+    .coach-rift__folio,
+    .coach-rift__scan,
+    .coach-rift__type,
+    .rift-pulse,
+    .rift-plate,
+    .rift-scan,
+    .rift-type,
+    .rift-slice,
+    .voice-rift__signal,
+    .voice-rift__orbit,
+    .exercise-rift__field,
+    .exercise-rift__aperture,
+    .exercise-rift__hinge,
+    .exercise-rift__gate,
+    .exercise-rift__panel,
+    .exercise-rift__measure,
+    .exercise-rift__runner,
+    .exercise-rift__stamp,
+    .slice {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .theme-rift__burst,
+    .coach-rift__pulse {
+      left: var(--rift-x, 50vw);
+      top: var(--rift-y, 12vh);
+      width: 150vmax;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 12vmax solid var(--void);
+      background: var(--signal);
+      box-shadow: inset 0 0 0 8vmax var(--paper), inset 0 0 0 18vmax var(--signal), inset 0 0 0 24vmax var(--void);
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    .theme-rift__plate,
+    .coach-rift__folio {
+      left: 50%;
+      top: 50%;
+      width: min(720px, 78vw);
+      aspect-ratio: 1.55;
+      border: 1px solid rgba(246, 237, 219, 0.46);
+      border-radius: var(--radius);
+      background: var(--void);
+      box-shadow: 0 28px 120px rgba(0, 0, 0, 0.42);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(78deg) rotateZ(-24deg) scale(0.35);
+    }
+
+    .theme-rift__plate::before,
+    .coach-rift__folio::before {
+      position: absolute;
+      left: 32px;
+      right: 32px;
+      top: 34px;
+      height: 1px;
+      content: "";
+      background: var(--paper);
+      box-shadow: 0 36px 0 var(--signal), 0 96px 0 rgba(246, 237, 219, 0.54), 0 156px 0 rgba(246, 237, 219, 0.34);
+    }
+
+    .theme-rift__flash,
+    .coach-rift__scan {
+      inset: 0;
+      background: var(--paper);
+      clip-path: polygon(0 47%, 100% 38%, 100% 42%, 0 51%);
+      box-shadow: 0 18px 0 var(--signal), 0 -18px 0 var(--void);
+      transform: translateX(-120%) skewX(-18deg);
+      opacity: 0;
+    }
+
+    .slice {
+      top: -16vh;
+      bottom: -16vh;
+      width: 20vw;
+      border-inline: 1px solid rgba(246, 237, 219, 0.26);
+      background: var(--void);
+      opacity: 0.95;
+      transform: translateY(-120%) skewX(-12deg) rotate(2deg);
+    }
+
+    .slice:nth-child(1) { left: -8vw; animation-delay: 0ms; }
+    .slice:nth-child(2) { left: 13vw; animation-delay: 42ms; }
+    .slice:nth-child(3) { left: 34vw; animation-delay: 84ms; }
+    .slice:nth-child(4) { left: 55vw; animation-delay: 126ms; }
+    .slice:nth-child(5) { left: 76vw; animation-delay: 168ms; }
+
+    .theme-rift.is-active .theme-rift__burst,
+    .coach-rift.is-active .coach-rift__pulse {
+      animation: rift-burst 1360ms var(--ease-out) both;
+    }
+
+    .theme-rift.is-active .theme-rift__plate,
+    .coach-rift.is-active .coach-rift__folio {
+      animation: rift-plate 1360ms var(--ease-out) both;
+    }
+
+    .theme-rift.is-active .theme-rift__flash,
+    .coach-rift.is-active .coach-rift__scan {
+      animation: rift-flash 1360ms var(--ease-out) both;
+    }
+
+    .theme-rift.is-active .slice,
+    .coach-rift.is-active .slice {
+      animation-name: rift-slice;
+      animation-duration: 1360ms;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+    }
+
+    .coach-rift__type {
+      left: 50%;
+      top: 50%;
+      width: min(760px, 82vw);
+      height: min(420px, 58vh);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(66deg) rotateZ(18deg) scale(0.72);
+      transform-style: preserve-3d;
+    }
+
+    .coach-rift__type::before,
+    .coach-rift__type::after {
+      position: absolute;
+      content: "REHAB / FLOW / NOW";
+      padding: 18px 24px;
+      border: 1px solid rgba(246, 237, 219, 0.44);
+      background: var(--void);
+      color: var(--paper);
+      box-shadow: 18px 18px 0 rgba(255, 79, 31, 0.74), -14px -14px 0 rgba(246, 237, 219, 0.18);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: clamp(12px, 2vw, 22px);
+      font-weight: 800;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .coach-rift__type::before {
+      left: 6%;
+      top: 12%;
+      transform: rotate(-7deg) translateZ(80px);
+    }
+
+    .coach-rift__type::after {
+      right: 4%;
+      bottom: 14%;
+      content: "SMOOTH / SESSION";
+      background: var(--paper);
+      color: var(--signal);
+      box-shadow: -16px 16px 0 var(--void), 14px -14px 0 rgba(255, 79, 31, 0.76);
+      transform: rotate(8deg) translateZ(-42px);
+    }
+
+    .coach-rift.is-active .coach-rift__type {
+      animation: type-slam 1360ms var(--ease-out) both;
+    }
+
+    .rift-pulse {
+      left: var(--rift-x, 50vw);
+      top: var(--rift-y, 12vh);
+      width: 154vmax;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 12vmax solid var(--void);
+      background: var(--signal);
+      box-shadow: inset 0 0 0 7vmax var(--paper), inset 0 0 0 17vmax var(--signal), inset 0 0 0 25vmax var(--void);
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    .rift-plate {
+      left: 50%;
+      top: 50%;
+      width: min(760px, 82vw);
+      aspect-ratio: 1.65;
+      border: 1px solid rgba(246, 237, 219, 0.46);
+      border-radius: var(--radius);
+      background: var(--void);
+      box-shadow: 0 28px 120px rgba(0, 0, 0, 0.42);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(78deg) rotateZ(24deg) scale(0.35);
+    }
+
+    .rift-plate::before,
+    .rift-plate::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .rift-plate::before {
+      inset: 28px;
+      border: 1px solid rgba(246, 237, 219, 0.32);
+      transform: skewX(-12deg);
+    }
+
+    .rift-plate::after {
+      left: 34px;
+      right: 34px;
+      top: 42px;
+      height: 1px;
+      background: var(--paper);
+      box-shadow: 0 44px 0 var(--signal), 0 88px 0 rgba(246, 237, 219, 0.5), 0 132px 0 rgba(246, 237, 219, 0.28);
+    }
+
+    .rift-scan {
+      inset: 0;
+      background: var(--paper);
+      clip-path: polygon(0 46%, 100% 35%, 100% 43%, 0 55%);
+      box-shadow: 0 20px 0 var(--signal), 0 -20px 0 var(--void);
+      transform: translateX(-120%) skewX(-18deg);
+      opacity: 0;
+    }
+
+    .rift-slice {
+      top: -16vh;
+      bottom: -16vh;
+      width: 18vw;
+      border-inline: 1px solid rgba(246, 237, 219, 0.26);
+      background: var(--void);
+      opacity: 0.95;
+      transform: translateY(-120%) skewX(-12deg) rotate(2deg);
+    }
+
+    .rift-slice:nth-child(2) { left: -8vw; animation-delay: 0ms; }
+    .rift-slice:nth-child(3) { left: 12vw; animation-delay: 42ms; }
+    .rift-slice:nth-child(4) { left: 32vw; animation-delay: 84ms; }
+    .rift-slice:nth-child(5) { left: 52vw; animation-delay: 126ms; }
+    .rift-slice:nth-child(6) { left: 72vw; animation-delay: 168ms; }
+
+    .rift-type {
+      left: 50%;
+      top: 50%;
+      width: min(780px, 84vw);
+      height: min(420px, 58vh);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(66deg) rotateZ(18deg) scale(0.72);
+      transform-style: preserve-3d;
+    }
+
+    .rift-type::before,
+    .rift-type::after {
+      position: absolute;
+      content: attr(data-front);
+      padding: 18px 24px;
+      border: 1px solid rgba(246, 237, 219, 0.44);
+      background: var(--void);
+      color: var(--paper);
+      box-shadow: 18px 18px 0 rgba(255, 79, 31, 0.74), -14px -14px 0 rgba(246, 237, 219, 0.18);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: clamp(12px, 2vw, 22px);
+      font-weight: 800;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .rift-type::before {
+      left: 5%;
+      top: 12%;
+      transform: rotate(-7deg) translateZ(80px);
+    }
+
+    .rift-type::after {
+      right: 4%;
+      bottom: 14%;
+      content: attr(data-back);
+      background: var(--paper);
+      color: var(--signal);
+      box-shadow: -16px 16px 0 var(--void), 14px -14px 0 rgba(255, 79, 31, 0.76);
+      transform: rotate(8deg) translateZ(-42px);
+    }
+
+    .voice-rift.is-active .rift-pulse,
+    .exercise-rift.is-active .rift-pulse {
+      animation: rift-burst 1260ms var(--ease-out) both;
+    }
+
+    .voice-rift.is-active .rift-plate,
+    .exercise-rift.is-active .rift-plate {
+      animation: rift-plate 1260ms var(--ease-out) both;
+    }
+
+    .voice-rift.is-active .rift-scan,
+    .exercise-rift.is-active .rift-scan {
+      animation: rift-flash 1260ms var(--ease-out) both;
+    }
+
+    .voice-rift.is-active .rift-slice,
+    .exercise-rift.is-active .rift-slice {
+      animation-name: rift-slice;
+      animation-duration: 1260ms;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+    }
+
+    .voice-rift.is-active .rift-type,
+    .exercise-rift.is-active .rift-type {
+      animation: type-slam 1260ms var(--ease-out) both;
+    }
+
+    .voice-rift .rift-pulse {
+      width: 96vmax;
+      border: 0;
+      background: transparent;
+      box-shadow:
+        0 0 0 1px var(--signal),
+        0 0 0 7vmax transparent,
+        0 0 0 7vmax var(--void),
+        0 0 0 7.08vmax var(--signal),
+        0 0 0 13vmax transparent,
+        0 0 0 13vmax var(--paper),
+        0 0 0 13.08vmax var(--signal),
+        0 0 0 19vmax transparent,
+        0 0 0 19vmax var(--void);
+    }
+
+    .voice-rift .rift-plate {
+      width: min(680px, 76vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--paper);
+      box-shadow: 0 0 0 1px var(--signal), 18px 18px 0 rgba(14, 14, 14, 0.18);
+      transform: translate(-50%, -50%) rotateX(72deg) rotateZ(0deg) scale(0.22);
+    }
+
+    .voice-rift .rift-plate::before {
+      inset: 18%;
+      border: 1px solid var(--void);
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px transparent, 0 0 0 29px var(--signal), 0 0 0 68px transparent, 0 0 0 69px rgba(14, 14, 14, 0.28);
+      transform: none;
+    }
+
+    .voice-rift .rift-plate::after {
+      left: 50%;
+      top: 50%;
+      width: 2px;
+      height: 42%;
+      background: var(--signal);
+      box-shadow: 18px 18px 0 var(--void), -18px 18px 0 var(--void), 36px 34px 0 var(--signal), -36px 34px 0 var(--signal);
+      transform: translate(-50%, -100%);
+      transform-origin: bottom center;
+    }
+
+    .voice-rift .rift-scan {
+      clip-path: polygon(0 49%, 100% 47%, 100% 53%, 0 51%);
+      box-shadow: 0 12px 0 var(--void), 0 -12px 0 var(--signal), 0 36px 0 rgba(255, 79, 31, 0.3);
+    }
+
+    .voice-rift .rift-slice {
+      width: 10vw;
+      border-inline: 1px solid rgba(255, 79, 31, 0.5);
+      background: rgba(255, 79, 31, 0.16);
+      transform: translateY(116%) skewX(18deg) rotate(0deg);
+    }
+
+    .voice-rift .rift-type::before {
+      content: "LISTENING / SIGNAL / LOCK";
+      background: var(--paper);
+      color: var(--void);
+      box-shadow: 18px 18px 0 var(--signal), -14px -14px 0 rgba(14, 14, 14, 0.18);
+    }
+
+    .voice-rift .rift-type::after {
+      content: "MODEL / ROUTE";
+      background: var(--void);
+      color: var(--paper);
+      box-shadow: -16px 16px 0 var(--signal), 14px -14px 0 rgba(246, 237, 219, 0.24);
+    }
+
+    .voice-rift__signal {
+      left: 50%;
+      top: 50%;
+      display: grid;
+      grid-template-columns: repeat(13, 8px);
+      gap: 10px;
+      align-items: end;
+      height: 150px;
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateZ(-8deg) scale(0.8);
+    }
+
+    .voice-rift__signal span {
+      display: block;
+      width: 8px;
+      height: var(--bar-h, 62px);
+      background: var(--signal);
+      box-shadow: 0 0 0 1px var(--void);
+      transform-origin: bottom;
+    }
+
+    .voice-rift__signal span:nth-child(1) { --bar-h: 42px; --bar-delay: -38ms; }
+    .voice-rift__signal span:nth-child(2) { --bar-h: 82px; --bar-delay: -76ms; }
+    .voice-rift__signal span:nth-child(3) { --bar-h: 58px; --bar-delay: -114ms; }
+    .voice-rift__signal span:nth-child(4) { --bar-h: 118px; --bar-delay: -152ms; }
+    .voice-rift__signal span:nth-child(5) { --bar-h: 74px; --bar-delay: -190ms; }
+    .voice-rift__signal span:nth-child(6) { --bar-h: 96px; --bar-delay: -228ms; }
+    .voice-rift__signal span:nth-child(7) { --bar-h: 136px; --bar-delay: -266ms; }
+    .voice-rift__signal span:nth-child(8) { --bar-h: 70px; --bar-delay: -304ms; }
+    .voice-rift__signal span:nth-child(9) { --bar-h: 112px; --bar-delay: -342ms; }
+    .voice-rift__signal span:nth-child(10) { --bar-h: 50px; --bar-delay: -380ms; }
+    .voice-rift__signal span:nth-child(11) { --bar-h: 90px; --bar-delay: -418ms; }
+    .voice-rift__signal span:nth-child(12) { --bar-h: 126px; --bar-delay: -456ms; }
+    .voice-rift__signal span:nth-child(13) { --bar-h: 64px; --bar-delay: -494ms; }
+
+    .voice-rift__orbit {
+      left: 50%;
+      top: 50%;
+      width: min(560px, 70vw);
+      aspect-ratio: 1;
+      border: 1px solid var(--signal);
+      border-radius: 50%;
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(72deg) rotateZ(0deg) scale(0.6);
+    }
+
+    .voice-rift__orbit::before,
+    .voice-rift__orbit::after {
+      position: absolute;
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 0 8px var(--paper), 0 0 0 9px var(--void);
+    }
+
+    .voice-rift__orbit::before {
+      left: 12%;
+      top: 22%;
+    }
+
+    .voice-rift__orbit::after {
+      right: 14%;
+      bottom: 18%;
+    }
+
+    .voice-rift.is-active .rift-pulse { animation: voice-tunnel 1320ms var(--ease-out) both; }
+    .voice-rift.is-active .rift-plate { animation: voice-dial 1320ms var(--ease-out) both; }
+    .voice-rift.is-active .rift-scan { animation: voice-scan 1320ms var(--ease-out) both; }
+    .voice-rift.is-active .rift-slice {
+      animation-name: voice-eq-slice;
+      animation-duration: 1320ms;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+    }
+    .voice-rift.is-active .rift-type { animation: voice-type-float 1320ms var(--ease-out) both; }
+    .voice-rift.is-active .voice-rift__signal { animation: voice-signal-rise 1320ms var(--ease-out) both; }
+    .voice-rift.is-active .voice-rift__signal span { animation: voice-bar-jump 520ms steps(4, end) infinite; animation-delay: var(--bar-delay, 0ms); }
+    .voice-rift.is-active .voice-rift__orbit { animation: voice-orbit-ring 1320ms var(--ease-out) both; }
+
+    .exercise-rift {
+      perspective: 1600px;
+    }
+
+    .exercise-rift__field {
+      left: var(--rift-x, 50vw);
+      top: var(--rift-y, 12vh);
+      width: 142vmax;
+      aspect-ratio: 1;
+      background: var(--paper);
+      border: 1px solid var(--void);
+      box-shadow:
+        0 0 0 10vmax var(--signal),
+        0 0 0 10.08vmax var(--void),
+        0 0 0 24vmax var(--paper),
+        0 0 0 24.08vmax var(--signal),
+        inset 0 0 0 14vmax var(--void);
+      clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(45deg) scale(0.3);
+    }
+
+    .exercise-rift__aperture {
+      left: 50%;
+      top: 50%;
+      width: min(690px, 76vw);
+      aspect-ratio: 1.38;
+      border: 1px solid var(--void);
+      background: var(--paper);
+      box-shadow: 18px 18px 0 var(--signal), -18px -18px 0 var(--void);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(84deg) rotateY(-42deg) rotateZ(-10deg) scale(0.28);
+      transform-style: preserve-3d;
+    }
+
+    .exercise-rift__aperture::before,
+    .exercise-rift__aperture::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .exercise-rift__aperture::before {
+      inset: 26px;
+      border: 1px solid var(--void);
+      box-shadow:
+        inset 96px 0 0 var(--paper),
+        inset 97px 0 0 var(--signal),
+        inset -96px 0 0 var(--paper),
+        inset -97px 0 0 var(--signal);
+      transform: translateZ(46px);
+    }
+
+    .exercise-rift__aperture::after {
+      left: 50%;
+      top: 18%;
+      bottom: 18%;
+      width: 2px;
+      background: var(--signal);
+      box-shadow:
+        -92px 0 0 var(--void),
+        92px 0 0 var(--void),
+        -184px 0 0 rgba(14, 14, 14, 0.24),
+        184px 0 0 rgba(14, 14, 14, 0.24);
+      transform: translateX(-50%) translateZ(84px);
+    }
+
+    .exercise-rift__panel {
+      border: 1px solid var(--void);
+      opacity: 0;
+      transform-style: preserve-3d;
+    }
+
+    .exercise-rift__panel::before,
+    .exercise-rift__panel::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .exercise-rift__panel::before {
+      inset: 18px;
+      border: 1px solid currentColor;
+      opacity: 0.72;
+    }
+
+    .exercise-rift__panel::after {
+      left: 22px;
+      right: 22px;
+      top: 50%;
+      height: 1px;
+      background: currentColor;
+      box-shadow: 0 -34px 0 currentColor, 0 34px 0 currentColor;
+      opacity: 0.42;
+    }
+
+    .exercise-rift__panel--left,
+    .exercise-rift__panel--right {
+      top: 50%;
+      width: min(420px, 34vw);
+      height: min(520px, 58vh);
+    }
+
+    .exercise-rift__panel--left {
+      left: 5vw;
+      background: var(--void);
+      color: var(--paper);
+      box-shadow: 16px 16px 0 var(--signal);
+      transform-origin: right center;
+      transform: translate(-138%, -50%) rotateY(-86deg) rotateZ(-7deg);
+    }
+
+    .exercise-rift__panel--right {
+      right: 5vw;
+      background: var(--signal);
+      color: var(--void);
+      box-shadow: -16px 16px 0 var(--paper);
+      transform-origin: left center;
+      transform: translate(138%, -50%) rotateY(86deg) rotateZ(7deg);
+    }
+
+    .exercise-rift__panel--top,
+    .exercise-rift__panel--bottom {
+      left: 50%;
+      width: min(780px, 80vw);
+      height: min(190px, 22vh);
+      background: var(--paper);
+      color: var(--signal);
+      box-shadow: 12px 12px 0 var(--void);
+      transform-origin: center center;
+    }
+
+    .exercise-rift__panel--top {
+      top: 0;
+      transform: translate(-50%, -150%) rotateX(78deg) rotateZ(4deg);
+    }
+
+    .exercise-rift__panel--bottom {
+      bottom: 0;
+      transform: translate(-50%, 150%) rotateX(-78deg) rotateZ(-4deg);
+    }
+
+    .exercise-rift__hinge {
+      left: 50%;
+      top: 50%;
+      width: min(920px, 84vw);
+      height: min(520px, 58vh);
+      border: 1px solid rgba(255, 79, 31, 0.72);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-18deg) scale(0.62);
+      transform-style: preserve-3d;
+    }
+
+    .exercise-rift__hinge::before,
+    .exercise-rift__hinge::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .exercise-rift__hinge::before {
+      left: 50%;
+      top: -16%;
+      bottom: -16%;
+      width: 1px;
+      background: var(--void);
+      box-shadow:
+        -160px 0 0 rgba(14, 14, 14, 0.28),
+        160px 0 0 rgba(14, 14, 14, 0.28);
+    }
+
+    .exercise-rift__hinge::after {
+      left: 50%;
+      top: 50%;
+      width: 22px;
+      height: 22px;
+      background: var(--signal);
+      box-shadow:
+        0 -92px 0 var(--void),
+        0 92px 0 var(--void),
+        -160px 0 0 var(--signal),
+        160px 0 0 var(--signal);
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .exercise-rift__measure {
+      left: 50%;
+      top: 50%;
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 18px;
+      width: min(760px, 74vw);
+      height: 150px;
+      align-items: end;
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateZ(-4deg) translateZ(80px);
+    }
+
+    .exercise-rift__measure span {
+      display: block;
+      height: var(--tick-h, 42px);
+      border-left: 2px solid var(--signal);
+      border-top: 1px solid var(--void);
+      transform-origin: bottom;
+      transform: scaleY(0);
+    }
+
+    .exercise-rift__measure span:nth-child(1) { --tick-h: 34px; --tick-delay: 180ms; }
+    .exercise-rift__measure span:nth-child(2) { --tick-h: 82px; --tick-delay: 206ms; }
+    .exercise-rift__measure span:nth-child(3) { --tick-h: 54px; --tick-delay: 232ms; }
+    .exercise-rift__measure span:nth-child(4) { --tick-h: 120px; --tick-delay: 258ms; }
+    .exercise-rift__measure span:nth-child(5) { --tick-h: 72px; --tick-delay: 284ms; }
+    .exercise-rift__measure span:nth-child(6) { --tick-h: 150px; --tick-delay: 310ms; }
+    .exercise-rift__measure span:nth-child(7) { --tick-h: 66px; --tick-delay: 336ms; }
+    .exercise-rift__measure span:nth-child(8) { --tick-h: 112px; --tick-delay: 362ms; }
+    .exercise-rift__measure span:nth-child(9) { --tick-h: 48px; --tick-delay: 388ms; }
+    .exercise-rift__measure span:nth-child(10) { --tick-h: 94px; --tick-delay: 414ms; }
+    .exercise-rift__measure span:nth-child(11) { --tick-h: 38px; --tick-delay: 440ms; }
+
+    .exercise-rift__gate {
+      left: 50%;
+      top: 50%;
+      width: min(620px, 72vw);
+      height: min(360px, 46vh);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(72deg) rotateZ(10deg) scale(0.76);
+    }
+
+    .exercise-rift__gate span {
+      position: absolute;
+      inset: 0;
+      border: 1px solid currentColor;
+      color: var(--void);
+      transform: rotate(var(--gate-0, 0deg)) scale(0.22);
+    }
+
+    .exercise-rift__gate span:nth-child(1) { --gate-0: 0deg; --gate-1: 18deg; --gate-2: 110deg; --gate-3: 190deg; --gate-delay: 0ms; }
+    .exercise-rift__gate span:nth-child(2) { --gate-0: 30deg; --gate-1: 48deg; --gate-2: 140deg; --gate-3: 220deg; --gate-delay: 24ms; }
+    .exercise-rift__gate span:nth-child(3) { --gate-0: 60deg; --gate-1: 78deg; --gate-2: 170deg; --gate-3: 250deg; --gate-delay: 48ms; }
+    .exercise-rift__gate span:nth-child(4) { --gate-0: 90deg; --gate-1: 108deg; --gate-2: 200deg; --gate-3: 280deg; --gate-delay: 72ms; }
+    .exercise-rift__gate span:nth-child(5) { --gate-0: 120deg; --gate-1: 138deg; --gate-2: 230deg; --gate-3: 310deg; --gate-delay: 96ms; }
+    .exercise-rift__gate span:nth-child(6) { --gate-0: 150deg; --gate-1: 168deg; --gate-2: 260deg; --gate-3: 340deg; --gate-delay: 120ms; }
+
+    .exercise-rift__runner {
+      left: 50%;
+      top: 50%;
+      width: min(440px, 58vw);
+      height: min(300px, 40vh);
+      opacity: 0;
+      transform: translate(-86%, -40%) rotateZ(-11deg) scale(0.54);
+    }
+
+    .exercise-rift__runner::before {
+      position: absolute;
+      left: 50%;
+      top: 14%;
+      width: 36px;
+      height: 36px;
+      content: "";
+      border: 2px solid var(--signal);
+      border-radius: 50%;
+      box-shadow:
+        0 48px 0 -15px var(--void),
+        -42px 88px 0 -15px var(--signal),
+        42px 88px 0 -15px var(--signal),
+        -68px 144px 0 -15px var(--void),
+        68px 144px 0 -15px var(--void);
+      transform: translateX(-50%);
+    }
+
+    .exercise-rift__runner::after {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      bottom: 8%;
+      height: 2px;
+      content: "";
+      background: var(--signal);
+      box-shadow: 0 20px 0 var(--void), 0 -20px 0 var(--void);
+    }
+
+    .exercise-rift__stamp {
+      left: 50%;
+      top: 50%;
+      width: min(760px, 82vw);
+      height: min(440px, 56vh);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(78deg) rotateZ(-16deg) scale(0.6);
+      transform-style: preserve-3d;
+    }
+
+    .exercise-rift__stamp::before,
+    .exercise-rift__stamp::after {
+      position: absolute;
+      padding: 16px 22px;
+      border: 1px solid var(--void);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-weight: 800;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      content: attr(data-top);
+    }
+
+    .exercise-rift__stamp::before {
+      left: 0;
+      top: 8%;
+      background: var(--void);
+      color: var(--paper);
+      box-shadow: 14px 14px 0 var(--signal);
+      transform: rotate(-4deg) translateZ(110px);
+    }
+
+    .exercise-rift__stamp::after {
+      right: 0;
+      bottom: 8%;
+      content: attr(data-bottom);
+      background: var(--signal);
+      color: var(--void);
+      font-size: clamp(22px, 4.6vw, 72px);
+      letter-spacing: 0.1em;
+      box-shadow: -14px 14px 0 var(--paper), 14px -14px 0 var(--void);
+      transform: rotate(5deg) translateZ(-32px);
+    }
+
+    .exercise-rift.is-active .exercise-rift__field { animation: exercise-field-iris 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__aperture { animation: exercise-aperture-open 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__hinge { animation: exercise-hinge-lock 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__panel--left { animation: exercise-panel-left 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__panel--right { animation: exercise-panel-right 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__panel--top { animation: exercise-panel-top 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__panel--bottom { animation: exercise-panel-bottom 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__measure { animation: exercise-measure-field 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__measure span { animation: exercise-measure-tick 760ms var(--ease-out) both; animation-delay: var(--tick-delay, 180ms); }
+    .exercise-rift.is-active .exercise-rift__gate { animation: exercise-gate-orbit 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__gate span { animation: exercise-gate-vector 1480ms var(--ease-out) both; animation-delay: var(--gate-delay, 0ms); }
+    .exercise-rift.is-active .exercise-rift__runner { animation: exercise-runner-cross 1480ms var(--ease-out) both; }
+    .exercise-rift.is-active .exercise-rift__stamp { animation: exercise-stamp-awake 1480ms var(--ease-out) both; }
+
+    .emergency-rift {
+      --emergency-red: #FF1238;
+      --emergency-hot: #FF4F1F;
+      --emergency-dark: #100006;
+      position: fixed;
+      inset: 0;
+      z-index: 1004;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      contain: paint;
+      perspective: 900px;
+    }
+
+    .emergency-rift.is-active {
+      opacity: 1;
+    }
+
+    .emergency-rift__flare,
+    .emergency-rift__grid,
+    .emergency-rift__slice,
+    .emergency-rift__stamp {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .emergency-rift__flare {
+      left: var(--rift-x, 50vw);
+      top: var(--rift-y, 14vh);
+      width: 164vmax;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.98) 0 7%, rgba(255, 18, 56, 0.94) 8% 18%, transparent 19%),
+        repeating-conic-gradient(from 0deg, rgba(255, 18, 56, 0.94) 0 7deg, rgba(16, 0, 6, 0.96) 7deg 12deg, rgba(255, 79, 31, 0.9) 12deg 17deg);
+      box-shadow:
+        inset 0 0 0 8vmax rgba(255, 255, 255, 0.7),
+        inset 0 0 0 16vmax var(--emergency-red),
+        0 0 120px rgba(255, 18, 56, 0.72);
+      mix-blend-mode: multiply;
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    .emergency-rift__grid {
+      inset: -12vmax;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 46px, rgba(255, 255, 255, 0.36) 46px 47px, transparent 47px 92px),
+        repeating-linear-gradient(0deg, transparent 0 34px, rgba(16, 0, 6, 0.58) 34px 36px, transparent 36px 68px),
+        rgba(255, 18, 56, 0.82);
+      opacity: 0;
+      transform: rotate(-7deg) scale(1.1);
+    }
+
+    .emergency-rift__slice {
+      top: -20vh;
+      bottom: -20vh;
+      left: var(--slice-left, 0);
+      width: 18vw;
+      border-inline: 1px solid rgba(255, 255, 255, 0.54);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 24%, rgba(16, 0, 6, 0.74) 54%, rgba(255, 18, 56, 0.96));
+      opacity: 0.92;
+      transform: translateY(-130%) skewX(-18deg) rotate(2deg);
+    }
+
+    .emergency-rift__stamp {
+      left: 50%;
+      top: 50%;
+      width: min(860px, 88vw);
+      height: min(440px, 58vh);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-12deg) scale(0.58);
+      transform-style: preserve-3d;
+    }
+
+    .emergency-rift__stamp::before,
+    .emergency-rift__stamp::after {
+      position: absolute;
+      content: attr(data-front);
+      padding: clamp(14px, 2vw, 22px) clamp(18px, 3vw, 34px);
+      border: 2px solid rgba(255, 255, 255, 0.82);
+      background: var(--emergency-dark);
+      color: white;
+      box-shadow: 18px 18px 0 var(--emergency-red), -14px -14px 0 rgba(255, 255, 255, 0.42);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: clamp(20px, 5.8vw, 88px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      line-height: 0.86;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .emergency-rift__stamp::before {
+      left: 0;
+      top: 12%;
+      transform: rotate(-6deg) translateZ(96px);
+    }
+
+    .emergency-rift__stamp::after {
+      right: 0;
+      bottom: 12%;
+      content: attr(data-back);
+      background: var(--emergency-red);
+      color: var(--emergency-dark);
+      box-shadow: -18px 18px 0 white, 16px -16px 0 var(--emergency-dark);
+      transform: rotate(7deg) translateZ(-42px);
+    }
+
+    .emergency-rift.is-active .emergency-rift__flare { animation: emergency-flare 1420ms var(--ease-out) both; }
+    .emergency-rift.is-active .emergency-rift__grid { animation: emergency-grid-shatter 1420ms var(--ease-out) both; }
+    .emergency-rift.is-active .emergency-rift__slice { animation: emergency-siren-slice 1420ms var(--ease-out) both; animation-delay: var(--slice-delay, 0ms); }
+    .emergency-rift.is-active .emergency-rift__stamp { animation: emergency-card-kick 1420ms var(--ease-out) both; }
+
+    @keyframes field-drift {
+      to { transform: rotate(-8deg) translate3d(92px, 88px, 0); }
+    }
+
+    @keyframes signal-rail {
+      to { transform: translateX(128vw); }
+    }
+
+    @keyframes live-dot {
+      50% { opacity: 0.24; transform: scale(0.74); }
+    }
+
+    @keyframes shell-fold {
+      0% { filter: none; transform: perspective(1000px) rotateX(0) scale(1); }
+      24% { filter: saturate(1.35) contrast(1.12); transform: perspective(1000px) rotateX(5deg) rotateZ(-0.45deg) scale(0.982); }
+      52% { filter: invert(1) hue-rotate(20deg) contrast(1.15); transform: perspective(1000px) rotateX(-4deg) rotateZ(0.38deg) scale(1.006); }
+      100% { filter: none; transform: perspective(1000px) rotateX(0) scale(1); }
+    }
+
+    @keyframes coach-shell-fold {
+      0% { filter: none; transform: perspective(1000px) rotateX(0) scale(1); }
+      18% { filter: contrast(1.1); transform: perspective(1000px) rotateX(7deg) rotateZ(-0.52deg) scale(0.978); }
+      40% { filter: contrast(1.18); transform: perspective(1000px) rotateX(-5deg) rotateY(2deg) rotateZ(0.44deg) scale(1.01); }
+      66% { filter: contrast(1.08); transform: perspective(1000px) rotateX(3deg) rotateY(-1.4deg) rotateZ(-0.2deg) scale(0.992); }
+      100% { filter: none; transform: perspective(1000px) rotateX(0) rotateY(0) scale(1); }
+    }
+
+    @keyframes voice-shell-fold {
+      0% { filter: none; transform: perspective(1100px) rotateX(0) rotateY(0) scale(1); }
+      16% { filter: contrast(1.16); transform: perspective(1100px) rotateX(4deg) rotateY(-4deg) rotateZ(0.4deg) scale(0.982); }
+      36% { filter: contrast(1.24); transform: perspective(1100px) rotateX(-7deg) rotateY(3deg) rotateZ(-0.52deg) scale(1.012); }
+      62% { filter: contrast(1.08); transform: perspective(1100px) rotateX(2deg) rotateY(-1deg) scale(0.996); }
+      100% { filter: none; transform: perspective(1100px) rotateX(0) rotateY(0) scale(1); }
+    }
+
+    @keyframes exercise-shell-fold {
+      0% { filter: none; transform: perspective(1000px) rotateX(0) rotateY(0) scale(1); }
+      20% { filter: contrast(1.14); transform: perspective(1000px) rotateX(5deg) rotateY(4deg) rotateZ(-0.3deg) scale(0.986); }
+      48% { filter: contrast(1.2); transform: perspective(1000px) rotateX(-5deg) rotateY(-3deg) rotateZ(0.42deg) scale(1.008); }
+      70% { filter: contrast(1.08); transform: perspective(1000px) rotateX(2deg) rotateY(1deg) scale(0.996); }
+      100% { filter: none; transform: perspective(1000px) rotateX(0) rotateY(0) scale(1); }
+    }
+
+    @keyframes emergency-shell-flare {
+      0% { filter: none; transform: perspective(1000px) rotateX(0) rotateY(0) scale(1); }
+      14% { filter: saturate(2.2) contrast(1.4) hue-rotate(-16deg); transform: perspective(1000px) rotateX(7deg) rotateZ(-1.6deg) scale(0.96); }
+      34% { filter: saturate(3.2) contrast(1.7); transform: perspective(1000px) rotateX(-9deg) rotateY(4deg) rotateZ(1.8deg) scale(1.025); }
+      62% { filter: saturate(2.4) contrast(1.3); transform: perspective(1000px) rotateX(4deg) rotateY(-3deg) rotateZ(-0.8deg) scale(0.988); }
+      100% { filter: none; transform: perspective(1000px) rotateX(0) rotateY(0) scale(1); }
+    }
+
+    @keyframes emergency-flare {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+      16% { opacity: 1; }
+      48% { opacity: 0.98; transform: translate(-50%, -50%) scale(0.86) rotate(170deg); }
+      78% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.18) rotate(310deg); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.38) rotate(420deg); }
+    }
+
+    @keyframes emergency-grid-shatter {
+      0% { opacity: 0; transform: rotate(-18deg) scale(0.78) skewX(-8deg); }
+      24% { opacity: 0.78; transform: rotate(7deg) scale(1.04) skewX(8deg); }
+      52% { opacity: 0.52; transform: rotate(-4deg) scale(1.18) skewX(-12deg); }
+      100% { opacity: 0; transform: rotate(16deg) scale(1.38) skewX(16deg); }
+    }
+
+    @keyframes emergency-siren-slice {
+      0% { opacity: 0; transform: translateY(-130%) skewX(-18deg) rotate(2deg); }
+      22% { opacity: 0.95; transform: translateY(-8%) skewX(18deg) rotate(-5deg); }
+      54% { opacity: 0.86; transform: translateY(16%) skewX(-12deg) rotate(5deg); }
+      100% { opacity: 0; transform: translateY(132%) skewX(18deg) rotate(-8deg); }
+    }
+
+    @keyframes emergency-card-kick {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(74deg) rotateZ(-18deg) scale(0.54); }
+      18% { opacity: 1; transform: translate(-50%, -50%) rotateX(18deg) rotateZ(7deg) scale(0.88); }
+      42% { opacity: 1; transform: translate(-50%, -50%) rotateX(-10deg) rotateZ(-6deg) scale(1.06); }
+      68% { opacity: 0.9; transform: translate(-50%, -50%) rotateX(16deg) rotateZ(178deg) scale(1.12); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(82deg) rotateZ(340deg) scale(1.36); }
+    }
+
+    @keyframes voice-button-tune {
+      0%, 100% { transform: translateY(-2px) rotate(0deg) skewX(0deg); }
+      24% { transform: translateY(-7px) rotate(-1.6deg) skewX(-5deg); }
+      48% { transform: translateY(-3px) rotate(1deg) skewX(6deg); }
+      76% { transform: translateY(-5px) rotate(-0.6deg) skewX(-2deg); }
+    }
+
+    @keyframes voice-button-bars {
+      0% { transform: translateX(-42%) rotate(-18deg) scaleY(0.8); }
+      100% { transform: translateX(34%) rotate(-18deg) scaleY(1.16); }
+    }
+
+    @keyframes voice-button-frame {
+      0%, 100% { transform: skewX(-16deg) scaleX(0.72); opacity: 0.32; }
+      42% { transform: skewX(14deg) scaleX(1); opacity: 0.88; }
+      72% { transform: skewX(-8deg) scaleX(0.84); opacity: 0.58; }
+    }
+
+    @keyframes toggle-comet {
+      0% { transform: translate(12px, -50%) rotate(0deg) scale(1); }
+      22% { transform: translate(-28px, -50%) rotate(210deg) scale(1.9); box-shadow: 0 0 0 12px rgba(255, 79, 31, 0.22), 28px 0 0 -3px var(--signal); }
+      48% { transform: translate(4px, -50%) rotate(540deg) scale(0.72); }
+      76% { transform: translate(26px, -50%) rotate(760deg) scale(1.35); }
+      100% { transform: translate(12px, -50%) rotate(900deg) scale(1); }
+    }
+
+    @keyframes rift-burst {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+      18% { opacity: 1; }
+      58% { transform: translate(-50%, -50%) scale(1) rotate(230deg); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.18) rotate(360deg); }
+    }
+
+    @keyframes rift-plate {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(78deg) rotateZ(-24deg) scale(0.35); }
+      28% { opacity: 0.96; transform: translate(-50%, -50%) rotateX(18deg) rotateZ(12deg) scale(0.84); }
+      62% { opacity: 0.96; transform: translate(-50%, -50%) rotateX(-10deg) rotateZ(186deg) scale(1.06); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(-74deg) rotateZ(360deg) scale(1.42); }
+    }
+
+    @keyframes rift-slice {
+      0% { transform: translateY(-120%) skewX(-12deg) rotate(2deg); }
+      35% { transform: translateY(0) skewX(-12deg) rotate(-5deg); }
+      68% { transform: translateY(0) skewX(10deg) rotate(4deg); }
+      100% { transform: translateY(120%) skewX(10deg) rotate(-3deg); }
+    }
+
+    @keyframes rift-flash {
+      0%, 22% { opacity: 0; transform: translateX(-120%) skewX(-18deg); }
+      38% { opacity: 0.9; }
+      64% { opacity: 0.36; transform: translateX(120%) skewX(-18deg); }
+      100% { opacity: 0; transform: translateX(140%) skewX(-18deg); }
+    }
+
+    @keyframes type-slam {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(76deg) rotateZ(18deg) scale(0.62); }
+      24% { opacity: 1; transform: translate(-50%, -50%) rotateX(20deg) rotateZ(-9deg) scale(0.9); }
+      54% { opacity: 1; transform: translate(-50%, -50%) rotateX(-8deg) rotateZ(12deg) scale(1.04); }
+      78% { opacity: 0.82; transform: translate(-50%, -50%) rotateX(28deg) rotateZ(178deg) scale(1.1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(84deg) rotateZ(340deg) scale(1.32); }
+    }
+
+    @keyframes coach-spin {
+      to { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes coach-mark-fold {
+      0%, 100% { transform: rotate(-8deg) skewX(0deg) scale(1); }
+      32% { transform: rotate(18deg) skewX(-18deg) scale(1.12); }
+      64% { transform: rotate(-24deg) skewX(12deg) scale(0.92); }
+    }
+
+    @keyframes coach-button-summon {
+      0%, 100% { transform: translateY(-2px) rotate(0deg) skewX(0deg); filter: none; }
+      28% { transform: translateY(-8px) rotate(-2deg) skewX(-4deg); filter: saturate(1.3) contrast(1.08); }
+      66% { transform: translateY(-4px) rotate(1.4deg) skewX(4deg); }
+    }
+
+    @keyframes coach-button-fold {
+      0%, 100% { transform: skewX(-12deg) rotateY(0deg) scaleX(1); opacity: 0.42; }
+      42% { transform: skewX(12deg) rotateY(68deg) scaleX(0.72); opacity: 0.9; }
+      72% { transform: skewX(-16deg) rotateY(-42deg) scaleX(1.08); opacity: 0.64; }
+    }
+
+    @keyframes voice-core-beat {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      38% { transform: scale(1.22) rotate(-12deg); box-shadow: 0 0 0 9px rgba(255, 79, 31, 0.14); }
+      72% { transform: scale(0.92) rotate(8deg); }
+    }
+
+    @keyframes exercise-button-summon {
+      0%, 100% { transform: translateY(-2px) rotate(0deg) skewX(0deg); filter: none; }
+      32% { transform: translateY(-8px) rotate(1.8deg) skewX(4deg); filter: contrast(1.12); }
+      66% { transform: translateY(-4px) rotate(-1.5deg) skewX(-4deg); }
+    }
+
+    @keyframes exercise-door-sweep {
+      0% { transform: translateX(-56%) skewX(-18deg) scaleX(0.34); }
+      46% { transform: translateX(4%) skewX(16deg) scaleX(1); }
+      100% { transform: translateX(58%) skewX(-14deg) scaleX(0.48); }
+    }
+
+    @keyframes exercise-button-frame {
+      0%, 100% { transform: skewX(14deg) translateX(0); opacity: 0.34; }
+      36% { transform: skewX(-18deg) translateX(8px); opacity: 0.92; }
+      68% { transform: skewX(10deg) translateX(-6px); opacity: 0.52; }
+    }
+
+    @keyframes exercise-mark-pop {
+      0%, 100% { transform: rotate(8deg) scale(1); }
+      42% { transform: rotate(-16deg) scale(1.2); }
+      70% { transform: rotate(20deg) scale(0.92); }
+    }
+
+    @keyframes exercise-toast-arrive {
+      0% { opacity: 0; transform: translateY(-18px) rotateX(72deg) rotateZ(-5deg) scale(0.72); filter: blur(5px); }
+      38% { opacity: 1; transform: translateY(8px) rotateX(-10deg) rotateZ(2deg) scale(1.05); filter: blur(0); }
+      70% { transform: translateY(-3px) rotateX(5deg) rotateZ(-1deg) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) rotateX(0) rotateZ(0) scale(1); filter: blur(0); }
+    }
+
+    @keyframes voice-tunnel {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+      16% { opacity: 1; }
+      48% { transform: translate(-50%, -50%) scale(0.74) rotate(120deg); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.36) rotate(270deg); }
+    }
+
+    @keyframes voice-dial {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(82deg) rotateZ(-60deg) scale(0.2); }
+      28% { opacity: 0.95; transform: translate(-50%, -50%) rotateX(42deg) rotateZ(80deg) scale(0.82); }
+      58% { opacity: 0.9; transform: translate(-50%, -50%) rotateX(18deg) rotateZ(260deg) scale(1.04); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(84deg) rotateZ(420deg) scale(1.28); }
+    }
+
+    @keyframes voice-scan {
+      0%, 14% { opacity: 0; transform: translateX(-120%) skewX(-18deg); }
+      34% { opacity: 0.92; transform: translateX(-12%) skewX(12deg); }
+      64% { opacity: 0.5; transform: translateX(68%) skewX(-8deg); }
+      100% { opacity: 0; transform: translateX(130%) skewX(18deg); }
+    }
+
+    @keyframes voice-eq-slice {
+      0% { opacity: 0; transform: translateY(116%) skewX(18deg); }
+      28% { opacity: 0.82; transform: translateY(12%) skewX(-14deg); }
+      54% { opacity: 0.42; transform: translateY(-18%) skewX(8deg); }
+      100% { opacity: 0; transform: translateY(-116%) skewX(-18deg); }
+    }
+
+    @keyframes voice-type-float {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(76deg) rotateZ(-20deg) scale(0.64); }
+      30% { opacity: 1; transform: translate(-50%, -50%) rotateX(18deg) rotateZ(8deg) scale(0.94); }
+      62% { opacity: 1; transform: translate(-50%, -50%) rotateX(-8deg) rotateZ(-8deg) scale(1.04); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(74deg) rotateZ(120deg) scale(1.22); }
+    }
+
+    @keyframes voice-signal-rise {
+      0% { opacity: 0; transform: translate(-50%, 18%) rotateZ(-8deg) scale(0.7); }
+      28% { opacity: 1; transform: translate(-50%, -50%) rotateZ(5deg) scale(1); }
+      74% { opacity: 0.86; transform: translate(-50%, -58%) rotateZ(-3deg) scale(1.08); }
+      100% { opacity: 0; transform: translate(-50%, -110%) rotateZ(10deg) scale(1.2); }
+    }
+
+    @keyframes voice-bar-jump {
+      0%, 100% { transform: scaleY(0.42); }
+      50% { transform: scaleY(1.18); }
+    }
+
+    @keyframes voice-orbit-ring {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(84deg) rotateZ(0deg) scale(0.5); }
+      26% { opacity: 0.88; transform: translate(-50%, -50%) rotateX(58deg) rotateZ(130deg) scale(0.92); }
+      68% { opacity: 0.7; transform: translate(-50%, -50%) rotateX(66deg) rotateZ(320deg) scale(1.08); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(80deg) rotateZ(520deg) scale(1.3); }
+    }
+
+    @keyframes exercise-field-iris {
+      0% {
+        opacity: 0;
+        clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+        transform: translate(-50%, -50%) rotate(45deg) scale(0.28);
+      }
+      16% {
+        opacity: 1;
+        clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      }
+      44% {
+        opacity: 1;
+        clip-path: polygon(18% 0, 100% 18%, 82% 100%, 0 82%);
+        transform: translate(-50%, -50%) rotate(145deg) scale(0.82);
+      }
+      72% {
+        opacity: 0.92;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        transform: translate(-50%, -50%) rotate(260deg) scale(1.04);
+      }
+      100% {
+        opacity: 0;
+        clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+        transform: translate(-50%, -50%) rotate(405deg) scale(1.2);
+      }
+    }
+
+    @keyframes exercise-aperture-open {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(84deg) rotateY(-42deg) rotateZ(-10deg) scale(0.28); }
+      18% { opacity: 1; transform: translate(-50%, -50%) rotateX(42deg) rotateY(32deg) rotateZ(8deg) scale(0.72); }
+      34% { opacity: 1; transform: translate(-50%, -50%) rotateX(4deg) rotateY(-8deg) rotateZ(-2deg) scale(1.06); }
+      52% { opacity: 1; transform: translate(-50%, -50%) rotateX(-10deg) rotateY(10deg) rotateZ(2deg) scale(0.98); }
+      74% { opacity: 0.9; transform: translate(-50%, -50%) rotateX(18deg) rotateY(-16deg) rotateZ(-4deg) scale(1.08); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(78deg) rotateY(52deg) rotateZ(22deg) scale(1.24); }
+    }
+
+    @keyframes exercise-hinge-lock {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(78deg) rotateZ(-80deg) scale(0.44); }
+      22% { opacity: 0.9; transform: translate(-50%, -50%) rotateX(34deg) rotateZ(32deg) scale(0.86); }
+      50% { opacity: 1; transform: translate(-50%, -50%) rotateX(8deg) rotateZ(-12deg) scale(1.04); }
+      76% { opacity: 0.76; transform: translate(-50%, -50%) rotateX(28deg) rotateZ(16deg) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(82deg) rotateZ(110deg) scale(1.2); }
+    }
+
+    @keyframes exercise-panel-left {
+      0% { opacity: 0; transform: translate(-138%, -50%) rotateY(-86deg) rotateZ(-7deg); }
+      24% { opacity: 1; transform: translate(-28%, -50%) rotateY(-18deg) rotateZ(4deg); }
+      42% { opacity: 1; transform: translate(2%, -50%) rotateY(10deg) rotateZ(-2deg); }
+      68% { opacity: 0.9; transform: translate(-8%, -50%) rotateY(-34deg) rotateZ(-9deg); }
+      100% { opacity: 0; transform: translate(-154%, -50%) rotateY(-92deg) rotateZ(12deg); }
+    }
+
+    @keyframes exercise-panel-right {
+      0% { opacity: 0; transform: translate(138%, -50%) rotateY(86deg) rotateZ(7deg); }
+      24% { opacity: 1; transform: translate(28%, -50%) rotateY(18deg) rotateZ(-4deg); }
+      42% { opacity: 1; transform: translate(-2%, -50%) rotateY(-10deg) rotateZ(2deg); }
+      68% { opacity: 0.9; transform: translate(8%, -50%) rotateY(34deg) rotateZ(9deg); }
+      100% { opacity: 0; transform: translate(154%, -50%) rotateY(92deg) rotateZ(-12deg); }
+    }
+
+    @keyframes exercise-panel-top {
+      0% { opacity: 0; transform: translate(-50%, -150%) rotateX(78deg) rotateZ(4deg); }
+      28% { opacity: 0.96; transform: translate(-50%, 18%) rotateX(14deg) rotateZ(-2deg); }
+      48% { opacity: 1; transform: translate(-50%, 0) rotateX(-8deg) rotateZ(1deg); }
+      72% { opacity: 0.82; transform: translate(-50%, -28%) rotateX(36deg) rotateZ(-5deg); }
+      100% { opacity: 0; transform: translate(-50%, -170%) rotateX(84deg) rotateZ(8deg); }
+    }
+
+    @keyframes exercise-panel-bottom {
+      0% { opacity: 0; transform: translate(-50%, 150%) rotateX(-78deg) rotateZ(-4deg); }
+      28% { opacity: 0.96; transform: translate(-50%, -18%) rotateX(-14deg) rotateZ(2deg); }
+      48% { opacity: 1; transform: translate(-50%, 0) rotateX(8deg) rotateZ(-1deg); }
+      72% { opacity: 0.82; transform: translate(-50%, 28%) rotateX(-36deg) rotateZ(5deg); }
+      100% { opacity: 0; transform: translate(-50%, 170%) rotateX(-84deg) rotateZ(-8deg); }
+    }
+
+    @keyframes exercise-measure-field {
+      0% { opacity: 0; transform: translate(-50%, -16%) rotateZ(-18deg) translateZ(80px) scale(0.8); }
+      22% { opacity: 1; transform: translate(-50%, -50%) rotateZ(8deg) translateZ(80px) scale(1); }
+      62% { opacity: 1; transform: translate(-50%, -56%) rotateZ(-3deg) translateZ(80px) scale(1.04); }
+      100% { opacity: 0; transform: translate(-50%, -104%) rotateZ(18deg) translateZ(80px) scale(1.12); }
+    }
+
+    @keyframes exercise-measure-tick {
+      0% { transform: scaleY(0) translateY(18px); opacity: 0; }
+      42% { transform: scaleY(1.18) translateY(-6px); opacity: 1; }
+      70% { transform: scaleY(0.86) translateY(3px); opacity: 0.9; }
+      100% { transform: scaleY(1) translateY(0); opacity: 1; }
+    }
+
+    @keyframes exercise-gate-orbit {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(82deg) rotateZ(-70deg) scale(0.36); }
+      28% { opacity: 0.82; transform: translate(-50%, -50%) rotateX(38deg) rotateZ(60deg) scale(0.9); }
+      62% { opacity: 0.7; transform: translate(-50%, -50%) rotateX(12deg) rotateZ(210deg) scale(1.08); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(84deg) rotateZ(420deg) scale(1.26); }
+    }
+
+    @keyframes exercise-gate-vector {
+      0% { opacity: 0; transform: rotate(var(--gate-0, 0deg)) scale(0.18); }
+      24% { opacity: 1; transform: rotate(var(--gate-1, 18deg)) scale(0.9); }
+      62% { opacity: 0.8; transform: rotate(var(--gate-2, 110deg)) scale(1.12); }
+      100% { opacity: 0; transform: rotate(var(--gate-3, 190deg)) scale(1.46); }
+    }
+
+    @keyframes exercise-runner-cross {
+      0% { opacity: 0; transform: translate(-96%, -36%) rotateZ(-18deg) scale(0.42); }
+      24% { opacity: 1; transform: translate(-62%, -50%) rotateZ(12deg) scale(0.86); }
+      46% { opacity: 1; transform: translate(-50%, -50%) rotateZ(-6deg) scale(1.08); }
+      62% { opacity: 1; transform: translate(-36%, -46%) rotateZ(10deg) scale(0.98); }
+      100% { opacity: 0; transform: translate(8%, -58%) rotateZ(24deg) scale(1.22); }
+    }
+
+    @keyframes exercise-stamp-awake {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(84deg) rotateZ(-30deg) scale(0.48); }
+      24% { opacity: 0.82; transform: translate(-50%, -50%) rotateX(30deg) rotateZ(12deg) scale(0.9); }
+      42% { opacity: 1; transform: translate(-50%, -50%) rotateX(-8deg) rotateZ(-4deg) scale(1.06); }
+      66% { opacity: 1; transform: translate(-50%, -50%) rotateX(6deg) rotateZ(3deg) scale(0.98); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(76deg) rotateZ(34deg) scale(1.22); }
+    }
+
+    @keyframes number-shock {
+      0% { transform: translateY(0) skewX(0deg); filter: none; }
+      24% { transform: translateY(-8px) skewX(-7deg); filter: blur(0.4px); }
+      42% { transform: translateY(5px) skewX(5deg); }
+      72% { transform: translateY(-2px) skewX(-2deg); }
+      100% { transform: translateY(0) skewX(0deg); filter: none; }
+    }
+
+    @keyframes bar-breathe {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.12); }
+    }
+
+    @keyframes output-pulse {
+      50% { opacity: 0.52; }
+    }
+
+    @keyframes modal-materialize {
+      0% { opacity: 0; transform: translateY(34px) rotateX(78deg) rotateZ(-9deg) scale(0.72); filter: blur(6px); }
+      36% { opacity: 1; transform: translateY(-10px) rotateX(-12deg) rotateZ(3deg) scale(1.03); filter: blur(0); }
+      68% { transform: translateY(4px) rotateX(5deg) rotateZ(-1deg) scale(0.992); }
+      100% { opacity: 1; transform: translateY(0) rotateX(0) rotateZ(0) scale(1); filter: blur(0); }
+    }
+
+    @media (max-width: 1100px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid rgba(14, 14, 14, 0.16);
+      }
+
+      .nav-list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      .vital-grid,
+      .status-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --edge: 16px;
+      }
+
+      body {
+        font-size: 15px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .top-actions {
+        justify-content: stretch;
+      }
+
+      .coach-button,
+      .voice-button,
+      .exercise-button,
+      .ghost-button {
+        flex: 1 1 180px;
+        justify-content: center;
+      }
+
+      .theme-toggle {
+        flex: 0 0 76px;
+      }
+
+      .nav-list,
+      .vital-grid,
+      .status-strip,
+      .modal-body {
+        grid-template-columns: 1fr;
+      }
+
+      .routine-item {
+        grid-template-columns: 42px minmax(0, 1fr);
+      }
+
+      .routine-item strong {
+        grid-column: 2;
+      }
+
+      .sidebar {
+        gap: 22px;
+      }
+
+      .chart {
+        min-height: 210px;
+        gap: 4px;
+        padding: 16px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+
+      .theme-rift,
+      .coach-rift,
+      .voice-rift,
+      .exercise-rift,
+      .emergency-rift,
+      .motion-field {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="motion-field" aria-hidden="true"></div>
+
+  <div class="theme-rift" id="themeRift" aria-hidden="true">
+    <div class="theme-rift__burst"></div>
+    <div class="slice"></div>
+    <div class="slice"></div>
+    <div class="slice"></div>
+    <div class="slice"></div>
+    <div class="slice"></div>
+    <div class="theme-rift__plate"></div>
+    <div class="theme-rift__flash"></div>
+  </div>
+
+  <div class="coach-rift" id="coachRift" aria-hidden="true">
+    <div class="coach-rift__pulse"></div>
+    <div class="slice"></div>
+    <div class="slice"></div>
+    <div class="slice"></div>
+    <div class="slice"></div>
+    <div class="slice"></div>
+    <div class="coach-rift__folio"></div>
+    <div class="coach-rift__scan"></div>
+    <div class="coach-rift__type"></div>
+  </div>
+
+  <div class="voice-rift" id="voiceRift" aria-hidden="true">
+    <div class="rift-pulse"></div>
+    <div class="rift-slice"></div>
+    <div class="rift-slice"></div>
+    <div class="rift-slice"></div>
+    <div class="rift-slice"></div>
+    <div class="rift-slice"></div>
+    <div class="rift-plate"></div>
+    <div class="rift-scan"></div>
+    <div class="voice-rift__orbit"></div>
+    <div class="voice-rift__signal">
+      <span style="--i:1"></span>
+      <span style="--i:2"></span>
+      <span style="--i:3"></span>
+      <span style="--i:4"></span>
+      <span style="--i:5"></span>
+      <span style="--i:6"></span>
+      <span style="--i:7"></span>
+      <span style="--i:8"></span>
+      <span style="--i:9"></span>
+      <span style="--i:10"></span>
+      <span style="--i:11"></span>
+      <span style="--i:12"></span>
+      <span style="--i:13"></span>
+    </div>
+    <div class="rift-type" data-front="VOICE / PATIENT / COMMAND" data-back="MODEL / ROUTE"></div>
+  </div>
+
+  <div class="exercise-rift" id="exerciseRift" aria-hidden="true">
+    <div class="exercise-rift__field"></div>
+    <div class="exercise-rift__panel exercise-rift__panel--left"></div>
+    <div class="exercise-rift__panel exercise-rift__panel--right"></div>
+    <div class="exercise-rift__panel exercise-rift__panel--top"></div>
+    <div class="exercise-rift__panel exercise-rift__panel--bottom"></div>
+    <div class="exercise-rift__aperture"></div>
+    <div class="exercise-rift__hinge"></div>
+    <div class="exercise-rift__measure">
+      <span style="--i:0"></span>
+      <span style="--i:1"></span>
+      <span style="--i:2"></span>
+      <span style="--i:3"></span>
+      <span style="--i:4"></span>
+      <span style="--i:5"></span>
+      <span style="--i:6"></span>
+      <span style="--i:7"></span>
+      <span style="--i:8"></span>
+      <span style="--i:9"></span>
+      <span style="--i:10"></span>
+    </div>
+    <div class="exercise-rift__gate">
+      <span style="--i:0"></span>
+      <span style="--i:1"></span>
+      <span style="--i:2"></span>
+      <span style="--i:3"></span>
+      <span style="--i:4"></span>
+      <span style="--i:5"></span>
+    </div>
+    <div class="exercise-rift__runner"></div>
+    <div class="exercise-rift__stamp" data-top="EXERCISE / PATIENT" data-bottom="WINDOW OPENED"></div>
+  </div>
+
+  <div class="emergency-rift" id="emergencyRift" aria-hidden="true">
+    <div class="emergency-rift__flare"></div>
+    <div class="emergency-rift__grid"></div>
+    <div class="emergency-rift__slice" style="--slice-left:-10vw;--slice-delay:0ms"></div>
+    <div class="emergency-rift__slice" style="--slice-left:10vw;--slice-delay:34ms"></div>
+    <div class="emergency-rift__slice" style="--slice-left:31vw;--slice-delay:68ms"></div>
+    <div class="emergency-rift__slice" style="--slice-left:52vw;--slice-delay:102ms"></div>
+    <div class="emergency-rift__slice" style="--slice-left:73vw;--slice-delay:136ms"></div>
+    <div class="emergency-rift__stamp" data-front="Emergency" data-back="Doctor alerted"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>Synaptic <em>patient</em>.</h1>
+      </div>
+
+      <p class="meta-stack">
+        <span class="meta-dot" aria-hidden="true"></span>
+        <span id="dateStamp">May 24, 2026 / Live rehab stream / SD-1024</span>
+      </p>
+
+      <nav class="nav-list" aria-label="Patient dashboard sections">
+        <a class="nav-item active" href="#vitals"><span>01</span><span>Vitals</span><span>Live</span></a>
+        <a class="nav-item" href="#routine"><span>02</span><span>Routine</span><span>15m</span></a>
+        <a class="nav-item" href="#coach"><span>03</span><span>Coach</span><span>Model</span></a>
+        <a class="nav-item" href="#care"><span>04</span><span>Care team</span><span>Open</span></a>
+      </nav>
+
+      <div class="help-card">
+        <span>Live vitals are shared with the doctor dashboard every second.</span>
+        <span id="syncStatus">Sync standing by.</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2>Recovery<span class="serif">Command</span>.</h2>
+        </div>
+        <div class="top-actions">
+          <button class="coach-button" id="coachButton" type="button" aria-label="Open rehab flow coach">
+            <span class="coach-mark" aria-hidden="true"></span>
+            <span>Rehab coach</span>
+          </button>
+          <button class="voice-button" id="voiceButton" type="button" aria-label="Start patient voice control" aria-pressed="false">
+            <span class="voice-core" aria-hidden="true"></span>
+            <span>Voice</span>
+          </button>
+          <button class="ghost-button" id="appointmentButton" type="button">Add appointment</button>
+          <button class="exercise-button" id="exerciseButton" type="button" aria-label="Open patient exercise window">
+            <span class="exercise-mark" aria-hidden="true"></span>
+            <span>Exercise</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light and dark mode"></button>
+          <a class="ghost-button" href="dashboard.html">Doctor view</a>
+        </div>
+      </header>
+
+      <section class="status-strip" aria-label="Live patient stream">
+        <div class="status-cell">Patient<strong>Maya Rao</strong></div>
+        <div class="status-cell">Patient ID<strong>SD-1024</strong></div>
+        <div class="status-cell">Updated<strong id="updatedAt">--:--:--</strong></div>
+        <div class="status-cell">Sync<strong id="syncMode">Local + API</strong></div>
+      </section>
+
+      <div class="dashboard">
+        <section class="panel" id="vitals">
+          <header class="panel-header">
+            <div>
+              <p class="panel-label">Live vitals</p>
+              <h2 class="panel-title">The doctor sees <em>this stream</em>.</h2>
+            </div>
+            <span class="micro-label" id="vitalState">Updating every second</span>
+          </header>
+          <div class="panel-body">
+            <div class="vital-grid">
+              <article class="vital-card" id="hrCard" style="--load: .72">
+                <span>Heart rate</span>
+                <strong id="hrValue">112</strong>
+                <small>beats per minute</small>
+              </article>
+              <article class="vital-card" id="spo2Card" style="--load: .94">
+                <span>Oxygen</span>
+                <strong id="spo2Value">94</strong>
+                <small>SpO2 percent</small>
+              </article>
+              <article class="vital-card" id="tempCard" style="--load: .48">
+                <span>Temperature</span>
+                <strong id="tempValue">98.8</strong>
+                <small>Fahrenheit</small>
+              </article>
+              <article class="vital-card" id="bpCard" style="--load: .58">
+                <span>Blood pressure</span>
+                <strong id="bpValue">128/82</strong>
+                <small>mm Hg</small>
+              </article>
+            </div>
+            <div class="chart" id="hrChart" aria-label="Heart rate history"></div>
+          </div>
+        </section>
+
+        <div class="coach-output" id="coachInlineOutput">
+          Open Rehab coach to generate a live, patient-facing session plan from your current vitals and recovery context.
+        </div>
+
+        <section class="panel" id="routine">
+          <header class="panel-header">
+            <div>
+              <p class="panel-label">Smooth rehab loop</p>
+              <h2 class="panel-title">Small steps, <em>clean pacing</em>.</h2>
+            </div>
+            <span class="micro-label" id="fatigueLabel">Fatigue moderate</span>
+          </header>
+          <div class="panel-body routine-list">
+            <article class="routine-item">
+              <span class="routine-step">01</span>
+              <div>
+                <h3>Seated shoulder opens</h3>
+                <p>Two slow rounds with caregiver watching posture and breath.</p>
+              </div>
+              <strong>Ready</strong>
+            </article>
+            <article class="routine-item">
+              <span class="routine-step">02</span>
+              <div>
+                <h3>Supported sit-to-stand</h3>
+                <p>Pause after each rep; stop if dizziness or sudden weakness appears.</p>
+              </div>
+              <strong id="balanceLabel">Supported</strong>
+            </article>
+            <article class="routine-item">
+              <span class="routine-step">03</span>
+              <div>
+                <h3>Breathing reset</h3>
+                <p>Four quiet cycles before the next movement block.</p>
+              </div>
+              <strong>Gentle</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="coach">
+          <header class="panel-header">
+            <div>
+              <p class="panel-label">AI rehab companion</p>
+              <h2 class="panel-title">Session guidance <em>on demand</em>.</h2>
+            </div>
+            <span class="micro-label">Model connected</span>
+          </header>
+          <div class="panel-body">
+            <div class="coach-output" id="coachPreview">
+              The coach uses current vitals plus your stated goal to return a short plan: Smooth Session, Live Vitals Check, Next 15 Minutes, Caregiver Cue, and Report To Care Team.
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="care">
+          <header class="panel-header">
+            <div>
+              <p class="panel-label">Care team feed</p>
+              <h2 class="panel-title">Nothing gets <em>lost</em>.</h2>
+            </div>
+            <span class="micro-label">Shared channel</span>
+          </header>
+          <div class="panel-body care-feed">
+            <article class="feed-item">
+              <h3>Doctor dashboard stream</h3>
+              <p>Heart rate, oxygen, temperature, blood pressure, steps, balance, and fatigue are available in the doctor view.</p>
+            </article>
+            <article class="feed-item">
+              <h3>Caregiver handoff</h3>
+              <p>The next AI rehab plan can be shared verbally during bedside support.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="coachModal" hidden>
+    <form class="coach-modal" id="coachForm" role="dialog" aria-modal="true" aria-labelledby="coachModalTitle">
+      <header class="modal-head">
+        <div>
+          <p class="panel-label">Rehab coach</p>
+          <h2 id="coachModalTitle">Build a smooth 15 minute session.</h2>
+        </div>
+        <button class="close-button" type="button" data-close-coach aria-label="Close rehab coach">Close</button>
+      </header>
+      <div class="modal-body">
+        <div class="field">
+          <label for="goal">Goal today</label>
+          <input id="goal" name="goal" value="Walk to the kitchen with support">
+        </div>
+        <div class="field">
+          <label for="fatigue">Fatigue</label>
+          <select id="fatigue" name="fatigue">
+            <option>Low</option>
+            <option selected>Moderate</option>
+            <option>Elevated</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="mobility">Mobility status</label>
+          <input id="mobility" name="mobility" value="Needs caregiver support for standing and short walking">
+        </div>
+        <div class="field full">
+          <label for="notes">Patient notes</label>
+          <textarea id="notes" name="notes">Right side feels heavy after the morning routine, but speech and attention feel clear.</textarea>
+        </div>
+        <output class="modal-output" id="coachOutput" hidden></output>
+      </div>
+      <footer class="modal-foot">
+        <span class="micro-label">Uses current live vitals</span>
+        <button class="submit-button" type="submit">Generate plan</button>
+      </footer>
+    </form>
+  </div>
+
+  <div class="modal-backdrop" id="appointmentModal" hidden>
+    <form class="coach-modal" id="appointmentForm" role="dialog" aria-modal="true" aria-labelledby="appointmentModalTitle">
+      <header class="modal-head">
+        <div>
+          <p class="panel-label">Appointment request</p>
+          <h2 id="appointmentModalTitle">Ask the care team to schedule.</h2>
+        </div>
+        <button class="close-button" type="button" data-close-appointment aria-label="Close appointment request">Close</button>
+      </header>
+      <div class="modal-body">
+        <div class="field full">
+          <label for="appointmentTitle">Title</label>
+          <input id="appointmentTitle" name="title" value="Follow-up rehab consult" required>
+        </div>
+        <div class="field">
+          <label for="appointmentDate">Date</label>
+          <input id="appointmentDate" name="date" type="date">
+        </div>
+        <div class="field">
+          <label for="appointmentTime">Time</label>
+          <input id="appointmentTime" name="time" type="time">
+        </div>
+        <div class="field full">
+          <label for="appointmentPlace">Place</label>
+          <input id="appointmentPlace" name="place" value="Remote consult">
+        </div>
+        <div class="field full">
+          <label for="appointmentNotes">Notes</label>
+          <textarea id="appointmentNotes" name="notes">Please review current rehab vitals and the next session plan.</textarea>
+        </div>
+      </div>
+      <footer class="modal-foot">
+        <span class="micro-label" id="appointmentSyncState">Shared with doctor dashboard</span>
+        <div>
+          <button class="close-button" type="button" data-close-appointment>Cancel</button>
+          <button class="submit-button" type="submit">Send request</button>
+        </div>
+      </footer>
+    </form>
+  </div>
+
+  <section class="voice-panel" id="voicePanel" aria-live="polite" hidden>
+    <header class="voice-panel__head">
+      <div>
+        <p class="panel-label" id="voiceState">Voice control</p>
+        <h2 class="voice-panel__title">Tell Synaptic what to do.</h2>
+      </div>
+      <button class="close-button" type="button" id="voiceClose" aria-label="Close voice panel">Close</button>
+    </header>
+    <div class="voice-panel__box" id="voiceTranscript">Try "exercise", "open rehab coach", "show vitals", or "switch to dark mode".</div>
+    <div class="voice-panel__box" id="voiceResult">Speech runs in the browser. Model interpretation is used when the care endpoint is reachable.</div>
+    <div class="voice-panel__manual">
+      <input id="voiceManualInput" type="text" placeholder="Type a command if speech is blocked">
+      <button class="submit-button" id="voiceManualSend" type="button">Run</button>
+    </div>
+  </section>
+
+  <div class="exercise-status-toast" id="exerciseStatusToast" role="status" aria-live="polite" hidden>window opened</div>
+
+  <script>
+    (() => {
+      const API_BASE = window.SYNAPTIC_API_BASE || (
+        window.location.protocol === "file:" ||
+        ((window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && window.location.port && window.location.port !== "8000")
+          ? "http://127.0.0.1:8000"
+          : window.location.origin
+      );
+
+      const body = document.body;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const themeToggle = document.getElementById("themeToggle");
+      const themeRift = document.getElementById("themeRift");
+      const coachButton = document.getElementById("coachButton");
+      const coachRift = document.getElementById("coachRift");
+      const coachModal = document.getElementById("coachModal");
+      const coachForm = document.getElementById("coachForm");
+      const coachOutput = document.getElementById("coachOutput");
+      const coachInlineOutput = document.getElementById("coachInlineOutput");
+      const coachPreview = document.getElementById("coachPreview");
+      const voiceButton = document.getElementById("voiceButton");
+      const voiceRift = document.getElementById("voiceRift");
+      const voicePanel = document.getElementById("voicePanel");
+      const voiceClose = document.getElementById("voiceClose");
+      const voiceState = document.getElementById("voiceState");
+      const voiceTranscript = document.getElementById("voiceTranscript");
+      const voiceResult = document.getElementById("voiceResult");
+      const voiceManualInput = document.getElementById("voiceManualInput");
+      const voiceManualSend = document.getElementById("voiceManualSend");
+      const appointmentButton = document.getElementById("appointmentButton");
+      const appointmentModal = document.getElementById("appointmentModal");
+      const appointmentForm = document.getElementById("appointmentForm");
+      const appointmentSyncState = document.getElementById("appointmentSyncState");
+      const exerciseButton = document.getElementById("exerciseButton");
+      const exerciseRift = document.getElementById("exerciseRift");
+      const emergencyRift = document.getElementById("emergencyRift");
+      const exerciseStatusToast = document.getElementById("exerciseStatusToast");
+      const chart = document.getElementById("hrChart");
+      const syncStatus = document.getElementById("syncStatus");
+      const syncMode = document.getElementById("syncMode");
+      const updatedAt = document.getElementById("updatedAt");
+      const fatigueLabel = document.getElementById("fatigueLabel");
+      const balanceLabel = document.getElementById("balanceLabel");
+      const vitalState = document.getElementById("vitalState");
+
+      const vitalNodes = {
+        hr: { value: document.getElementById("hrValue"), card: document.getElementById("hrCard") },
+        spo2: { value: document.getElementById("spo2Value"), card: document.getElementById("spo2Card") },
+        temp: { value: document.getElementById("tempValue"), card: document.getElementById("tempCard") },
+        bp: { value: document.getElementById("bpValue"), card: document.getElementById("bpCard") }
+      };
+
+      let tick = 0;
+      let steps = 420;
+      let lastPublished = "";
+      const SHARED_APPOINTMENTS_KEY = "synaptic-patient-appointments";
+      const SHARED_ALERTS_KEY = "synaptic-patient-emergency-alerts";
+      const hrHistory = Array.from({ length: 24 }, (_, index) => 48 + Math.round(Math.sin(index / 2) * 12 + index * 0.8));
+      let vitals = {
+        patient_id: "SD-1024",
+        name: "Maya Rao",
+        hr: 112,
+        spo2: 94,
+        temp: 98.8,
+        bp: "128/82",
+        steps,
+        fatigue: "Moderate",
+        balance: "Supported",
+        updated_at: new Date().toISOString()
+      };
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+      const escapeHTML = (value = "") => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const formatTime = (iso) => {
+        const date = new Date(iso);
+        if (Number.isNaN(date.getTime())) return "--:--:--";
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      };
+
+      const todayISO = (offset = 0) => {
+        const date = new Date();
+        date.setDate(date.getDate() + offset);
+        return date.toISOString().slice(0, 10);
+      };
+
+      const guessDate = (text = "") => {
+        const lower = String(text).toLowerCase();
+        const iso = lower.match(/\b(20\d{2}-\d{2}-\d{2})\b/);
+        if (iso) return iso[1];
+        if (lower.includes("tomorrow")) return todayISO(1);
+        if (lower.includes("today")) return todayISO(0);
+        return "";
+      };
+
+      const guessTime = (text = "") => {
+        const lower = String(text).toLowerCase();
+        const match = lower.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
+        if (!match) return "";
+        let hour = Number(match[1]);
+        const minute = match[2] || "00";
+        const meridiem = match[3];
+        if (meridiem === "pm" && hour < 12) hour += 12;
+        if (meridiem === "am" && hour === 12) hour = 0;
+        if (hour > 23) return "";
+        return `${String(hour).padStart(2, "0")}:${minute}`;
+      };
+
+      const readSharedList = (key) => {
+        try {
+          const parsed = JSON.parse(window.localStorage.getItem(key) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      };
+
+      const publishSharedSignal = (key, latestKey, payload) => {
+        const next = [payload, ...readSharedList(key).filter((item) => item?.id !== payload.id)].slice(0, 20);
+        window.localStorage.setItem(key, JSON.stringify(next));
+        window.localStorage.setItem(latestKey, JSON.stringify(payload));
+      };
+
+      const setTheme = (theme, animate = false, event = null) => {
+        if (animate && themeRift && !reducedMotion.matches) {
+          const rect = themeToggle.getBoundingClientRect();
+          themeRift.style.setProperty("--rift-x", `${event?.clientX || rect.left + rect.width / 2}px`);
+          themeRift.style.setProperty("--rift-y", `${event?.clientY || rect.top + rect.height / 2}px`);
+          themeRift.classList.remove("is-active");
+          void themeRift.offsetWidth;
+          body.classList.add("theme-switching");
+          themeToggle.classList.add("is-bursting");
+          themeRift.classList.add("is-active");
+          window.setTimeout(() => body.setAttribute("data-theme", theme), 420);
+          window.setTimeout(() => {
+            body.classList.remove("theme-switching");
+            themeToggle.classList.remove("is-bursting");
+            themeRift.classList.remove("is-active");
+          }, 1220);
+        } else {
+          body.setAttribute("data-theme", theme);
+        }
+        window.localStorage.setItem("synaptic-patient-theme", theme);
+      };
+
+      const storedTheme = window.localStorage.getItem("synaptic-patient-theme") || "light";
+      setTheme(storedTheme, false);
+
+      themeToggle.addEventListener("click", (event) => {
+        const next = body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        setTheme(next, true, event);
+      });
+
+      const activateRift = (rift, source, bodyClass, duration = 1260, event = null) => {
+        if (!rift || reducedMotion.matches) return;
+        const rect = source?.getBoundingClientRect?.() || { left: window.innerWidth / 2, top: 80, width: 0, height: 0 };
+        rift.style.setProperty("--rift-x", `${event?.clientX || rect.left + rect.width / 2}px`);
+        rift.style.setProperty("--rift-y", `${event?.clientY || rect.top + rect.height / 2}px`);
+        rift.classList.remove("is-active");
+        void rift.offsetWidth;
+        if (bodyClass) body.classList.add(bodyClass);
+        rift.classList.add("is-active");
+        window.setTimeout(() => {
+          rift.classList.remove("is-active");
+          if (bodyClass) body.classList.remove(bodyClass);
+        }, duration);
+      };
+
+      const activateCoachRift = (event) => {
+        activateRift(coachRift, coachButton, "coach-switching", 1380, event);
+      };
+
+      const setCoachState = (state = "") => {
+        coachButton.classList.remove("is-summoning", "is-processing", "is-success", "is-error");
+        if (state) coachButton.classList.add(`is-${state}`);
+      };
+
+      const animateModal = () => {
+        if (!coachForm) return;
+        coachForm.classList.remove("is-arriving");
+        void coachForm.offsetWidth;
+        coachForm.classList.add("is-arriving");
+        window.setTimeout(() => coachForm.classList.remove("is-arriving"), 980);
+      };
+
+      const openCoach = (event = null) => {
+        activateCoachRift(event);
+        setCoachState("summoning");
+        window.setTimeout(() => {
+          coachModal.hidden = false;
+          animateModal();
+        }, reducedMotion.matches ? 0 : 420);
+        window.setTimeout(() => setCoachState(""), 1360);
+      };
+
+      const closeCoach = () => {
+        coachModal.hidden = true;
+      };
+
+      const openExerciseWindow = (event = null) => {
+        activateRift(exerciseRift, exerciseButton, "exercise-switching", 1480, event);
+        exerciseButton?.classList.add("is-summoning");
+        window.setTimeout(() => exerciseButton?.classList.remove("is-summoning"), 1480);
+        if (exerciseStatusToast) {
+          exerciseStatusToast.hidden = false;
+          exerciseStatusToast.classList.remove("is-active");
+          void exerciseStatusToast.offsetWidth;
+          exerciseStatusToast.textContent = "window opened";
+          exerciseStatusToast.classList.add("is-active");
+          window.setTimeout(() => {
+            exerciseStatusToast.classList.remove("is-active");
+            exerciseStatusToast.hidden = true;
+          }, 2200);
+        }
+        return "window opened";
+      };
+
+      const openAppointment = (params = {}, event = null) => {
+        const title = getParam(params, "title") || "Follow-up rehab consult";
+        const date = getParam(params, "date") || guessDate("today");
+        const time = getParam(params, "time") || "";
+        const place = getParam(params, "place") || "Remote consult";
+        const notes = getParam(params, "notes", "bring", "details") || "Please review current rehab vitals and the next session plan.";
+        const fields = appointmentForm?.elements;
+        if (fields?.namedItem("title")) fields.namedItem("title").value = title;
+        if (fields?.namedItem("date")) fields.namedItem("date").value = date;
+        if (fields?.namedItem("time")) fields.namedItem("time").value = time;
+        if (fields?.namedItem("place")) fields.namedItem("place").value = place;
+        if (fields?.namedItem("notes")) fields.namedItem("notes").value = notes;
+        if (appointmentSyncState) appointmentSyncState.textContent = "Shared with doctor dashboard";
+        if (appointmentModal) appointmentModal.hidden = false;
+        if (event) activateRift(voiceRift, appointmentButton || voiceButton, "voice-switching", 960, event);
+        return `Appointment request ready: ${title}.`;
+      };
+
+      const closeAppointment = () => {
+        if (appointmentModal) appointmentModal.hidden = true;
+      };
+
+      const publishAppointment = (item) => {
+        const payload = {
+          id: `appt-${Date.now()}`,
+          kind: "appointment",
+          patient_id: vitals.patient_id,
+          name: vitals.name,
+          title: item.title,
+          date: item.date,
+          time: item.time,
+          place: item.place,
+          notes: item.notes,
+          status: "Requested",
+          vitals: { ...vitals },
+          created_at: new Date().toISOString()
+        };
+        publishSharedSignal(SHARED_APPOINTMENTS_KEY, "synaptic-latest-patient-appointment", payload);
+        if (syncStatus) syncStatus.textContent = `Appointment request shared at ${formatTime(payload.created_at)}.`;
+        if (appointmentSyncState) appointmentSyncState.textContent = "Sent to doctor dashboard";
+        return payload;
+      };
+
+      const confirmAppointment = () => {
+        if (!appointmentForm) return "Appointment form is unavailable.";
+        const data = new FormData(appointmentForm);
+        const item = {
+          title: String(data.get("title") || "Follow-up rehab consult").trim(),
+          date: String(data.get("date") || todayISO()).trim(),
+          time: String(data.get("time") || "").trim(),
+          place: String(data.get("place") || "Remote consult").trim(),
+          notes: String(data.get("notes") || "Please review current rehab vitals.").trim()
+        };
+        const payload = publishAppointment(item);
+        closeAppointment();
+        return `Appointment request sent to doctor dashboard: ${payload.title}.`;
+      };
+
+      const triggerEmergencyAlert = (source = "Patient dashboard", event = null) => {
+        activateRift(emergencyRift, voiceButton || appointmentButton, "emergency-switching", 1500, event);
+        const payload = {
+          id: `alert-${Date.now()}`,
+          kind: "emergency",
+          patient_id: vitals.patient_id,
+          name: vitals.name,
+          source,
+          message: "Emergency alert triggered from the patient dashboard.",
+          vitals: { ...vitals },
+          created_at: new Date().toISOString()
+        };
+        publishSharedSignal(SHARED_ALERTS_KEY, "synaptic-latest-patient-alert", payload);
+        if (syncStatus) syncStatus.textContent = `Emergency alert shared at ${formatTime(payload.created_at)}.`;
+        if (syncMode) syncMode.textContent = "Emergency sent";
+        return "Emergency alert sent to the doctor dashboard.";
+      };
+
+      const submitCoachPlan = () => {
+        if (typeof coachForm.requestSubmit === "function") coachForm.requestSubmit();
+        else coachForm.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+      };
+
+      const focusSection = (target) => {
+        const key = String(target || "").toLowerCase().replace(/[^a-z]/g, "");
+        const map = {
+          dashboard: "#vitals",
+          vitals: "#vitals",
+          vital: "#vitals",
+          routine: "#routine",
+          coach: "#coach",
+          rehabcoach: "#coach",
+          care: "#care",
+          careteam: "#care"
+        };
+        const selector = map[key] || target;
+        const element = typeof selector === "string" ? document.querySelector(selector) : selector;
+        if (!element) return false;
+        element.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "center" });
+        document.querySelectorAll(".nav-item[href]").forEach((item) => {
+          item.classList.toggle("active", item.getAttribute("href") === `#${element.id}`);
+        });
+        return true;
+      };
+
+      coachButton.addEventListener("click", openCoach);
+      appointmentButton?.addEventListener("click", (event) => openAppointment({}, event));
+      exerciseButton?.addEventListener("click", openExerciseWindow);
+
+      coachModal.addEventListener("click", (event) => {
+        if (event.target === coachModal || event.target.closest("[data-close-coach]")) {
+          closeCoach();
+        }
+      });
+
+      appointmentModal?.addEventListener("click", (event) => {
+        if (event.target === appointmentModal || event.target.closest("[data-close-appointment]")) {
+          closeAppointment();
+        }
+      });
+
+      appointmentForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const message = confirmAppointment();
+        setVoiceCopy("Appointment request", "Add appointment", message);
+        setVoiceButtonState("success");
+        window.setTimeout(() => setVoiceButtonState(""), 900);
+      });
+
+      const setText = (node, value, card) => {
+        const next = String(value);
+        if (!node || node.textContent === next) return;
+        node.textContent = next;
+        if (card && !reducedMotion.matches) {
+          card.classList.remove("is-pulsing");
+          void card.offsetWidth;
+          card.classList.add("is-pulsing");
+          window.setTimeout(() => card.classList.remove("is-pulsing"), 540);
+        }
+      };
+
+      const nextVitals = () => {
+        tick += 1;
+        const hr = Math.round(clamp(112 + Math.sin(tick / 4.6) * 8 + Math.cos(tick / 2.8) * 3 + (Math.random() - 0.5) * 3, 94, 130));
+        const spo2 = Math.round(clamp(94 + Math.sin(tick / 7) * 2 + (Math.random() - 0.5) * 1.2, 90, 98));
+        const temp = Number(clamp(98.7 + Math.sin(tick / 11) * 0.8 + (Math.random() - 0.5) * 0.2, 97.8, 100.1).toFixed(1));
+        const sys = Math.round(clamp(128 + Math.sin(tick / 5.4) * 8 + (Math.random() - 0.5) * 3, 116, 142));
+        const dia = Math.round(clamp(82 + Math.cos(tick / 6.2) * 5 + (Math.random() - 0.5) * 2, 74, 92));
+        steps += tick % 3 === 0 ? Math.round(2 + Math.random() * 5) : 0;
+        const fatigue = hr > 120 || spo2 < 92 ? "Elevated" : hr < 106 && spo2 > 94 ? "Low" : "Moderate";
+        const balance = fatigue === "Elevated" ? "Sit and reset" : tick % 8 < 4 ? "Supported" : "Steady with rail";
+        vitals = {
+          patient_id: "SD-1024",
+          name: "Maya Rao",
+          hr,
+          spo2,
+          temp,
+          bp: `${sys}/${dia}`,
+          steps,
+          fatigue,
+          balance,
+          updated_at: new Date().toISOString()
+        };
+      };
+
+      const renderChart = () => {
+        if (!chart) return;
+        chart.innerHTML = hrHistory.map((height, index) => `<span class="bar" style="--i:${index};height:${height}%"></span>`).join("");
+      };
+
+      const renderVitals = () => {
+        setText(vitalNodes.hr.value, vitals.hr, vitalNodes.hr.card);
+        setText(vitalNodes.spo2.value, vitals.spo2, vitalNodes.spo2.card);
+        setText(vitalNodes.temp.value, vitals.temp, vitalNodes.temp.card);
+        setText(vitalNodes.bp.value, vitals.bp, vitalNodes.bp.card);
+        vitalNodes.hr.card?.style.setProperty("--load", String(clamp((vitals.hr - 70) / 70, 0.18, 1)));
+        vitalNodes.spo2.card?.style.setProperty("--load", String(clamp(vitals.spo2 / 100, 0.1, 1)));
+        vitalNodes.temp.card?.style.setProperty("--load", String(clamp((vitals.temp - 96) / 6, 0.1, 1)));
+        const systolic = Number(String(vitals.bp).split("/")[0]) || 128;
+        vitalNodes.bp.card?.style.setProperty("--load", String(clamp((systolic - 100) / 60, 0.1, 1)));
+        updatedAt.textContent = formatTime(vitals.updated_at);
+        fatigueLabel.textContent = `Fatigue ${vitals.fatigue.toLowerCase()}`;
+        balanceLabel.textContent = vitals.balance;
+        vitalState.textContent = vitals.fatigue === "Elevated" ? "Pace down" : "Updating every second";
+        hrHistory.push(clamp(Math.round((vitals.hr - 60) * 0.9), 18, 96));
+        hrHistory.shift();
+        renderChart();
+      };
+
+      const publishVitals = async () => {
+        const signature = JSON.stringify(vitals);
+        if (signature === lastPublished) return;
+        lastPublished = signature;
+        window.localStorage.setItem("synaptic-live-vitals", signature);
+        try {
+          const response = await fetch(`${API_BASE}/api/patient-vitals`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: signature
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          syncStatus.textContent = `Synced to doctor at ${formatTime(vitals.updated_at)}.`;
+          syncMode.textContent = "API + local";
+        } catch {
+          syncStatus.textContent = `Local stream active at ${formatTime(vitals.updated_at)}.`;
+          syncMode.textContent = "Local only";
+        }
+      };
+
+      const tickVitals = () => {
+        nextVitals();
+        renderVitals();
+        publishVitals();
+      };
+
+      coachForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        activateCoachRift(event);
+        setCoachState("processing");
+        const data = new FormData(coachForm);
+        const payload = {
+          patient_id: "SD-1024",
+          name: "Maya Rao",
+          goal: String(data.get("goal") || "").trim(),
+          fatigue: String(data.get("fatigue") || "").trim(),
+          mobility: String(data.get("mobility") || "").trim(),
+          notes: String(data.get("notes") || "").trim(),
+          vitals
+        };
+
+        coachOutput.hidden = false;
+        coachOutput.textContent = "Contacting model for a live rehab plan...";
+        coachOutput.classList.add("is-generating");
+
+        try {
+          const response = await fetch(`${API_BASE}/api/rehab-coach`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          const parsed = await response.json().catch(() => ({}));
+          if (!response.ok || parsed.ok === false) {
+            throw new Error(parsed.message || `Rehab coach returned ${response.status}`);
+          }
+          const plan = parsed.plan || "No rehab plan returned.";
+          coachOutput.textContent = plan;
+          coachInlineOutput.textContent = plan;
+          coachPreview.innerHTML = `${escapeHTML(plan)}\n\nModel: ${escapeHTML(parsed.model || "care model")}`;
+          setCoachState("success");
+        } catch (error) {
+          const message = error.message || "Rehab coach failed.";
+          coachOutput.textContent = message;
+          coachInlineOutput.textContent = message;
+          setCoachState("error");
+        } finally {
+          coachOutput.classList.remove("is-generating");
+          window.setTimeout(() => setCoachState(""), 1400);
+        }
+      });
+
+      const VOICE_API_URL = window.VOICE_API_URL || `${API_BASE}/api/voice-command`;
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition = null;
+      let isListening = false;
+
+      const setVoiceButtonState = (state = "") => {
+        voiceButton?.classList.remove("is-listening", "is-success", "is-error");
+        voiceButton?.setAttribute("aria-pressed", state === "listening" ? "true" : "false");
+        if (state) voiceButton?.classList.add(`is-${state}`);
+      };
+
+      const showVoicePanel = () => {
+        if (voicePanel) voicePanel.hidden = false;
+      };
+
+      const setVoiceCopy = (state, transcript, result) => {
+        if (voiceState && state) voiceState.textContent = state;
+        if (voiceTranscript && transcript) voiceTranscript.textContent = transcript;
+        if (voiceResult && result) voiceResult.textContent = result;
+      };
+
+      const getParam = (params = {}, key = "") => {
+        const found = Object.keys(params).find((item) => item.toLowerCase() === key.toLowerCase());
+        return found ? params[found] : "";
+      };
+
+      const localVoiceIntent = (transcript = "") => {
+        const raw = transcript.trim();
+        const lower = raw.toLowerCase();
+        if (!raw) return { action: "Error", params: { message: "No command heard." } };
+        if (lower === "devmode-trigger-alert") return { action: "EmergencyAlert", params: { source: "devmode-trigger-alert" } };
+        if (/\b(close|dismiss|cancel)\b/.test(lower)) return { action: "CloseModal", params: {} };
+        if (/\b(emergency|urgent|help now|red flag|escalate)\b/.test(lower)) return { action: "EmergencyAlert", params: { source: "patient voice command" } };
+        if (/\b(add|book|schedule|create)\b.*\b(appointment|consult|visit|follow-up|follow up)\b/.test(lower)) {
+          return {
+            action: "AddAppointment",
+            params: {
+              title: raw.replace(/\b(add|book|schedule|create)\b/ig, "").trim() || "Follow-up rehab consult",
+              date: guessDate(raw),
+              time: guessTime(raw),
+              place: lower.includes("clinic") ? "Synaptic clinic" : "Remote consult",
+              notes: "Requested from the patient dashboard with current vitals attached."
+            }
+          };
+        }
+        if (/\b(confirm|save|send|submit)\b.*\b(appointment|consult|visit|request)\b/.test(lower)) {
+          return { action: "ConfirmAddAppointment", params: {} };
+        }
+        if (/\b(exercise|workout|movement)\b/.test(lower)) return { action: "StartExercise", params: {} };
+        if (/\b(dark|night)\b/.test(lower)) return { action: "ToggleTheme", params: { theme: "dark" } };
+        if (/\b(light|day)\b/.test(lower)) return { action: "ToggleTheme", params: { theme: "light" } };
+        if (/\b(vitals?|heart|oxygen|blood pressure)\b/.test(lower)) return { action: "NavigateTo", params: { section: "Vitals" } };
+        if (/\b(routine|steps|breathing|shoulder)\b/.test(lower)) return { action: "NavigateTo", params: { section: "Routine" } };
+        if (/\b(care team|doctor|handoff)\b/.test(lower)) return { action: "NavigateTo", params: { section: "Care" } };
+        if (/\b(generate|create|make|build)\b.*\b(plan|rehab|session|coach)\b/.test(lower)) {
+          return {
+            action: "GenerateRehabPlan",
+            params: {
+              goal: raw.replace(/\b(generate|create|make|build|a|the|rehab|plan|session|coach)\b/ig, "").trim() || "Gentle supported rehab session",
+              fatigue: vitals.fatigue,
+              mobility: "Use current mobility status and live vitals.",
+              notes: raw
+            }
+          };
+        }
+        if (/\b(coach|rehab plan|therapy plan|session plan)\b/.test(lower)) return { action: "OpenRehabCoach", params: {} };
+        return {
+          action: "GeneralInquiry",
+          params: {
+            query: raw,
+            answer: "I captured that as a rehab question. Open Rehab coach for a full model-guided session plan using current vitals."
+          }
+        };
+      };
+
+      const interpretVoice = async (transcript) => {
+        if (String(transcript || "").trim().toLowerCase() === "devmode-trigger-alert") {
+          return { ...localVoiceIntent(transcript), source: "Dev command" };
+        }
+        try {
+          const response = await fetch(VOICE_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ transcript })
+          });
+          const parsed = await response.json().catch(() => ({}));
+          if (!response.ok || parsed.action === "Error") throw new Error(parsed.params?.message || `Voice server returned ${response.status}`);
+          return { ...parsed, source: parsed.model ? `AI model: ${parsed.model}` : "AI model" };
+        } catch (error) {
+          return { ...localVoiceIntent(transcript), source: `Local fallback: ${error.message || "voice endpoint unavailable"}` };
+        }
+      };
+
+      const executeVoiceCommand = async (command = {}) => {
+        const action = String(command.action || "").trim();
+        const params = command.params || {};
+        const normalized = action.toLowerCase();
+        let message = "";
+
+        if (normalized === "navigateto") {
+          const section = getParam(params, "section") || getParam(params, "target") || "Vitals";
+          const ok = focusSection(section);
+          message = ok ? `Opened ${section}.` : `I could not find ${section}.`;
+        } else if (normalized === "openrehabcoach") {
+          openCoach();
+          message = "Rehab coach opened.";
+        } else if (normalized === "generaterehabplan") {
+          const fields = coachForm.elements;
+          if (fields.namedItem("goal")) fields.namedItem("goal").value = getParam(params, "goal") || fields.namedItem("goal").value;
+          if (fields.namedItem("fatigue")) fields.namedItem("fatigue").value = getParam(params, "fatigue") || vitals.fatigue;
+          if (fields.namedItem("mobility")) fields.namedItem("mobility").value = getParam(params, "mobility") || fields.namedItem("mobility").value;
+          if (fields.namedItem("notes")) fields.namedItem("notes").value = getParam(params, "notes") || getParam(params, "query") || fields.namedItem("notes").value;
+          openCoach();
+          window.setTimeout(submitCoachPlan, reducedMotion.matches ? 0 : 520);
+          message = "Generating a rehab plan from the voice request.";
+        } else if (normalized === "addappointment" || normalized === "scheduleappointment") {
+          message = openAppointment(params);
+        } else if (normalized === "confirmaddappointment" || normalized === "confirmappointment") {
+          message = confirmAppointment();
+        } else if (normalized === "emergencyalert" || normalized === "emergency") {
+          message = triggerEmergencyAlert(getParam(params, "source") || "Patient voice command");
+        } else if (normalized === "startexercise") {
+          message = openExerciseWindow();
+        } else if (normalized === "stopexercise") {
+          message = "window opened";
+        } else if (normalized === "toggletheme") {
+          const theme = String(getParam(params, "theme") || "").toLowerCase();
+          const next = theme === "dark" || theme === "light" ? theme : body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+          setTheme(next, true);
+          message = `Switched to ${next} mode.`;
+        } else if (normalized === "closemodal") {
+          closeCoach();
+          closeAppointment();
+          if (voicePanel) voicePanel.hidden = true;
+          message = "Closed the open panel.";
+        } else if (normalized === "gener inquiry" || normalized === "generalinquiry") {
+          const answer = getParam(params, "answer") || "I can route that into Rehab coach for a fuller response using your current vitals.";
+          message = answer;
+
+} else if (normalized === "readvitals") {
+  message = `Heart rate ${vitals.hr} bpm, SpO2 ${vitals.spo2}%, Blood pressure ${vitals.bp}, Temperature ${vitals.temp} degrees.`;
+
+} else if (normalized === "markcomplete") {
+  const step = getParam(params, "step") || "";
+  const target = [...document.querySelectorAll(".routine-item")]
+    .find(el => el.textContent.toLowerCase().includes(step.toLowerCase()));
+  if (target) {
+    target.classList.add("is-complete");
+    message = `Marked "${step}" as complete.`;
+  } else {
+    message = `Could not find routine step: ${step}.`;
+  }
+
+        
+        } else {
+          message = getParam(params, "message") || "Command received, but there is no patient-dashboard action for it yet.";
+        }
+
+        setVoiceCopy("Voice control", `Command: ${action || "Unknown"}`, `${message} ${command.source ? `(${command.source})` : ""}`.trim());
+        setVoiceButtonState("success");
+        window.setTimeout(() => setVoiceButtonState(""), 900);
+        return message;
+      };
+
+      const runVoiceTranscript = async (transcript) => {
+        const clean = String(transcript || "").trim();
+        if (!clean) return;
+        showVoicePanel();
+        setVoiceCopy("Interpreting", clean, "Routing the command...");
+        const command = await interpretVoice(clean);
+        await executeVoiceCommand(command);
+      };
+
+      const startVoice = () => {
+        activateRift(voiceRift, voiceButton, "voice-switching", 1260);
+        showVoicePanel();
+        if (!SpeechRecognition) {
+          setVoiceCopy("Manual command", "Speech recognition is not available in this browser.", "Type a command below.");
+          voiceManualInput?.focus();
+          return;
+        }
+
+        if (!recognition) {
+          recognition = new SpeechRecognition();
+          recognition.lang = navigator.language || "en-US";
+          recognition.interimResults = true;
+          recognition.continuous = false;
+          recognition.onresult = (event) => {
+            let interim = "";
+            let finalText = "";
+            for (let index = event.resultIndex; index < event.results.length; index += 1) {
+              const phrase = event.results[index][0]?.transcript || "";
+              if (event.results[index].isFinal) finalText += phrase;
+              else interim += phrase;
+            }
+            setVoiceCopy("Listening", finalText || interim || "Listening...", "Say a command for this patient dashboard.");
+            if (finalText.trim()) runVoiceTranscript(finalText);
+          };
+          recognition.onerror = (event) => {
+            isListening = false;
+            setVoiceButtonState("error");
+            setVoiceCopy("Voice blocked", "Speech recognition could not continue.", event.error || "Use the manual command field.");
+          };
+          recognition.onend = () => {
+            isListening = false;
+            if (voiceButton?.classList.contains("is-listening")) setVoiceButtonState("");
+          };
+        }
+
+        try {
+          isListening = true;
+          setVoiceButtonState("listening");
+          setVoiceCopy("Listening", "Listening...", "Try \"exercise\", \"open rehab coach\", \"show vitals\", or \"switch to dark mode\".");
+          recognition.start();
+        } catch {
+          isListening = false;
+          setVoiceButtonState("");
+          setVoiceCopy("Manual command", "Speech recognition is already active or blocked.", "Type a command below.");
+        }
+      };
+
+      voiceButton?.addEventListener("click", () => {
+        if (isListening && recognition) {
+          recognition.stop();
+          return;
+        }
+        startVoice();
+      });
+
+      voiceClose?.addEventListener("click", () => {
+        if (recognition && isListening) recognition.stop();
+        if (voicePanel) voicePanel.hidden = true;
+      });
+
+      voiceManualSend?.addEventListener("click", () => {
+        runVoiceTranscript(voiceManualInput?.value || "");
+      });
+
+      voiceManualInput?.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        runVoiceTranscript(voiceManualInput.value);
+      });
+
+      renderChart();
+      renderVitals();
+      publishVitals();
+      window.setInterval(tickVitals, 1000);
+
+      window.SynapticPatient = {
+        get vitals() {
+          return vitals;
+        },
+        tickVitals,
+        publishVitals,
+        focusSection,
+        openCoach,
+        closeCoach,
+        openAppointment,
+        closeAppointment,
+        publishAppointment,
+        triggerEmergencyAlert,
+        executeVoiceCommand,
+        endpoint: `${API_BASE}/api/patient-vitals`,
+        rehabEndpoint: `${API_BASE}/api/rehab-coach`,
+        voiceEndpoint: VOICE_API_URL
+      };
+    })();
+  </script>
+</body>
+</html>

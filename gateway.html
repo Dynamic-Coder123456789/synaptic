@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYNAPTIC. | Majestic Gateway</title>
+  <meta name="description" content="SYNAPTIC. local gateway for patient and doctor dashboard nodes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F5F2EB;
+      --paper-deep: #ECE5D6;
+      --paper-soft: #FAF7EF;
+      --ink: #0E0E0E;
+      --void: #10100D;
+      --void-2: #171713;
+      --signal: #FF4F1F;
+      --aqua: #60FFE8;
+      --lime: #B8FF65;
+      --gold: #C99331;
+      --mist: #D6D0C4;
+      --muted: rgba(246, 237, 219, 0.68);
+      --line: rgba(246, 237, 219, 0.16);
+      --line-dark: rgba(14, 14, 14, 0.16);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+      --ease-snap: cubic-bezier(0.85, 0, 0.15, 1);
+      --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+      --intro-duration: 5800ms;
+    }
+
+    @property --spin {
+      syntax: "<angle>";
+      inherits: false;
+      initial-value: 0deg;
+    }
+
+    @property --pulse {
+      syntax: "<number>";
+      inherits: false;
+      initial-value: 0;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-width: 320px;
+      min-height: 100%;
+      overflow: hidden;
+      background: var(--void);
+      color: var(--paper);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      letter-spacing: 0;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    a,
+    button {
+      color: inherit;
+      font: inherit;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .serif {
+      font-family: "Lora", Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    #loader-rig {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 44%, rgba(255, 79, 31, 0.18), transparent 18rem),
+        radial-gradient(circle at 18% 24%, rgba(96, 255, 232, 0.14), transparent 16rem),
+        radial-gradient(circle at 78% 72%, rgba(184, 255, 101, 0.1), transparent 18rem),
+        var(--void);
+      isolation: isolate;
+      transition: opacity 900ms var(--ease-out), transform 900ms var(--ease-out);
+      transform-style: preserve-3d;
+      perspective: 1800px;
+    }
+
+    #loader-rig::before,
+    #loader-rig::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    #loader-rig::before {
+      inset: -24%;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 5.8rem, rgba(246, 237, 219, 0.045) 5.8rem 5.86rem, transparent 5.86rem 11.6rem),
+        repeating-linear-gradient(0deg, transparent 0 5.3rem, rgba(255, 79, 31, 0.055) 5.3rem 5.36rem, transparent 5.36rem 10.6rem);
+      transform: rotate(-10deg);
+      animation: loaderGrid var(--intro-duration) linear forwards;
+    }
+
+    #loader-rig::after {
+      inset: 0;
+      background:
+        linear-gradient(105deg, transparent 0 28%, rgba(255, 79, 31, 0.28) 32%, transparent 38% 62%, rgba(96, 255, 232, 0.16) 68%, transparent 74%),
+        radial-gradient(circle at center, transparent 0 16rem, rgba(16, 16, 13, 0.72) 32rem);
+      transform: translateX(-40%) skewX(-18deg);
+      mix-blend-mode: screen;
+      animation: coronationSweep var(--intro-duration) var(--ease-in-out) forwards;
+    }
+
+    .intro-texture {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 12%, var(--paper) 0 1px, transparent 1px),
+        radial-gradient(circle at 72% 18%, var(--paper) 0 1px, transparent 1px),
+        radial-gradient(circle at 40% 82%, var(--paper) 0 1px, transparent 1px),
+        radial-gradient(circle at 92% 64%, var(--paper) 0 1px, transparent 1px);
+      background-size: 21px 27px, 31px 35px, 43px 39px, 53px 47px;
+      opacity: 0.08;
+      mix-blend-mode: screen;
+      animation: textureSummon var(--intro-duration) linear forwards;
+    }
+
+    .intro-oracle {
+      position: relative;
+      z-index: 12;
+      width: min(82vmin, 48rem);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      transform-style: preserve-3d;
+      animation: oracleRise var(--intro-duration) var(--ease-expo) forwards;
+    }
+
+    .oracle-ring,
+    .oracle-crown,
+    .oracle-dial,
+    .oracle-gate {
+      position: absolute;
+      inset: var(--inset, 0);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .oracle-ring {
+      --inset: 0;
+      border: 1px solid rgba(246, 237, 219, 0.16);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255, 79, 31, 0.34) 0 1px, transparent 2px) 0 0 / 1.1rem 1.1rem,
+        radial-gradient(circle at 50% 50%, rgba(96, 255, 232, 0.16), transparent 54%);
+      -webkit-mask: radial-gradient(circle, transparent 0 66%, #000 67% 70%, transparent 71%);
+      mask: radial-gradient(circle, transparent 0 66%, #000 67% 70%, transparent 71%);
+      animation: ringBloom var(--intro-duration) var(--ease-out) forwards, ringBreath 1700ms ease-in-out infinite;
+    }
+
+    .oracle-crown {
+      --inset: 6%;
+      border: 1px dashed rgba(255, 79, 31, 0.44);
+      box-shadow:
+        0 0 3rem rgba(255, 79, 31, 0.18),
+        inset 0 0 5rem rgba(96, 255, 232, 0.08);
+      animation: introSpin 3600ms linear infinite reverse, crownLock var(--intro-duration) var(--ease-out) forwards;
+    }
+
+    .oracle-dial {
+      --inset: 17%;
+      border: 0.35rem solid rgba(245, 242, 235, 0.84);
+      border-left-color: transparent;
+      border-right-color: transparent;
+      box-shadow:
+        0 0 2.2rem rgba(245, 242, 235, 0.18),
+        inset 0 0 2.6rem rgba(255, 79, 31, 0.22);
+      animation: introSpin 1180ms var(--ease-in-out) infinite, dialTransfigure var(--intro-duration) var(--ease-out) forwards;
+    }
+
+    .oracle-gate {
+      --inset: 28%;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(246, 237, 219, 0.26);
+      background:
+        radial-gradient(circle at center, rgba(255, 79, 31, calc(0.08 + var(--pulse) * 0.14)), transparent 54%),
+        radial-gradient(circle at center, rgba(96, 255, 232, 0.09), transparent 72%);
+      clip-path: polygon(50% 0, 86% 14%, 100% 50%, 86% 86%, 50% 100%, 14% 86%, 0 50%, 14% 14%);
+      animation: gatePulse 1180ms ease-in-out infinite, gateConsecrate var(--intro-duration) var(--ease-expo) forwards;
+    }
+
+    .oracle-gate::before,
+    .oracle-gate::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .oracle-gate::before {
+      inset: 16%;
+      border: 1px solid rgba(255, 79, 31, 0.56);
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      animation: diamondBreathe 900ms ease-in-out infinite;
+    }
+
+    .oracle-gate::after {
+      width: 68%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--aqua), var(--signal), transparent);
+      box-shadow: 0 -3rem 0 rgba(246, 237, 219, 0.18), 0 3rem 0 rgba(246, 237, 219, 0.18);
+      animation: gateBeam 620ms steps(3, end) infinite;
+    }
+
+    .oracle-copy {
+      position: relative;
+      z-index: 4;
+      display: grid;
+      justify-items: center;
+      gap: 1rem;
+      width: min(31rem, 72vw);
+      text-align: center;
+    }
+
+    .oracle-copy h1 {
+      margin: 0;
+      font-size: 5rem;
+      line-height: 0.92;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      text-shadow: 0 0 2.2rem rgba(245, 242, 235, 0.24);
+      animation: titleAscend var(--intro-duration) var(--ease-expo) forwards;
+    }
+
+    .oracle-copy h1 span {
+      display: block;
+      color: var(--signal);
+      font-family: "Lora", Georgia, serif;
+      font-size: 4rem;
+      font-style: italic;
+      font-weight: 500;
+      text-transform: none;
+    }
+
+    .oracle-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      animation: readoutResolve var(--intro-duration) steps(9, end) forwards;
+    }
+
+    .intro-counter {
+      color: var(--paper);
+      font-size: 1.1rem;
+    }
+
+    .intro-counter strong {
+      color: var(--signal);
+      font-size: 2rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .intro-rail {
+      position: absolute;
+      z-index: 8;
+      top: 0;
+      bottom: 0;
+      width: min(14rem, 22vw);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 0.22rem;
+      padding: 1.5rem;
+      overflow: hidden;
+      color: rgba(246, 237, 219, 0.44);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 0.62rem;
+      font-weight: 700;
+      border-color: rgba(246, 237, 219, 0.09);
+      text-transform: uppercase;
+      animation: railConsecrate var(--intro-duration) var(--ease-out) forwards;
+    }
+
+    .intro-rail.left {
+      left: 0;
+      border-right: 1px solid;
+    }
+
+    .intro-rail.right {
+      right: 0;
+      align-items: flex-end;
+      border-left: 1px solid;
+      text-align: right;
+    }
+
+    .data-line {
+      max-width: 100%;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(0.5rem);
+      animation: dataLine 160ms forwards;
+    }
+
+    .corner-lock {
+      position: absolute;
+      z-index: 14;
+      width: 5rem;
+      aspect-ratio: 1;
+      border: 2px solid rgba(246, 237, 219, 0.72);
+      opacity: 0;
+    }
+
+    .corner-lock.tl {
+      top: 5%;
+      left: 5%;
+      border-right: 0;
+      border-bottom: 0;
+      animation: cornerTL var(--intro-duration) var(--ease-snap) forwards;
+    }
+
+    .corner-lock.tr {
+      top: 5%;
+      right: 5%;
+      border-left: 0;
+      border-bottom: 0;
+      animation: cornerTR var(--intro-duration) var(--ease-snap) forwards;
+    }
+
+    .corner-lock.bl {
+      bottom: 5%;
+      left: 5%;
+      border-right: 0;
+      border-top: 0;
+      animation: cornerBL var(--intro-duration) var(--ease-snap) forwards;
+    }
+
+    .corner-lock.br {
+      right: 5%;
+      bottom: 5%;
+      border-left: 0;
+      border-top: 0;
+      animation: cornerBR var(--intro-duration) var(--ease-snap) forwards;
+    }
+
+    .aperture {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, var(--paper) 0 18%, rgba(255, 79, 31, 0.94) 19% 22%, var(--paper) 23%);
+      clip-path: circle(0 at 50% 50%);
+      opacity: 0;
+    }
+
+    .aperture.open {
+      animation: apertureOpen 1500ms var(--ease-expo) forwards;
+    }
+
+    #gateway {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 1.2rem;
+      padding: clamp(1rem, 3vw, 2.5rem);
+      overflow: hidden;
+      color: var(--paper);
+      background:
+        radial-gradient(circle at 18% 14%, rgba(255, 79, 31, 0.18), transparent 18rem),
+        radial-gradient(circle at 77% 18%, rgba(96, 255, 232, 0.13), transparent 16rem),
+        radial-gradient(circle at 58% 88%, rgba(201, 147, 49, 0.18), transparent 20rem),
+        linear-gradient(145deg, #10100D 0%, #171713 48%, #0D0D0A 100%);
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.98);
+      transition: opacity 1200ms var(--ease-out), transform 1200ms var(--ease-out), visibility 0s linear 1200ms;
+      isolation: isolate;
+    }
+
+    #gateway.live {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+      transition-delay: 0s;
+    }
+
+    .gateway-atmosphere,
+    .gateway-atmosphere::before,
+    .gateway-atmosphere::after {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .gateway-atmosphere {
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0.9;
+    }
+
+    .gateway-atmosphere::before {
+      content: "";
+      inset: -20%;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 5.7rem, rgba(246, 237, 219, 0.045) 5.7rem 5.76rem, transparent 5.76rem 11.4rem),
+        repeating-linear-gradient(0deg, transparent 0 5.2rem, rgba(255, 79, 31, 0.052) 5.2rem 5.26rem, transparent 5.26rem 10.4rem);
+      transform: rotate(-8deg);
+      animation: fieldDrift 24s linear infinite;
+    }
+
+    .gateway-atmosphere::after {
+      content: "";
+      background:
+        linear-gradient(100deg, transparent 0 18%, rgba(255, 79, 31, 0.26) 22%, transparent 28% 62%, rgba(96, 255, 232, 0.18) 68%, transparent 74%),
+        radial-gradient(circle at center, transparent 0 22rem, rgba(16, 16, 13, 0.52) 42rem);
+      transform: translateX(-40%) skewX(-18deg);
+      mix-blend-mode: screen;
+      animation: atmosphereSweep 8.4s var(--ease-out) infinite;
+    }
+
+    .starfield {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .starfield span {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: var(--s);
+      height: var(--s);
+      border-radius: 50%;
+      background: rgba(246, 237, 219, 0.78);
+      box-shadow: 0 0 1.2rem rgba(96, 255, 232, 0.24);
+      opacity: var(--o);
+      animation: starGlint var(--d) ease-in-out infinite;
+      animation-delay: var(--delay);
+    }
+
+    .gw-header {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: minmax(12rem, auto) minmax(0, 1fr) auto;
+      gap: 1.5rem;
+      align-items: center;
+      min-height: 4.6rem;
+      padding: 0.65rem 0.75rem 0.95rem;
+      border-bottom: 1px solid rgba(246, 237, 219, 0.16);
+    }
+
+    .gw-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.95rem;
+      min-width: 0;
+    }
+
+    .gw-mark {
+      position: relative;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 3.15rem;
+      aspect-ratio: 1;
+      background:
+        linear-gradient(135deg, rgba(96, 255, 232, 0.95), rgba(255, 79, 31, 0.96) 58%, rgba(201, 147, 49, 0.88));
+      clip-path: polygon(17% 2%, 88% 0, 100% 76%, 28% 100%, 0 28%);
+      box-shadow: 0 0 2rem rgba(255, 79, 31, 0.18);
+      animation: markBreathe 3.8s ease-in-out infinite;
+    }
+
+    .gw-mark::after {
+      position: absolute;
+      inset: 0.5rem;
+      content: "";
+      background: var(--void);
+      clip-path: polygon(17% 2%, 88% 0, 100% 76%, 28% 100%, 0 28%);
+    }
+
+    .gw-mark svg {
+      position: relative;
+      z-index: 2;
+      width: 1.9rem;
+      height: 1.9rem;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .gw-title {
+      margin: 0;
+      color: var(--paper);
+      font-size: 1.75rem;
+      line-height: 1;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .gw-title em {
+      color: var(--signal);
+      font-family: "Lora", Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .brand-copy p {
+      margin: 0.22rem 0 0;
+      color: rgba(246, 237, 219, 0.55);
+      font-size: 0.64rem;
+      line-height: 1.35;
+    }
+
+    .gw-nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+
+    .gw-nav a {
+      position: relative;
+      display: inline-grid;
+      min-height: 2.55rem;
+      place-items: center;
+      overflow: hidden;
+      padding: 0 0.95rem;
+      border: 1px solid rgba(246, 237, 219, 0.17);
+      border-radius: 7px;
+      background: rgba(246, 237, 219, 0.045);
+      color: rgba(246, 237, 219, 0.78);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: transform 240ms var(--ease-out), border-color 220ms ease, color 220ms ease, background 220ms ease;
+      isolation: isolate;
+    }
+
+    .gw-nav a::before,
+    .gw-nav a::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .gw-nav a::before {
+      inset: -80% -30%;
+      z-index: -1;
+      background:
+        linear-gradient(90deg, transparent 0 18%, rgba(255, 79, 31, 0.82) 20% 22%, transparent 24% 42%, rgba(96, 255, 232, 0.72) 44% 46%, transparent 48% 100%),
+        rgba(246, 237, 219, 0.08);
+      opacity: 0;
+      transform: translateX(-54%) rotate(-16deg) scaleX(0.5);
+    }
+
+    .gw-nav a::after {
+      inset: 0.42rem;
+      border: 1px solid rgba(255, 79, 31, 0.5);
+      opacity: 0;
+      transform: skewX(-14deg) scaleX(0.5);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .gw-nav a:hover,
+    .gw-nav a:focus-visible {
+      color: var(--paper);
+      border-color: rgba(255, 79, 31, 0.84);
+      background: rgba(255, 79, 31, 0.08);
+      transform: translateY(-0.18rem);
+      outline: none;
+    }
+
+    .gw-nav a:hover::before,
+    .gw-nav a:focus-visible::before {
+      opacity: 1;
+      animation: navGlitch 640ms steps(4, end) infinite;
+    }
+
+    .gw-nav a:hover::after,
+    .gw-nav a:focus-visible::after {
+      opacity: 1;
+      transform: skewX(-14deg) scaleX(1);
+    }
+
+    .gw-meta {
+      display: grid;
+      justify-items: end;
+      gap: 0.2rem;
+      color: rgba(246, 237, 219, 0.52);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 0.67rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-align: right;
+      text-transform: uppercase;
+    }
+
+    .gw-meta strong {
+      color: var(--paper);
+      font-size: 0.78rem;
+    }
+
+    .gw-stage {
+      position: relative;
+      z-index: 5;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(18rem, 0.88fr) minmax(21rem, 1.25fr) minmax(20rem, 0.9fr);
+      gap: clamp(1rem, 2vw, 2rem);
+      align-items: stretch;
+      padding: 0.25rem 0.75rem 0.75rem;
+    }
+
+    .ceremony-panel {
+      position: relative;
+      display: grid;
+      align-content: center;
+      gap: 1.4rem;
+      min-width: 0;
+      padding: clamp(1rem, 3vw, 2rem) 0;
+    }
+
+    .gate-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: rgba(246, 237, 219, 0.56);
+      font-size: 0.72rem;
+    }
+
+    .gate-label::before {
+      content: "";
+      width: 2rem;
+      height: 1px;
+      background: var(--signal);
+      box-shadow: 0 0 1rem rgba(255, 79, 31, 0.42);
+    }
+
+    .hero-title {
+      margin: 0;
+      color: var(--paper);
+      font-size: 4.6rem;
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .hero-title .serif {
+      display: block;
+      color: var(--signal);
+      font-size: 4.15rem;
+      line-height: 0.98;
+    }
+
+    .hero-copy {
+      max-width: 34rem;
+      margin: 0;
+      color: rgba(246, 237, 219, 0.72);
+      font-family: "Lora", Georgia, serif;
+      font-size: 1.08rem;
+      line-height: 1.62;
+    }
+
+    .status-grid {
+      display: grid;
+      gap: 0.6rem;
+      width: min(100%, 30rem);
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(246, 237, 219, 0.16);
+    }
+
+    .status-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      color: rgba(246, 237, 219, 0.54);
+      font-size: 0.72rem;
+    }
+
+    .status-line strong {
+      color: var(--signal);
+      font-weight: 800;
+    }
+
+    .gate-cosmos {
+      position: relative;
+      min-height: 33rem;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-inline: 1px solid rgba(246, 237, 219, 0.08);
+      isolation: isolate;
+    }
+
+    .gate-cosmos::before,
+    .gate-cosmos::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+      border-radius: 50%;
+    }
+
+    .gate-cosmos::before {
+      width: min(34rem, 76vmin);
+      aspect-ratio: 1;
+      background:
+        radial-gradient(circle, transparent 0 56%, rgba(255, 79, 31, 0.18) 57% 58%, transparent 59% 63%, rgba(96, 255, 232, 0.12) 64% 65%, transparent 66%),
+        repeating-radial-gradient(circle, transparent 0 2.25rem, rgba(246, 237, 219, 0.08) 2.28rem 2.34rem, transparent 2.36rem 4.5rem);
+      border: 1px solid rgba(246, 237, 219, 0.08);
+      animation: cosmosBreathe 5.8s ease-in-out infinite;
+    }
+
+    .gate-cosmos::after {
+      width: min(26rem, 62vmin);
+      aspect-ratio: 1;
+      border: 1px dashed rgba(246, 237, 219, 0.22);
+      box-shadow:
+        0 0 4rem rgba(255, 79, 31, 0.18),
+        inset 0 0 5rem rgba(96, 255, 232, 0.1);
+      animation: cosmosBreathe 6.6s ease-in-out infinite reverse;
+    }
+
+    .constellation {
+      position: relative;
+      z-index: 3;
+      width: min(31rem, 72vmin);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 0 2rem rgba(255, 79, 31, 0.18));
+      animation: constellationFloat 7.2s ease-in-out infinite;
+    }
+
+    .constellation svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .constellation line {
+      stroke: rgba(246, 237, 219, 0.28);
+      stroke-width: 1;
+      stroke-dasharray: 2 8;
+      animation: pathAwake 5.5s linear infinite;
+    }
+
+    .constellation .hot-line {
+      stroke: rgba(255, 79, 31, 0.78);
+      stroke-width: 2;
+      stroke-dasharray: 8 12;
+      filter: drop-shadow(0 0 0.5rem rgba(255, 79, 31, 0.5));
+    }
+
+    .axis-node {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 4.6rem;
+      aspect-ratio: 1;
+      border: 1px solid rgba(246, 237, 219, 0.22);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(255, 79, 31, 0.78) 0 0.32rem, transparent 0.36rem),
+        rgba(246, 237, 219, 0.04);
+      color: var(--paper);
+      font-size: 0.68rem;
+      box-shadow:
+        0 0 1.8rem rgba(255, 79, 31, 0.16),
+        inset 0 0 1.4rem rgba(96, 255, 232, 0.06);
+      transform: translate(-50%, -50%);
+      animation: nodePulse 2.8s ease-in-out infinite;
+      animation-delay: var(--node-delay, 0s);
+    }
+
+    .axis-node span {
+      transform: translateY(2.35rem);
+      white-space: nowrap;
+      color: rgba(246, 237, 219, 0.66);
+    }
+
+    .axis-node.primary {
+      width: 7.3rem;
+      border-color: rgba(255, 79, 31, 0.74);
+      background:
+        radial-gradient(circle, rgba(255, 79, 31, 0.94) 0 0.48rem, transparent 0.52rem),
+        radial-gradient(circle, rgba(255, 79, 31, 0.22), transparent 58%),
+        linear-gradient(135deg, rgba(246, 237, 219, 0.1), rgba(96, 255, 232, 0.08));
+      box-shadow:
+        0 0 3.4rem rgba(255, 79, 31, 0.32),
+        inset 0 0 2.8rem rgba(246, 237, 219, 0.08);
+      animation: nodePulse 1800ms ease-in-out infinite;
+    }
+
+    .axis-node.primary span {
+      transform: translateY(4rem);
+      color: var(--paper);
+    }
+
+    .node-a {
+      left: 50%;
+      top: 50%;
+    }
+
+    .node-b {
+      left: 21%;
+      top: 26%;
+      --node-delay: -0.3s;
+    }
+
+    .node-c {
+      left: 78%;
+      top: 31%;
+      --node-delay: -0.8s;
+    }
+
+    .node-d {
+      left: 26%;
+      top: 76%;
+      --node-delay: -1.2s;
+    }
+
+    .node-e {
+      left: 75%;
+      top: 72%;
+      --node-delay: -1.8s;
+    }
+
+    .pedestal {
+      position: absolute;
+      z-index: 2;
+      left: 50%;
+      bottom: 8%;
+      width: min(31rem, 70%);
+      height: 5rem;
+      transform: translateX(-50%) perspective(26rem) rotateX(64deg);
+      border: 1px solid rgba(246, 237, 219, 0.12);
+      border-radius: 50%;
+      background:
+        radial-gradient(ellipse at center, rgba(255, 79, 31, 0.26), transparent 54%),
+        repeating-radial-gradient(ellipse at center, transparent 0 1rem, rgba(246, 237, 219, 0.09) 1.02rem 1.06rem);
+      filter: blur(0.2px);
+      animation: pedestalGlow 3.6s ease-in-out infinite;
+    }
+
+    .node-column {
+      display: grid;
+      align-content: center;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .portal-card {
+      position: relative;
+      min-height: 16.2rem;
+      display: flex;
+      overflow: hidden;
+      border: 1px solid rgba(246, 237, 219, 0.16);
+      border-radius: 8px;
+      background: rgba(246, 237, 219, 0.045);
+      isolation: isolate;
+      box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.16);
+      transition: transform 320ms var(--ease-out), border-color 260ms ease, box-shadow 320ms ease, background 260ms ease;
+    }
+
+    .portal-card::before,
+    .portal-card::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .portal-card::before {
+      inset: -32%;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 50% 120%, rgba(201, 147, 49, 0.28), transparent 58%),
+        radial-gradient(ellipse at 50% -10%, rgba(96, 255, 232, 0.18), transparent 42%),
+        linear-gradient(118deg, transparent 0 22%, rgba(255, 79, 31, 0.34) 34%, transparent 46% 100%),
+        linear-gradient(62deg, transparent 0 34%, rgba(246, 237, 219, 0.18) 46%, transparent 58% 100%);
+      opacity: 0;
+      mix-blend-mode: screen;
+      transform: translateY(12%) scale(0.92);
+    }
+
+    .portal-card::after {
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(105deg, transparent 0 28%, rgba(246, 237, 219, 0.44) 34%, rgba(255, 79, 31, 0.56) 38%, transparent 47%),
+        linear-gradient(0deg, transparent 0 42%, rgba(246, 237, 219, 0.13) 49%, transparent 56%);
+      opacity: 0;
+      transform: translateX(-96%) skewX(-18deg);
+      mix-blend-mode: screen;
+    }
+
+    .portal-card:hover,
+    .portal-card:focus-visible {
+      transform: translateY(-0.65rem) scale(1.012);
+      border-color: rgba(255, 79, 31, 0.8);
+      background: rgba(246, 237, 219, 0.07);
+      box-shadow:
+        0 0 0 1px rgba(255, 79, 31, 0.12),
+        0 2rem 5rem rgba(0, 0, 0, 0.28),
+        0 0 3.2rem rgba(255, 79, 31, 0.14);
+      outline: none;
+    }
+
+    .portal-card:hover::before,
+    .portal-card:focus-visible::before {
+      opacity: 0.92;
+      animation: nodeHalo 1800ms ease-in-out infinite;
+    }
+
+    .portal-card:hover::after,
+    .portal-card:focus-visible::after {
+      opacity: 0.82;
+      animation: royalSweep 1350ms var(--ease-out) infinite;
+    }
+
+    .portal-inner {
+      position: relative;
+      z-index: 2;
+      isolation: isolate;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 1.1rem;
+      width: 100%;
+      padding: 1.55rem;
+      color: var(--paper);
+    }
+
+    .portal-inner::before,
+    .portal-inner::after {
+      position: absolute;
+      z-index: 1;
+      content: "";
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 260ms ease, transform 420ms var(--ease-out);
+    }
+
+    .portal-inner::before {
+      inset: 0.8rem;
+      border: 1px solid rgba(255, 79, 31, 0.36);
+      border-radius: 6px;
+      clip-path: polygon(0 0, 72% 0, 72% 0.4rem, 100% 0.4rem, 100% 100%, 28% 100%, 28% calc(100% - 0.4rem), 0 calc(100% - 0.4rem));
+      transform: scale(0.94);
+    }
+
+    .portal-inner::after {
+      left: 1.25rem;
+      right: 1.25rem;
+      bottom: 0.8rem;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(201, 147, 49, 0.94), rgba(255, 79, 31, 0.82), transparent);
+      box-shadow: 0 0 1.4rem rgba(255, 79, 31, 0.32);
+      transform: scaleX(0.28);
+    }
+
+    .portal-inner > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .portal-card:hover .portal-inner::before,
+    .portal-card:focus-visible .portal-inner::before {
+      opacity: 1;
+      transform: scale(1);
+      animation: royalFrame 1500ms ease-in-out infinite;
+    }
+
+    .portal-card:hover .portal-inner::after,
+    .portal-card:focus-visible .portal-inner::after {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
+    .portal-patient .portal-inner {
+      background:
+        radial-gradient(circle at 88% 12%, rgba(184, 255, 101, 0.11), transparent 38%),
+        linear-gradient(135deg, rgba(246, 237, 219, 0.1), rgba(246, 237, 219, 0.03));
+    }
+
+    .portal-doctor .portal-inner {
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255, 79, 31, 0.18), transparent 38%),
+        linear-gradient(135deg, rgba(255, 79, 31, 0.11), rgba(246, 237, 219, 0.03));
+    }
+
+    .portal-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .portal-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      width: max-content;
+      max-width: 100%;
+      padding: 0.42rem 0.65rem;
+      border: 1px solid rgba(255, 79, 31, 0.42);
+      border-radius: 6px;
+      color: var(--signal);
+      font-size: 0.68rem;
+    }
+
+    .portal-tag::before {
+      content: "";
+      width: 0.42rem;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 1rem currentColor;
+      animation: liveDot 1000ms steps(2, end) infinite;
+    }
+
+    .portal-index {
+      color: rgba(246, 237, 219, 0.32);
+      font-family: "Lora", Georgia, serif;
+      font-size: 3rem;
+      font-style: italic;
+      line-height: 0.8;
+    }
+
+    .portal-title {
+      align-self: end;
+    }
+
+    .portal-title h3 {
+      margin: 0 0 0.85rem;
+      color: var(--paper);
+      font-size: 2.5rem;
+      line-height: 0.96;
+      letter-spacing: 0;
+      transition: color 260ms ease, text-shadow 320ms ease, transform 320ms var(--ease-out);
+    }
+
+    .portal-patient .portal-title h3 {
+      color: var(--paper);
+      font-family: "Lora", Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .portal-title p {
+      max-width: 31rem;
+      margin: 0;
+      color: rgba(246, 237, 219, 0.68);
+      font-size: 0.95rem;
+      line-height: 1.52;
+      transition: color 260ms ease;
+    }
+
+    .portal-card:hover .portal-tag,
+    .portal-card:focus-visible .portal-tag {
+      color: var(--paper);
+      border-color: rgba(246, 237, 219, 0.44);
+      box-shadow: 0 0 1.8rem rgba(255, 79, 31, 0.16);
+    }
+
+    .portal-card:hover .portal-title h3,
+    .portal-card:focus-visible .portal-title h3 {
+      color: #FFF6E8;
+      text-shadow: 0 0 1.7rem rgba(255, 79, 31, 0.32), 0 0 3rem rgba(201, 147, 49, 0.14);
+      transform: translateY(-0.12rem);
+    }
+
+    .portal-card:hover .portal-title p,
+    .portal-card:focus-visible .portal-title p {
+      color: rgba(246, 237, 219, 0.84);
+    }
+
+    .portal-footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(246, 237, 219, 0.14);
+      color: rgba(246, 237, 219, 0.72);
+      font-size: 0.72rem;
+    }
+
+    .enter-orb {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 2.8rem;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      color: var(--void);
+      background: var(--paper);
+      box-shadow: 0 0 2rem rgba(245, 242, 235, 0.14);
+      transition: transform 300ms var(--ease-out), background 220ms ease, color 220ms ease;
+    }
+
+    .enter-orb svg {
+      width: 1.05rem;
+      height: 1.05rem;
+    }
+
+    .portal-card:hover .enter-orb,
+    .portal-card:focus-visible .enter-orb {
+      color: var(--paper);
+      background: var(--signal);
+      transform: translateX(0.3rem) rotate(-8deg) scale(1.08);
+    }
+
+    .launch-veil {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      color: var(--paper);
+      background: rgba(16, 16, 13, 0.74);
+      opacity: 0;
+      transform: scale(1.03);
+      transition: opacity 260ms ease, transform 260ms var(--ease-out);
+      backdrop-filter: blur(4px);
+    }
+
+    .launch-veil.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .launch-veil__core {
+      width: min(28rem, 72vw);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(246, 237, 219, 0.18);
+      background:
+        radial-gradient(circle, rgba(255, 79, 31, 0.22), transparent 56%),
+        linear-gradient(135deg, transparent 0 30%, rgba(255, 79, 31, 0.58) 42%, transparent 54% 100%),
+        linear-gradient(45deg, transparent 0 35%, rgba(96, 255, 232, 0.28) 48%, transparent 60% 100%);
+      animation: launchBreathe 900ms ease-in-out infinite;
+    }
+
+    .launch-veil__core span {
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(246, 237, 219, 0.18);
+      border-radius: 6px;
+      background: rgba(16, 16, 13, 0.72);
+      font-size: 0.72rem;
+    }
+
+    .hover-spark {
+      position: fixed;
+      z-index: 980;
+      width: var(--spark-w, 2rem);
+      height: 2px;
+      pointer-events: none;
+      background: var(--signal);
+      box-shadow: 0 0 1.1rem rgba(255, 79, 31, 0.48);
+      transform: translate(-50%, -50%) rotate(var(--spark-r, 0deg));
+      animation: hoverSpark 680ms var(--ease-out) forwards;
+    }
+
+    @keyframes loaderGrid {
+      0% { transform: rotate(-10deg) translate3d(-6%, -6%, -40rem); opacity: 0; }
+      14% { opacity: 1; }
+      100% { transform: rotate(-10deg) translate3d(7%, 6%, 20rem); opacity: 0.48; }
+    }
+
+    @keyframes coronationSweep {
+      0% { transform: translateX(-70%) skewX(-18deg); opacity: 0; }
+      18% { opacity: 1; }
+      72% { transform: translateX(18%) skewX(-18deg); opacity: 0.88; }
+      100% { transform: translateX(68%) skewX(-18deg); opacity: 0; }
+    }
+
+    @keyframes textureSummon {
+      0% { opacity: 0; transform: scale(1.2); }
+      20%, 82% { opacity: 0.08; }
+      100% { opacity: 0; transform: scale(1); }
+    }
+
+    @keyframes oracleRise {
+      0% { opacity: 0; transform: translateZ(-50rem) rotateX(68deg) scale(0.18); filter: blur(1rem); }
+      16% { opacity: 1; filter: blur(0); }
+      34% { transform: translateZ(0) rotateX(0) scale(1.04); }
+      76% { transform: translateZ(0) rotateX(0) scale(1); opacity: 1; }
+      100% { transform: translateZ(38rem) rotateX(-18deg) scale(3.4); opacity: 0; filter: blur(0.4rem); }
+    }
+
+    @keyframes introSpin {
+      to { --spin: 360deg; }
+    }
+
+    @keyframes ringBreath {
+      0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 79, 31, 0)); }
+      50% { filter: drop-shadow(0 0 1.8rem rgba(255, 79, 31, 0.3)); }
+    }
+
+    @keyframes ringBloom {
+      0% { transform: scale(0.2) rotate(-90deg); opacity: 0; }
+      20%, 82% { opacity: 1; }
+      100% { transform: scale(1.8) rotate(90deg); opacity: 0; }
+    }
+
+    @keyframes crownLock {
+      0% { transform: scale(0.3) rotate(70deg); opacity: 0; }
+      24%, 76% { opacity: 1; }
+      100% { transform: scale(1.5) rotate(-40deg); opacity: 0; }
+    }
+
+    @keyframes dialTransfigure {
+      0% { opacity: 0; transform: scale(0.2) rotate(-140deg); }
+      18%, 78% { opacity: 1; }
+      100% { opacity: 0; transform: scale(4) rotate(210deg); }
+    }
+
+    @keyframes gatePulse {
+      0%, 100% { --pulse: 0; transform: scale(0.98); }
+      50% { --pulse: 1; transform: scale(1.03); }
+    }
+
+    @keyframes gateConsecrate {
+      0% { opacity: 0; transform: scale(0) rotate(45deg); }
+      18%, 84% { opacity: 1; }
+      100% { opacity: 0; transform: scale(2.4) rotate(-45deg); }
+    }
+
+    @keyframes diamondBreathe {
+      0%, 100% { transform: scale(0.82) rotate(0); opacity: 0.5; }
+      50% { transform: scale(1.08) rotate(12deg); opacity: 1; }
+    }
+
+    @keyframes gateBeam {
+      0% { transform: translateY(-0.2rem) scaleX(0.72); opacity: 0.32; }
+      50% { transform: translateY(0.2rem) scaleX(1.1); opacity: 1; }
+      100% { transform: translateY(-0.2rem) scaleX(0.72); opacity: 0.32; }
+    }
+
+    @keyframes titleAscend {
+      0% { opacity: 0; transform: translateY(2rem) scale(0.82); }
+      18%, 78% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-2rem) scale(1.42); }
+    }
+
+    @keyframes readoutResolve {
+      0% { opacity: 0; filter: blur(0.4rem); }
+      28%, 78% { opacity: 1; filter: blur(0); }
+      100% { opacity: 0; filter: blur(0.4rem); }
+    }
+
+    @keyframes railConsecrate {
+      0% { opacity: 0; transform: translateY(3rem); }
+      16%, 86% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-2rem); }
+    }
+
+    @keyframes dataLine {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cornerTL {
+      0%, 24% { opacity: 0; transform: translate(-5rem, -5rem); }
+      38%, 82% { opacity: 1; transform: translate(0, 0); }
+      100% { opacity: 0; transform: translate(1.5rem, 1.5rem) scale(2.2); }
+    }
+
+    @keyframes cornerTR {
+      0%, 25% { opacity: 0; transform: translate(5rem, -5rem); }
+      39%, 82% { opacity: 1; transform: translate(0, 0); }
+      100% { opacity: 0; transform: translate(-1.5rem, 1.5rem) scale(2.2); }
+    }
+
+    @keyframes cornerBL {
+      0%, 26% { opacity: 0; transform: translate(-5rem, 5rem); }
+      40%, 82% { opacity: 1; transform: translate(0, 0); }
+      100% { opacity: 0; transform: translate(1.5rem, -1.5rem) scale(2.2); }
+    }
+
+    @keyframes cornerBR {
+      0%, 27% { opacity: 0; transform: translate(5rem, 5rem); }
+      41%, 82% { opacity: 1; transform: translate(0, 0); }
+      100% { opacity: 0; transform: translate(-1.5rem, -1.5rem) scale(2.2); }
+    }
+
+    @keyframes apertureOpen {
+      0% { opacity: 1; clip-path: circle(0 at 50% 50%); }
+      62% { opacity: 1; clip-path: circle(142% at 50% 50%); }
+      100% { opacity: 0; clip-path: circle(142% at 50% 50%); }
+    }
+
+    @keyframes fieldDrift {
+      to { transform: rotate(-8deg) translate3d(8rem, 5rem, 0); }
+    }
+
+    @keyframes atmosphereSweep {
+      0% { transform: translateX(-56%) skewX(-18deg); opacity: 0; }
+      18%, 54% { opacity: 1; }
+      100% { transform: translateX(56%) skewX(-18deg); opacity: 0; }
+    }
+
+    @keyframes starGlint {
+      0%, 100% { opacity: var(--o); transform: scale(0.82); }
+      50% { opacity: 1; transform: scale(1.35); }
+    }
+
+    @keyframes markBreathe {
+      0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 79, 31, 0)); transform: rotate(-1deg) scale(1); }
+      50% { filter: drop-shadow(0 0 1rem rgba(255, 79, 31, 0.28)); transform: rotate(-1deg) scale(1.04); }
+    }
+
+    @keyframes navGlitch {
+      0% { transform: translateX(-54%) rotate(-16deg) scaleX(0.5); }
+      50% { transform: translateX(12%) rotate(-16deg) scaleX(1); }
+      100% { transform: translateX(58%) rotate(-16deg) scaleX(0.32); }
+    }
+
+    @keyframes cosmosBreathe {
+      0%, 100% { opacity: 0.52; filter: drop-shadow(0 0 0 rgba(255, 79, 31, 0)); }
+      50% { opacity: 0.96; filter: drop-shadow(0 0 2.4rem rgba(255, 79, 31, 0.2)); }
+    }
+
+    @keyframes constellationFloat {
+      0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+      50% { transform: translateY(-0.8rem) rotate(1.5deg); }
+    }
+
+    @keyframes pathAwake {
+      to { stroke-dashoffset: -80; }
+    }
+
+    @keyframes nodePulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.76; }
+      50% { transform: translate(-50%, -50%) scale(1.06); opacity: 1; }
+    }
+
+    @keyframes pedestalGlow {
+      0%, 100% { opacity: 0.48; transform: translateX(-50%) perspective(26rem) rotateX(64deg) scaleX(0.92); }
+      50% { opacity: 0.82; transform: translateX(-50%) perspective(26rem) rotateX(64deg) scaleX(1.06); }
+    }
+
+    @keyframes nodeHalo {
+      0%, 100% { opacity: 0.46; transform: translateY(10%) scale(0.94); }
+      50% { opacity: 0.92; transform: translateY(-3%) scale(1.03); }
+    }
+
+    @keyframes royalSweep {
+      0% { opacity: 0; transform: translateX(-108%) skewX(-18deg); }
+      18% { opacity: 0.82; }
+      72% { opacity: 0.58; }
+      100% { opacity: 0; transform: translateX(108%) skewX(-18deg); }
+    }
+
+    @keyframes royalFrame {
+      0%, 100% {
+        border-color: rgba(255, 79, 31, 0.28);
+        box-shadow: inset 0 0 0 rgba(255, 79, 31, 0), 0 0 0 rgba(255, 79, 31, 0);
+      }
+      50% {
+        border-color: rgba(246, 237, 219, 0.54);
+        box-shadow: inset 0 0 1.6rem rgba(255, 79, 31, 0.12), 0 0 1.8rem rgba(255, 79, 31, 0.18);
+      }
+    }
+
+    @keyframes liveDot {
+      50% { opacity: 0.32; }
+    }
+
+    @keyframes launchBreathe {
+      0%, 100% { transform: scale(0.98); filter: drop-shadow(0 0 0 rgba(255, 79, 31, 0)); }
+      50% { transform: scale(1.04); filter: drop-shadow(0 0 2rem rgba(255, 79, 31, 0.34)); }
+    }
+
+    @keyframes hoverSpark {
+      0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--spark-r, 0deg)) scaleX(0.22); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--spark-x, 5rem)), calc(-50% + var(--spark-y, -2rem))) rotate(var(--spark-r, 0deg)) scaleX(1); }
+    }
+
+    @media (max-width: 1180px) {
+      html,
+      body {
+        overflow: auto;
+      }
+
+      #gateway {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+      }
+
+      .gw-header {
+        grid-template-columns: 1fr auto;
+      }
+
+      .gw-nav {
+        grid-column: 1 / -1;
+        justify-content: start;
+        flex-wrap: wrap;
+      }
+
+      .gw-stage {
+        grid-template-columns: 1fr;
+      }
+
+      .gate-cosmos {
+        min-height: 30rem;
+        border: 1px solid rgba(246, 237, 219, 0.08);
+        border-radius: 8px;
+      }
+
+      .node-column {
+        grid-template-columns: 1fr 1fr;
+        align-content: stretch;
+      }
+    }
+
+    @media (min-width: 1181px) and (max-height: 820px) {
+      #gateway {
+        gap: 0.7rem;
+        padding: 0.85rem 2.4rem 0.9rem;
+      }
+
+      .gw-header {
+        min-height: 4rem;
+        padding: 0.35rem 0.7rem 0.7rem;
+      }
+
+      .gw-mark {
+        width: 2.65rem;
+      }
+
+      .gw-title {
+        font-size: 1.45rem;
+      }
+
+      .brand-copy p,
+      .gw-meta {
+        font-size: 0.58rem;
+      }
+
+      .gw-nav a {
+        min-height: 2.25rem;
+        padding-inline: 0.82rem;
+        font-size: 0.64rem;
+      }
+
+      .gw-stage {
+        gap: 1.1rem;
+        padding: 0 0.65rem 0.2rem;
+      }
+
+      .ceremony-panel {
+        gap: 1rem;
+        padding-block: 0.5rem;
+      }
+
+      .hero-title {
+        font-size: 3.35rem;
+      }
+
+      .hero-title .serif {
+        font-size: 3rem;
+      }
+
+      .hero-copy {
+        font-size: 0.95rem;
+        line-height: 1.48;
+      }
+
+      .status-grid {
+        gap: 0.42rem;
+        padding-top: 0.75rem;
+      }
+
+      .status-line {
+        font-size: 0.62rem;
+      }
+
+      .gate-cosmos {
+        min-height: 28.5rem;
+      }
+
+      .constellation {
+        width: min(25.5rem, 64vmin);
+      }
+
+      .axis-node {
+        width: 3.75rem;
+        font-size: 0.56rem;
+      }
+
+      .axis-node.primary {
+        width: 5.9rem;
+      }
+
+      .node-column {
+        gap: 0.75rem;
+      }
+
+      .portal-card {
+        min-height: 12rem;
+      }
+
+      .portal-inner {
+        gap: 0.6rem;
+        padding: 1rem 1.15rem;
+      }
+
+      .portal-tag {
+        padding: 0.34rem 0.56rem;
+        font-size: 0.58rem;
+      }
+
+      .portal-index {
+        font-size: 2.35rem;
+      }
+
+      .portal-title h3 {
+        margin-bottom: 0.55rem;
+        font-size: 2rem;
+      }
+
+      .portal-title p {
+        font-size: 0.82rem;
+        line-height: 1.38;
+      }
+
+      .portal-footer {
+        padding-top: 0.65rem;
+        font-size: 0.62rem;
+      }
+
+      .enter-orb {
+        width: 2.35rem;
+      }
+    }
+
+    @media (max-width: 760px) {
+      #gateway {
+        padding: 0.9rem;
+      }
+
+      .gw-header {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .gw-meta {
+        justify-items: start;
+        text-align: left;
+      }
+
+      .gw-nav a {
+        flex: 1 1 8.5rem;
+      }
+
+      .gw-stage {
+        padding-inline: 0;
+      }
+
+      .hero-title {
+        font-size: 3.15rem;
+      }
+
+      .hero-title .serif {
+        font-size: 2.85rem;
+      }
+
+      .hero-copy {
+        font-size: 1rem;
+      }
+
+      .gate-cosmos {
+        min-height: 24rem;
+      }
+
+      .constellation {
+        width: min(23rem, 82vw);
+      }
+
+      .axis-node {
+        width: 3.7rem;
+        font-size: 0.58rem;
+      }
+
+      .axis-node.primary {
+        width: 5.6rem;
+      }
+
+      .node-column {
+        grid-template-columns: 1fr;
+      }
+
+      .portal-card {
+        min-height: 15.2rem;
+      }
+
+      .portal-title h3 {
+        font-size: 2.12rem;
+      }
+
+      .oracle-copy h1 {
+        font-size: 3.3rem;
+      }
+
+      .oracle-copy h1 span {
+        font-size: 2.75rem;
+      }
+
+      .intro-rail {
+        display: none;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .gw-brand {
+        align-items: start;
+      }
+
+      .brand-copy p {
+        max-width: 18rem;
+      }
+
+      .gw-nav a {
+        min-height: 2.8rem;
+        font-size: 0.66rem;
+      }
+
+      .hero-title {
+        font-size: 2.62rem;
+      }
+
+      .hero-title .serif {
+        font-size: 2.42rem;
+      }
+
+      .gate-cosmos {
+        min-height: 20rem;
+      }
+
+      .portal-inner {
+        padding: 1.2rem;
+      }
+
+      .portal-index {
+        font-size: 2.4rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+      }
+
+      #loader-rig,
+      .aperture {
+        display: none !important;
+      }
+
+      #gateway {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loader-rig" aria-hidden="true">
+    <div class="intro-texture"></div>
+    <div class="intro-rail left" id="railL"></div>
+    <div class="intro-rail right" id="railR"></div>
+    <div class="corner-lock tl"></div>
+    <div class="corner-lock tr"></div>
+    <div class="corner-lock bl"></div>
+    <div class="corner-lock br"></div>
+
+    <section class="intro-oracle">
+      <div class="oracle-ring"></div>
+      <div class="oracle-crown"></div>
+      <div class="oracle-dial"></div>
+      <div class="oracle-gate"></div>
+      <div class="oracle-copy">
+        <h1>SYNAPTIC<span>Gateway</span></h1>
+        <p class="mono">Local nodes aligning / clinical routefield opening / ceremonial bridge lock</p>
+        <div class="intro-counter mono"><strong id="counter">00</strong> / 100</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="aperture" id="aperture" aria-hidden="true"></div>
+
+  <main id="gateway">
+    <div class="gateway-atmosphere"></div>
+    <div class="starfield" id="starfield" aria-hidden="true"></div>
+
+    <header class="gw-header">
+      <a class="gw-brand" href="file:///D:/synaptic/index.html" target="_blank" rel="noopener" aria-label="Open SYNAPTIC index">
+        <span class="gw-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M14 10L36 22L18 27L14 10Z" stroke="#60FFE8" stroke-width="4" stroke-linejoin="round"></path>
+            <path d="M19 28L23 39" stroke="#B8FF65" stroke-width="4" stroke-linecap="round"></path>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <h1 class="gw-title">SYNAPTIC<em>.</em></h1>
+          <p class="mono">Ceremonial local access gateway</p>
+        </span>
+      </a>
+
+      <nav class="gw-nav" aria-label="Gateway navigation">
+        <a href="file:///D:/synaptic/index.html" target="_blank" rel="noopener">Index</a>
+        <a href="file:///D:/synaptic/dashboard_patient.html" target="_blank" rel="noopener">Patient</a>
+        <a href="file:///D:/synaptic/dashboard.html" target="_blank" rel="noopener">Doctor</a>
+        <a href="file:///D:/synaptic/preview.html" target="_blank" rel="noopener">Preview</a>
+      </nav>
+
+      <div class="gw-meta">
+        <strong>Gateway / V1.0</strong>
+        Bhopal / IST / Local
+      </div>
+    </header>
+
+    <section class="gw-stage" aria-label="SYNAPTIC gateway nodes">
+      <aside class="ceremony-panel">
+        <div class="gate-label mono">System coronation</div>
+        <h2 class="hero-title">Open the<span class="serif">Synaptic Gate.</span></h2>
+        <p class="hero-copy">A living bridge for the two clinical worlds: one calm recovery companion, one high-density command chamber. The local routefield is awake and waiting.</p>
+        <div class="status-grid">
+          <div class="status-line mono"><span>Intro duration</span><strong>5.8s</strong></div>
+          <div class="status-line mono"><span>Local route integrity</span><strong>locked</strong></div>
+          <div class="status-line mono"><span>Active launch nodes</span><strong>02</strong></div>
+          <div class="status-line mono"><span>Signal weather</span><strong>majestic</strong></div>
+        </div>
+      </aside>
+
+      <section class="gate-cosmos" aria-hidden="true">
+        <div class="pedestal"></div>
+        <div class="constellation">
+          <svg viewBox="0 0 420 420">
+            <line x1="210" y1="210" x2="88" y2="110"></line>
+            <line x1="210" y1="210" x2="328" y2="126"></line>
+            <line x1="210" y1="210" x2="108" y2="318"></line>
+            <line x1="210" y1="210" x2="316" y2="302"></line>
+            <line class="hot-line" x1="88" y1="110" x2="328" y2="126"></line>
+            <line class="hot-line" x1="108" y1="318" x2="316" y2="302"></line>
+            <line x1="88" y1="110" x2="108" y2="318"></line>
+            <line x1="328" y1="126" x2="316" y2="302"></line>
+          </svg>
+          <div class="axis-node primary node-a mono"><span>Core</span></div>
+          <div class="axis-node node-b mono"><span>Vitals</span></div>
+          <div class="axis-node node-c mono"><span>Triage</span></div>
+          <div class="axis-node node-d mono"><span>Coach</span></div>
+          <div class="axis-node node-e mono"><span>Records</span></div>
+        </div>
+      </section>
+
+      <section class="node-column">
+        <a href="file:///D:/synaptic/dashboard_patient.html" target="_blank" rel="noopener" class="portal-card portal-patient" data-node="Patient node">
+          <div class="portal-inner">
+            <div class="portal-top">
+              <span class="portal-tag mono">Node 01 / Patient</span>
+              <span class="portal-index">01</span>
+            </div>
+            <div class="portal-title">
+              <h3>Rehab Companion</h3>
+              <p>Enter the guided recovery interface for vitals, routines, coaching, voice support, exercise flow, and care-team contact.</p>
+            </div>
+            <div class="portal-footer mono">
+              <span>Open local dashboard_patient.html</span>
+              <span class="enter-orb" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"></path>
+                </svg>
+              </span>
+            </div>
+          </div>
+        </a>
+
+        <a href="file:///D:/synaptic/dashboard.html" target="_blank" rel="noopener" class="portal-card portal-doctor" data-node="Doctor node">
+          <div class="portal-inner">
+            <div class="portal-top">
+              <span class="portal-tag mono">Node 02 / Doctor</span>
+              <span class="portal-index">02</span>
+            </div>
+            <div class="portal-title">
+              <h3>Clinical Command</h3>
+              <p>Enter the diagnostic hub for triage queues, synthesis, patient records, appointments, care plans, and clinical handoff.</p>
+            </div>
+            <div class="portal-footer mono">
+              <span>Open local dashboard.html</span>
+              <span class="enter-orb" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"></path>
+                </svg>
+              </span>
+            </div>
+          </div>
+        </a>
+      </section>
+    </section>
+  </main>
+
+  <div class="launch-veil" id="launchVeil" aria-hidden="true">
+    <div class="launch-veil__core"><span class="mono" id="launchLabel">Opening local node</span></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const loaderRig = document.getElementById("loader-rig");
+      const gateway = document.getElementById("gateway");
+      const aperture = document.getElementById("aperture");
+      const counter = document.getElementById("counter");
+      const railL = document.getElementById("railL");
+      const railR = document.getElementById("railR");
+      const starfield = document.getElementById("starfield");
+      const launchVeil = document.getElementById("launchVeil");
+      const launchLabel = document.getElementById("launchLabel");
+      const hexChars = "0123456789ABCDEF";
+      const DURATION = 5800;
+      const START = performance.now();
+
+      const random = (min, max) => Math.random() * (max - min) + min;
+      const generateHex = () => {
+        let str = "0x";
+        for (let i = 0; i < 8; i += 1) str += hexChars[Math.floor(Math.random() * 16)];
+        return str;
+      };
+
+      const addDataLine = (container, maxLines) => {
+        if (!container) return;
+        const line = document.createElement("div");
+        line.className = "data-line";
+        const phase = ["CROWN", "GATE", "NODE", "RIFT", "MESH"][Math.floor(Math.random() * 5)];
+        line.textContent = `[${phase}-${Math.random().toString().slice(2, 6)}] ${generateHex()} / OK`;
+        container.appendChild(line);
+        if (container.children.length > maxLines) container.removeChild(container.firstChild);
+      };
+
+      const streamInterval = window.setInterval(() => {
+        addDataLine(railL, 44);
+        addDataLine(railR, 44);
+      }, 48);
+
+      const seedStars = () => {
+        if (!starfield) return;
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < 86; i += 1) {
+          const star = document.createElement("span");
+          star.style.setProperty("--x", `${random(1, 99).toFixed(2)}%`);
+          star.style.setProperty("--y", `${random(1, 99).toFixed(2)}%`);
+          star.style.setProperty("--s", `${random(1, 2.8).toFixed(2)}px`);
+          star.style.setProperty("--o", random(0.18, 0.78).toFixed(2));
+          star.style.setProperty("--d", `${random(2.4, 7.5).toFixed(2)}s`);
+          star.style.setProperty("--delay", `${random(-8, 0).toFixed(2)}s`);
+          fragment.appendChild(star);
+        }
+        starfield.appendChild(fragment);
+      };
+
+      const emitSpark = (event) => {
+        if (reducedMotion.matches) return;
+        const spark = document.createElement("span");
+        spark.className = "hover-spark";
+        spark.style.left = `${event.clientX}px`;
+        spark.style.top = `${event.clientY}px`;
+        spark.style.setProperty("--spark-r", `${Math.round(random(-38, 38))}deg`);
+        spark.style.setProperty("--spark-x", `${Math.round(random(54, 128))}px`);
+        spark.style.setProperty("--spark-y", `${Math.round(random(-84, 84))}px`);
+        spark.style.setProperty("--spark-w", `${Math.round(random(18, 56))}px`);
+        document.body.appendChild(spark);
+        window.setTimeout(() => spark.remove(), 720);
+      };
+
+      document.querySelectorAll(".portal-card, .gw-nav a, .gw-brand").forEach((target) => {
+        let sparkGate = 0;
+        target.addEventListener("pointermove", (event) => {
+          const now = performance.now();
+          if (now - sparkGate < 44) return;
+          sparkGate = now;
+          emitSpark(event);
+        }, { passive: true });
+      });
+
+      document.querySelectorAll(".portal-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          if (!launchVeil || !launchLabel) return;
+          launchLabel.textContent = `Opening ${card.dataset.node || "local node"}`;
+          launchVeil.classList.add("active");
+          window.setTimeout(() => launchVeil.classList.remove("active"), 900);
+        });
+      });
+
+      const revealGateway = () => {
+        window.clearInterval(streamInterval);
+        aperture.classList.add("open");
+        loaderRig.style.opacity = "0";
+        loaderRig.style.transform = "scale(1.08)";
+        window.setTimeout(() => {
+          loaderRig.style.display = "none";
+          gateway.classList.add("live");
+        }, 720);
+      };
+
+      const animateIntro = (now) => {
+        if (reducedMotion.matches) {
+          window.clearInterval(streamInterval);
+          gateway.classList.add("live");
+          return;
+        }
+
+        const elapsed = now - START;
+        const progress = Math.min(elapsed / DURATION, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        counter.textContent = Math.floor(eased * 100).toString().padStart(2, "0");
+
+        if (progress < 1) {
+          requestAnimationFrame(animateIntro);
+        } else {
+          counter.textContent = "100";
+          revealGateway();
+        }
+      };
+
+      seedStars();
+      requestAnimationFrame(animateIntro);
+    });
+  </script>
+</body>
+</html>

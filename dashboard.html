@@ -1,0 +1,5111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synaptic Doctor | Clinical Command Dashboard</title>
+  <meta name="description" content="Synaptic Doctor dashboard for AI triage, patient monitoring, appointments, care plans, reports, and clinician handoff.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F5F2EB;
+      --paper-deep: #ECE5D6;
+      --paper-soft: #FAF7EF;
+      --ink: #0E0E0E;
+      --signal: #FF4F1F;
+      --mist: #D6D0C4;
+      --mist-strong: #BEB6A7;
+      --slate: #3B3B40;
+      --void: #10100D;
+      --cream: #F6EDDB;
+      --green: #557C55;
+      --gold: #C99331;
+      --red-soft: #F2B39B;
+      --edge: clamp(18px, 2.2vw, 36px);
+      --radius: 6px;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-rest: 0 2px 8px rgba(14, 14, 14, 0.06);
+      --shadow-lift: 0 8px 32px rgba(14, 14, 14, 0.1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      max-width: 100%;
+      overflow-x: clip;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle, rgba(14, 14, 14, 0.11) 0 1px, transparent 1px) 0 0 / 8px 8px,
+        linear-gradient(90deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0) 34%, rgba(255, 255, 255, 0.2)),
+        var(--paper);
+      color: var(--ink);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    body.theme-switching {
+      overflow: hidden;
+    }
+
+    body.notes-switching .app-shell {
+      animation: notes-shell-warp 1360ms var(--ease-out);
+      transform-origin: 50% 14%;
+    }
+
+    .motion-field,
+    .spark-layer {
+      position: fixed;
+      inset: 0;
+      max-width: 100vw;
+      overflow: hidden;
+      contain: paint;
+      pointer-events: none;
+    }
+
+    .motion-field {
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0.72;
+      mix-blend-mode: multiply;
+    }
+
+    .motion-field::before,
+    .motion-field::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .motion-field::before {
+      inset: -22%;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 92px, rgba(255, 79, 31, 0.09) 92px 93px, transparent 93px 184px),
+        repeating-linear-gradient(0deg, transparent 0 84px, rgba(14, 14, 14, 0.05) 84px 85px, transparent 85px 168px);
+      transform: rotate(-8deg) translate3d(0, 0, 0);
+      animation: field-drift 24s linear infinite;
+    }
+
+    .motion-field::after {
+      inset: 0;
+      background:
+        linear-gradient(110deg, transparent 0 42%, rgba(255, 79, 31, 0.16) 46%, transparent 52%),
+        linear-gradient(70deg, transparent 0 64%, rgba(14, 14, 14, 0.08) 68%, transparent 72%);
+      transform: translateX(-32%) skewX(-16deg);
+      animation: field-sweep 8s var(--ease-out) infinite;
+    }
+
+    .motion-field span {
+      position: absolute;
+      left: -18vw;
+      width: 48vw;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 79, 31, 0.7), rgba(14, 14, 14, 0.24), transparent);
+      transform: translateX(-22vw) rotate(var(--rail-rotate, 0deg));
+      transform-origin: left center;
+      animation: signal-rail var(--rail-speed, 9s) linear infinite;
+      animation-delay: var(--rail-delay, 0s);
+    }
+
+    .motion-field span:nth-child(1) {
+      top: 18%;
+      --rail-rotate: 5deg;
+      --rail-speed: 9s;
+      --rail-delay: -1s;
+    }
+
+    .motion-field span:nth-child(2) {
+      top: 47%;
+      --rail-rotate: -3deg;
+      --rail-speed: 12s;
+      --rail-delay: -5s;
+    }
+
+    .motion-field span:nth-child(3) {
+      top: 78%;
+      --rail-rotate: 2deg;
+      --rail-speed: 10.5s;
+      --rail-delay: -3s;
+    }
+
+    .spark-layer {
+      z-index: 999;
+      overflow: hidden;
+    }
+
+    .spark {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--spark-w, 18px);
+      height: 2px;
+      border-radius: 0;
+      background: var(--signal);
+      transform: translate3d(-50%, -50%, 0) rotate(var(--spark-rotate, 0deg));
+      opacity: 0;
+      box-shadow: 0 0 18px rgba(255, 79, 31, 0.34);
+      animation: spark-flight 760ms var(--ease-out) forwards;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      pointer-events: none;
+      content: "";
+      opacity: 0.035;
+      background-image:
+        radial-gradient(circle at 16% 12%, var(--ink) 0 1px, transparent 1px),
+        radial-gradient(circle at 72% 22%, var(--ink) 0 1px, transparent 1px),
+        radial-gradient(circle at 42% 84%, var(--ink) 0 1px, transparent 1px),
+        radial-gradient(circle at 92% 58%, var(--ink) 0 1px, transparent 1px);
+      background-size: 21px 27px, 31px 35px, 43px 39px, 53px 47px;
+      mix-blend-mode: multiply;
+    }
+
+    a,
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    a {
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .serif {
+      color: var(--signal);
+      font-family: "Lora", Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: -0.055em;
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(14, 14, 14, 0.16);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0)),
+        rgba(245, 242, 235, 0.92);
+    }
+
+    .brand {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 28px 24px;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.14);
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      background: var(--ink);
+      clip-path: polygon(15% 3%, 90% 0, 100% 78%, 28% 100%, 0 28%);
+    }
+
+    .brand-mark svg {
+      width: 30px;
+      height: 30px;
+      transition: transform 420ms var(--ease-out), filter 420ms ease;
+    }
+
+    .brand:hover .brand-mark svg {
+      transform: rotate(540deg) scale(1.08);
+      filter: drop-shadow(0 0 12px rgba(255, 79, 31, 0.55));
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      line-height: 1;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 5px;
+      color: rgba(14, 14, 14, 0.48);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .side-section {
+      padding: 22px 18px;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.12);
+    }
+
+    .side-label,
+    .panel-label,
+    .micro-label {
+      margin: 0;
+      color: rgba(14, 14, 14, 0.5);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      line-height: 1.5;
+      text-transform: uppercase;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .nav-item {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 42px;
+      padding: 0 10px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: transparent;
+      color: rgba(14, 14, 14, 0.68);
+      text-decoration: none;
+      transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 240ms var(--ease-out), box-shadow 240ms ease;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      transform: translateX(6px) skewX(-3deg);
+      border-color: rgba(255, 79, 31, 0.42);
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--ink);
+      box-shadow: 10px 10px 0 rgba(255, 79, 31, 0.08);
+    }
+
+    .nav-item:hover .nav-glyph,
+    .nav-item.active .nav-glyph {
+      animation: glyph-pop 680ms var(--ease-out);
+    }
+
+    .nav-glyph {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      border: 1px solid rgba(14, 14, 14, 0.14);
+      border-radius: 4px;
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .nav-count {
+      color: rgba(14, 14, 14, 0.44);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .shift-card {
+      margin-top: auto;
+      padding: 22px 18px 24px;
+      border-top: 1px solid rgba(14, 14, 14, 0.12);
+    }
+
+    .shift-box {
+      position: relative;
+      overflow: hidden;
+      padding: 18px;
+      border: 1px solid rgba(14, 14, 14, 0.14);
+      border-radius: var(--radius);
+      background: var(--void);
+      color: var(--cream);
+    }
+
+    .shift-box::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent, rgba(255, 79, 31, 0.22), transparent),
+        radial-gradient(circle at 20% 18%, rgba(246, 237, 219, 0.2), transparent 24%);
+      transform: translateX(-120%) skewX(-18deg);
+      animation: idle-scan 4.8s ease-in-out infinite;
+    }
+
+    .shift-box strong {
+      display: block;
+      margin-top: 16px;
+      font-size: 28px;
+      letter-spacing: -0.06em;
+      line-height: 1;
+    }
+
+    .shift-box p {
+      margin: 12px 0 0;
+      color: rgba(246, 237, 219, 0.68);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      isolation: isolate;
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(280px, 400px) max-content;
+      grid-template-areas: "title search actions";
+      gap: 18px;
+      align-items: center;
+      min-height: 86px;
+      padding: 18px var(--edge);
+      border-bottom: 1px solid rgba(14, 14, 14, 0.14);
+      background: rgba(245, 242, 235, 0.96);
+      overflow: hidden;
+    }
+
+    .topbar::before {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent, rgba(255, 79, 31, 0.13), transparent),
+        repeating-linear-gradient(90deg, transparent 0 80px, rgba(14, 14, 14, 0.04) 80px 81px);
+      transform: translateX(-120%) skewX(-16deg);
+      animation: topbar-scan 7s var(--ease-out) infinite;
+    }
+
+    .topbar-title {
+      grid-area: title;
+      min-width: 0;
+    }
+
+    .topbar-title h1 {
+      margin: 0;
+      font-size: clamp(34px, 3vw, 54px);
+      font-weight: 700;
+      letter-spacing: -0.07em;
+      line-height: 0.96;
+    }
+
+    .topbar-title h1 .serif {
+      display: inline-block;
+      animation: italic-charge 6.5s ease-in-out infinite;
+      transform-origin: 45% 70%;
+    }
+
+    .topbar-title p {
+      margin: 8px 0 0;
+      color: rgba(14, 14, 14, 0.52);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .search {
+      grid-area: search;
+      position: relative;
+      width: 100%;
+    }
+
+    .search input {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 16px;
+      border: 1px solid rgba(14, 14, 14, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.46);
+      color: var(--ink);
+      outline: none;
+    }
+
+    .search input:focus {
+      border-color: var(--signal);
+    }
+
+    .top-actions {
+      grid-area: actions;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .button,
+    .ghost-button,
+    .icon-button,
+    .seg-button,
+    .queue-button {
+      min-height: 46px;
+      border: 1px solid rgba(14, 14, 14, 0.16);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.34);
+      color: var(--ink);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .button {
+      padding: 0 16px;
+      border-color: var(--signal);
+      background: var(--signal);
+      color: var(--paper);
+    }
+
+    .button:hover,
+    .ghost-button:hover,
+    .icon-button:hover,
+    .seg-button:hover,
+    .queue-button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lift);
+    }
+
+    .button:hover,
+    .ghost-button:hover,
+    .icon-button:hover {
+      filter: saturate(1.18) contrast(1.04);
+    }
+
+    .ghost-button,
+    .seg-button {
+      padding: 0 14px;
+    }
+
+    .icon-button {
+      width: 46px;
+      color: var(--signal);
+    }
+
+    .doctor-alert {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      margin: 0 0 18px;
+      padding: 14px;
+      border: 1px solid rgba(255, 18, 56, 0.64);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(90deg, rgba(255, 18, 56, 0.94), rgba(255, 79, 31, 0.74)),
+        var(--signal);
+      color: white;
+      box-shadow: 0 18px 62px rgba(255, 18, 56, 0.32);
+      overflow: hidden;
+    }
+
+    .doctor-alert[hidden] {
+      display: none;
+    }
+
+    .doctor-alert::before {
+      position: absolute;
+      inset: -80% -20%;
+      content: "";
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 36px, rgba(255, 255, 255, 0.28) 36px 38px, transparent 38px 72px),
+        repeating-linear-gradient(0deg, transparent 0 24px, rgba(16, 0, 6, 0.28) 24px 26px, transparent 26px 52px);
+      opacity: 0;
+      transform: rotate(-8deg) scale(1.1);
+    }
+
+    .doctor-alert.is-emergency::before {
+      opacity: 0.56;
+      animation: doctor-alert-grid 1120ms var(--ease-out) both;
+    }
+
+    .doctor-alert.is-arriving {
+      animation: doctor-alert-flare 920ms var(--ease-out) both;
+    }
+
+    .doctor-alert__glyph {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      background: #100006;
+      color: white;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-weight: 700;
+      transform: rotate(-8deg);
+    }
+
+    .doctor-alert strong,
+    .doctor-alert span,
+    .doctor-alert button {
+      position: relative;
+      z-index: 1;
+    }
+
+    .doctor-alert strong {
+      display: block;
+      font-size: clamp(18px, 2vw, 28px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .doctor-alert__detail {
+      display: block;
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.82);
+      font-family: "Lora", Georgia, serif;
+      line-height: 1.35;
+    }
+
+    .doctor-alert .icon-button {
+      border-color: rgba(255, 255, 255, 0.46);
+      background: rgba(16, 0, 6, 0.22);
+      color: white;
+    }
+
+    .theme-toggle {
+      --toggle-track: rgba(255, 255, 255, 0.34);
+      position: relative;
+      width: 74px;
+      min-height: 46px;
+      overflow: hidden;
+      border: 1px solid rgba(14, 14, 14, 0.16);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at 25% 50%, var(--signal) 0 5px, transparent 6px),
+        var(--toggle-track);
+      color: var(--ink);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 0;
+    }
+
+    .theme-toggle::before,
+    .theme-toggle::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .theme-toggle::before {
+      inset: 8px;
+      border: 1px solid rgba(14, 14, 14, 0.18);
+      border-radius: 4px;
+      transform: skewX(-13deg);
+    }
+
+    .theme-toggle::after {
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      transform: translate(12px, -50%);
+      box-shadow: -22px 0 0 -5px var(--signal);
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-3px) rotate(-1deg);
+      border-color: var(--signal);
+      box-shadow: 0 12px 34px rgba(255, 79, 31, 0.2);
+    }
+
+    .theme-toggle.is-bursting::after {
+      animation: toggle-comet 980ms var(--ease-out);
+    }
+
+    .voice-button {
+      --voice-ink: var(--ink);
+      position: relative;
+      isolation: isolate;
+      display: inline-grid;
+      grid-template-columns: 18px auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 46px;
+      padding: 0 15px;
+      overflow: hidden;
+      border: 1px solid rgba(14, 14, 14, 0.16);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(255, 79, 31, 0.12), transparent 42%),
+        rgba(255, 255, 255, 0.38);
+      color: var(--voice-ink);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: transform 240ms var(--ease-out), border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
+    }
+
+    .voice-button::before,
+    .voice-button::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .voice-button::before {
+      inset: -120% -46%;
+      z-index: -1;
+      background: conic-gradient(from var(--spin, 0deg), transparent 0 42%, rgba(255, 79, 31, 0.42), transparent 62%);
+      opacity: 0;
+      transform: rotate(0deg);
+    }
+
+    .voice-button::after {
+      inset: 8px;
+      border: 1px solid rgba(255, 79, 31, 0.22);
+      transform: skewX(-12deg) scaleX(0.82);
+      opacity: 0;
+    }
+
+    .voice-button:hover,
+    .voice-button:focus-visible {
+      transform: translateY(-3px) rotate(0.8deg);
+      border-color: rgba(255, 79, 31, 0.64);
+      box-shadow: 0 16px 42px rgba(255, 79, 31, 0.18);
+      outline: none;
+    }
+
+    .voice-button:hover::after,
+    .voice-button:focus-visible::after,
+    .voice-button.is-listening::after,
+    .voice-button.is-processing::after {
+      opacity: 1;
+      transform: skewX(-12deg) scaleX(1);
+    }
+
+    .voice-mark {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      color: var(--signal);
+    }
+
+    .voice-mark::before,
+    .voice-mark::after {
+      position: absolute;
+      content: "";
+    }
+
+    .voice-mark::before {
+      left: 50%;
+      top: 4px;
+      width: 6px;
+      height: 8px;
+      border: 2px solid currentColor;
+      border-radius: 9px;
+      transform: translateX(-50%);
+    }
+
+    .voice-mark::after {
+      left: 50%;
+      bottom: 3px;
+      width: 9px;
+      height: 5px;
+      border-bottom: 2px solid currentColor;
+      border-left: 2px solid transparent;
+      transform: translateX(-50%);
+    }
+
+    .voice-button.is-listening {
+      border-color: var(--signal);
+      background:
+        radial-gradient(circle at 18px 50%, rgba(255, 79, 31, 0.28), transparent 38px),
+        rgba(255, 255, 255, 0.42);
+      animation: voice-button-warp 980ms var(--ease-out) infinite;
+    }
+
+    .voice-button.is-listening::before,
+    .voice-button.is-processing::before {
+      opacity: 1;
+      animation: voice-spin 1100ms linear infinite;
+    }
+
+    .voice-button.is-listening .voice-mark {
+      animation: voice-core 720ms ease-in-out infinite;
+    }
+
+    .voice-button.is-processing {
+      border-color: rgba(255, 79, 31, 0.7);
+      box-shadow: 0 0 0 1px rgba(255, 79, 31, 0.18), 0 18px 48px rgba(255, 79, 31, 0.2);
+    }
+
+    .voice-button.is-success {
+      background: var(--signal);
+      border-color: var(--signal);
+      color: var(--paper);
+    }
+
+    .voice-button.is-error {
+      border-color: #B93018;
+      color: #B93018;
+      animation: voice-error 360ms var(--ease-out);
+    }
+
+    .clinical-button {
+      --clinical-core: var(--signal);
+      position: relative;
+      isolation: isolate;
+      display: inline-grid;
+      grid-template-columns: 22px auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 46px;
+      padding: 0 15px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 79, 31, 0.42);
+      border-radius: var(--radius);
+      background: var(--signal);
+      color: var(--paper);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 16px 44px rgba(255, 79, 31, 0.2);
+      transition: transform 240ms var(--ease-out), box-shadow 240ms ease, border-color 220ms ease, filter 220ms ease;
+    }
+
+    .clinical-button::before,
+    .clinical-button::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .clinical-button::before {
+      inset: -80% -28%;
+      z-index: -1;
+      border: 1px solid rgba(246, 237, 219, 0.62);
+      background: var(--paper);
+      box-shadow: inset 0 0 0 14px var(--signal), inset 0 0 0 15px var(--paper), inset 0 0 0 30px var(--void);
+      opacity: 0;
+      transform: rotate(0deg) scale(0.82);
+    }
+
+    .clinical-button::after {
+      inset: 6px;
+      border: 1px solid rgba(246, 237, 219, 0.5);
+      background: transparent;
+      box-shadow: inset 0 -1px 0 var(--paper), inset -1px 0 0 var(--paper), 18px -10px 0 -15px var(--paper);
+      opacity: 0.42;
+      transform: skewX(-12deg);
+      mix-blend-mode: screen;
+    }
+
+    .clinical-mark {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      border: 1px solid currentColor;
+      transform: rotate(-8deg);
+    }
+
+    .clinical-mark::before,
+    .clinical-mark::after {
+      position: absolute;
+      content: "";
+      background: currentColor;
+    }
+
+    .clinical-mark::before {
+      left: 4px;
+      right: 4px;
+      top: 6px;
+      height: 2px;
+      box-shadow: 0 5px 0 currentColor, 0 10px 0 currentColor;
+    }
+
+    .clinical-mark::after {
+      right: -4px;
+      top: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .clinical-button:hover,
+    .clinical-button:focus-visible {
+      transform: translateY(-5px) rotate(-1.2deg) skewX(-1deg);
+      border-color: rgba(246, 237, 219, 0.7);
+      box-shadow: 0 24px 68px rgba(255, 79, 31, 0.32), 9px 9px 0 rgba(14, 14, 14, 0.16);
+      filter: saturate(1.18) contrast(1.05);
+      outline: none;
+    }
+
+    .clinical-button:hover::before,
+    .clinical-button:focus-visible::before,
+    .clinical-button.is-summoning::before,
+    .clinical-button.is-processing::before {
+      opacity: 1;
+      animation: clinical-spin 920ms linear infinite;
+    }
+
+    .clinical-button:hover .clinical-mark,
+    .clinical-button:focus-visible .clinical-mark,
+    .clinical-button.is-summoning .clinical-mark {
+      animation: clinical-mark-fold 820ms var(--ease-out) infinite;
+    }
+
+    .clinical-button.is-summoning {
+      animation: clinical-button-summon 1180ms var(--ease-out) infinite;
+    }
+
+    .clinical-button.is-summoning::after,
+    .clinical-button.is-processing::after {
+      animation: clinical-button-fold 1180ms var(--ease-out) infinite;
+    }
+
+    .clinical-button.is-processing {
+      transform: translateY(-3px);
+      box-shadow: 0 0 0 2px rgba(255, 79, 31, 0.18), 0 24px 74px rgba(255, 79, 31, 0.32);
+    }
+
+    .clinical-button.is-success {
+      background: var(--paper);
+      border-color: var(--signal);
+      color: var(--signal);
+    }
+
+    .clinical-button.is-error {
+      background: #B93018;
+      border-color: #B93018;
+      color: var(--paper);
+      animation: voice-error 360ms var(--ease-out);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.78fr) minmax(560px, 1.35fr) minmax(320px, 0.88fr);
+      gap: 18px;
+      padding: 18px var(--edge) 34px;
+    }
+
+    .panel {
+      position: relative;
+      min-width: 0;
+      border: 1px solid rgba(14, 14, 14, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.42);
+      box-shadow: var(--shadow-rest);
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 360ms var(--ease-out), box-shadow 360ms ease, border-color 260ms ease, background 260ms ease;
+    }
+
+    .panel::before {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      content: "";
+      pointer-events: none;
+      background:
+        linear-gradient(110deg, transparent 0 38%, rgba(255, 79, 31, 0.16) 45%, transparent 52%),
+        radial-gradient(circle at var(--mx, 72%) var(--my, 18%), rgba(255, 79, 31, 0.16), transparent 20%);
+      opacity: 0;
+      transform: translateX(-16%);
+      transition: opacity 260ms ease, transform 620ms var(--ease-out);
+    }
+
+    .panel::after {
+      position: absolute;
+      inset: 11px;
+      z-index: 0;
+      content: "";
+      pointer-events: none;
+      opacity: 0;
+      background:
+        linear-gradient(var(--signal), var(--signal)) left top / 42px 1px no-repeat,
+        linear-gradient(var(--signal), var(--signal)) left top / 1px 42px no-repeat,
+        linear-gradient(var(--signal), var(--signal)) right bottom / 42px 1px no-repeat,
+        linear-gradient(var(--signal), var(--signal)) right bottom / 1px 42px no-repeat;
+      transform: scale(0.965);
+      transition: opacity 260ms ease, transform 420ms var(--ease-out);
+    }
+
+    .panel > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel:hover {
+      transform: translateY(-7px) rotateX(1.2deg) rotateY(-1.2deg);
+      border-color: rgba(255, 79, 31, 0.48);
+      box-shadow: 0 22px 60px rgba(14, 14, 14, 0.16);
+    }
+
+    .panel:hover::before {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .panel:hover::after {
+      opacity: 0.82;
+      transform: scale(1);
+    }
+
+    .panel:hover .panel-title {
+      text-shadow: 0 0 22px rgba(255, 79, 31, 0.18);
+    }
+
+    .panel.dark {
+      background:
+        radial-gradient(circle at 78% 14%, rgba(255, 79, 31, 0.16), transparent 28%),
+        var(--void);
+      color: var(--cream);
+      animation: dark-panel-bloom 6.4s ease-in-out infinite;
+    }
+
+    .panel-header {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 62px;
+      padding: 18px;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.12);
+    }
+
+    .panel.dark .panel-header {
+      border-color: rgba(246, 237, 219, 0.18);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      line-height: 1;
+    }
+
+    .panel-body {
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .queue {
+      display: grid;
+      gap: 12px;
+    }
+
+    .queue-button {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      width: 100%;
+      min-height: 112px;
+      padding: 14px;
+      text-align: left;
+      text-transform: none;
+      letter-spacing: 0;
+      overflow: hidden;
+    }
+
+    .queue-button::before {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      content: "";
+      background: var(--signal);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 260ms var(--ease-out);
+    }
+
+    .queue-button:hover::before,
+    .queue-button.active::before {
+      transform: scaleY(1);
+    }
+
+    .queue-button.active {
+      border-color: rgba(255, 79, 31, 0.62);
+      background: var(--paper-soft);
+      box-shadow: var(--shadow-rest);
+      animation-name: card-arrive, active-breathe;
+      animation-duration: 520ms, 2.4s;
+      animation-timing-function: var(--ease-out), ease-in-out;
+      animation-iteration-count: 1, infinite;
+    }
+
+    .queue-button:hover {
+      transform: translateX(8px) rotate(-0.6deg);
+      border-color: rgba(255, 79, 31, 0.62);
+    }
+
+    .patient-name {
+      display: block;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.06em;
+    }
+
+    .patient-meta {
+      display: block;
+      margin-top: 8px;
+      color: rgba(14, 14, 14, 0.5);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .risk-pill {
+      align-self: start;
+      min-width: 72px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      background: rgba(85, 124, 85, 0.12);
+      color: var(--green);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .risk-pill.high {
+      background: rgba(255, 79, 31, 0.14);
+      color: var(--signal);
+    }
+
+    .risk-pill.watch {
+      background: rgba(201, 147, 49, 0.15);
+      color: #86601D;
+    }
+
+    .queue-symptoms {
+      grid-column: 1 / -1;
+      margin: 8px 0 0;
+      color: rgba(14, 14, 14, 0.62);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      position: relative;
+      min-width: 0;
+      min-height: 126px;
+      padding: 14px;
+      border: 1px solid rgba(14, 14, 14, 0.12);
+      border-radius: var(--radius);
+      background: var(--paper-soft);
+      overflow: hidden;
+      transition: transform 300ms var(--ease-out), border-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .metric::after {
+      position: absolute;
+      inset: auto 12px 12px auto;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255, 79, 31, 0.34);
+      content: "";
+      transform: rotate(18deg) scale(0.72);
+      opacity: 0;
+      transition: transform 360ms var(--ease-out), opacity 220ms ease;
+    }
+
+    .metric:hover {
+      transform: translateY(-6px) rotate(1.2deg);
+      border-color: rgba(255, 79, 31, 0.55);
+      box-shadow: 10px 10px 0 rgba(255, 79, 31, 0.12);
+    }
+
+    .metric:hover::after {
+      opacity: 1;
+      transform: rotate(208deg) scale(1);
+    }
+
+    .metric:hover strong {
+      animation: number-shock 720ms var(--ease-out);
+    }
+
+    .metric.is-updating strong {
+      animation: number-shock 520ms var(--ease-out);
+    }
+
+    .metric:hover span {
+      color: var(--signal);
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 18px;
+      color: var(--ink);
+      font-size: clamp(26px, 2.4vw, 38px);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.08em;
+      line-height: 0.9;
+      white-space: nowrap;
+    }
+
+    .metric span {
+      color: rgba(14, 14, 14, 0.5);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .ai-summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(136px, 168px);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .summary-copy {
+      position: relative;
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid rgba(246, 237, 219, 0.16);
+      border-radius: var(--radius);
+      background: rgba(246, 237, 219, 0.06);
+      overflow: hidden;
+    }
+
+    .summary-copy::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent 0 22%, rgba(246, 237, 219, 0.12) 22% calc(22% + 1px), transparent calc(22% + 1px)),
+        linear-gradient(0deg, transparent 0 62%, rgba(246, 237, 219, 0.1) 62% calc(62% + 1px), transparent calc(62% + 1px));
+      opacity: 0.44;
+    }
+
+    .summary-copy h2 {
+      position: relative;
+      margin: 0;
+      color: var(--cream);
+      max-width: 10ch;
+      font-size: clamp(30px, 3.2vw, 56px);
+      letter-spacing: -0.075em;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-copy p {
+      position: relative;
+      margin: 22px 0 0;
+      color: rgba(246, 237, 219, 0.72);
+      font-family: "Lora", Georgia, serif;
+      font-size: clamp(15px, 1.15vw, 17px);
+      line-height: 1.62;
+    }
+
+    .confidence {
+      position: relative;
+      display: grid;
+      align-content: space-between;
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid rgba(246, 237, 219, 0.16);
+      border-radius: var(--radius);
+      background: rgba(246, 237, 219, 0.06);
+      overflow: hidden;
+    }
+
+    .confidence::before {
+      position: absolute;
+      inset: -34% -58%;
+      content: "";
+      background: conic-gradient(from 0deg, transparent, rgba(255, 79, 31, 0.28), transparent 34%);
+      animation: confidence-orbit 5.5s linear infinite;
+    }
+
+    .confidence > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .confidence strong {
+      display: block;
+      color: var(--signal);
+      max-width: 100%;
+      font-size: clamp(38px, 4vw, 54px);
+      letter-spacing: -0.1em;
+      line-height: 0.9;
+      white-space: nowrap;
+    }
+
+    .confidence:hover strong {
+      animation: number-shock 720ms var(--ease-out);
+    }
+
+    .vital-chart {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 8px;
+      align-items: end;
+      min-height: 150px;
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid rgba(14, 14, 14, 0.12);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(14, 14, 14, 0.08) 1px, transparent 1px) 0 0 / 100% 32px,
+        rgba(255, 255, 255, 0.28);
+      overflow: hidden;
+    }
+
+    .vital-chart::after {
+      position: absolute;
+      left: -28%;
+      right: auto;
+      top: 34%;
+      width: 42%;
+      height: 2px;
+      content: "";
+      pointer-events: none;
+      background: linear-gradient(90deg, transparent, var(--signal), transparent);
+      box-shadow: 0 0 20px rgba(255, 79, 31, 0.38);
+      transform: translateX(-100%);
+      animation: chart-signal 3.8s var(--ease-out) infinite;
+    }
+
+    .bar {
+      min-height: 18px;
+      border-radius: 3px 3px 0 0;
+      background: var(--ink);
+      transform-origin: bottom;
+      animation: bar-breathe 3.6s ease-in-out infinite;
+      animation-delay: calc(var(--bar-index, 0) * 70ms);
+    }
+
+    .bar.alert {
+      background: var(--signal);
+      animation-name: bar-breathe, alert-pulse;
+      animation-duration: 3.6s, 1.25s;
+      animation-iteration-count: infinite, infinite;
+    }
+
+    .vital-chart:hover .bar {
+      animation-name: bar-wave;
+      animation-duration: 760ms;
+      animation-timing-function: var(--ease-out);
+      animation-iteration-count: 1;
+    }
+
+    .clinical-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .rule-list {
+      display: grid;
+      border-top: 1px solid rgba(14, 14, 14, 0.14);
+    }
+
+    .rule-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.1);
+      transition: transform 240ms var(--ease-out), padding-inline 240ms var(--ease-out), background 220ms ease;
+    }
+
+    .rule-row:hover {
+      transform: translateX(8px);
+      padding-inline: 10px;
+      background: rgba(255, 79, 31, 0.06);
+    }
+
+    .rule-row strong {
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .rule-row span {
+      color: rgba(14, 14, 14, 0.66);
+      line-height: 1.45;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.1);
+      transition: transform 240ms var(--ease-out), background 220ms ease, padding-inline 240ms var(--ease-out);
+    }
+
+    .timeline-item:hover {
+      transform: translateX(8px) skewX(-1deg);
+      padding-inline: 10px;
+      background: rgba(255, 79, 31, 0.055);
+    }
+
+    .timeline-item time {
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .timeline-item strong {
+      display: block;
+      letter-spacing: -0.04em;
+    }
+
+    .timeline-item span {
+      display: block;
+      margin-top: 4px;
+      color: rgba(14, 14, 14, 0.54);
+      line-height: 1.45;
+    }
+
+    .right-stack {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .doctor-card {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .avatar {
+      display: grid;
+      width: 58px;
+      height: 58px;
+      place-items: center;
+      border-radius: 4px;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: "Lora", Georgia, serif;
+      font-size: 28px;
+      font-style: italic;
+      transition: transform 420ms var(--ease-out), background 220ms ease;
+    }
+
+    .doctor-card:hover .avatar {
+      transform: rotate(-12deg) scale(1.12);
+      background: var(--signal);
+    }
+
+    .doctor-card strong {
+      display: block;
+      font-size: 22px;
+      letter-spacing: -0.06em;
+    }
+
+    .doctor-card span {
+      display: block;
+      color: rgba(14, 14, 14, 0.5);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 6px;
+      border: 1px solid rgba(14, 14, 14, 0.12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .seg-button {
+      min-height: 38px;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .seg-button.active {
+      border-color: var(--signal);
+      background: var(--signal);
+      color: var(--paper);
+    }
+
+    .seg-button:hover {
+      transform: translateY(-3px) rotate(-1deg);
+    }
+
+    .care-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .care-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 26px 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid rgba(14, 14, 14, 0.1);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.32);
+      overflow: hidden;
+      transition: transform 280ms var(--ease-out), border-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .care-item::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      background: linear-gradient(100deg, transparent, rgba(255, 79, 31, 0.16), transparent);
+      transform: translateX(-120%);
+      transition: transform 520ms var(--ease-out);
+    }
+
+    .care-item:hover {
+      transform: translateY(-4px) rotate(0.8deg);
+      border-color: rgba(255, 79, 31, 0.45);
+      box-shadow: 8px 8px 0 rgba(255, 79, 31, 0.1);
+    }
+
+    .care-item:hover::before {
+      transform: translateX(120%);
+    }
+
+    .check {
+      display: grid;
+      width: 26px;
+      height: 26px;
+      place-items: center;
+      border: 1px solid rgba(14, 14, 14, 0.18);
+      border-radius: 4px;
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .care-item strong {
+      display: block;
+      letter-spacing: -0.04em;
+    }
+
+    .care-item span {
+      display: block;
+      margin-top: 4px;
+      color: rgba(14, 14, 14, 0.52);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .care-item time {
+      color: rgba(14, 14, 14, 0.44);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .report-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .report {
+      position: relative;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 12px;
+      border: 1px solid rgba(14, 14, 14, 0.1);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.28);
+      overflow: hidden;
+      transition: transform 240ms var(--ease-out), border-color 220ms ease, background 220ms ease;
+    }
+
+    .report:hover {
+      transform: translateX(6px);
+      border-color: rgba(255, 79, 31, 0.45);
+      background: rgba(255, 79, 31, 0.08);
+    }
+
+    .report:hover span {
+      animation: glyph-pop 680ms var(--ease-out);
+    }
+
+    .report strong {
+      font-size: 15px;
+      letter-spacing: -0.03em;
+    }
+
+    .report span {
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .queue-button,
+    .metric,
+    .rule-row,
+    .timeline-item,
+    .care-item,
+    .report {
+      animation: card-arrive 520ms var(--ease-out) both;
+      animation-delay: calc(var(--i, 0) * 42ms);
+    }
+
+    .voice-rift {
+      --voice-x: 50vw;
+      --voice-y: 14vh;
+      position: fixed;
+      inset: 0;
+      z-index: 998;
+      pointer-events: none;
+      opacity: 0;
+      overflow: hidden;
+      max-width: 100vw;
+      contain: paint;
+      perspective: 820px;
+    }
+
+    .voice-rift.is-active {
+      opacity: 1;
+    }
+
+    .voice-rift__ring,
+    .voice-rift__beam,
+    .voice-rift__grid,
+    .voice-rift__slice {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .voice-rift__ring {
+      left: var(--voice-x);
+      top: var(--voice-y);
+      width: 92vmax;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, transparent 0 10%, rgba(255, 79, 31, 0.78) 11% 12%, transparent 13% 20%, rgba(14, 14, 14, 0.32) 21% 21.5%, transparent 22%),
+        repeating-conic-gradient(from 0deg, rgba(255, 79, 31, 0.68) 0 5deg, transparent 5deg 12deg);
+      transform: translate(-50%, -50%) scale(0);
+      mix-blend-mode: multiply;
+    }
+
+    .voice-rift__beam {
+      left: var(--voice-x);
+      top: var(--voice-y);
+      width: 140vw;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 79, 31, 0.82), rgba(14, 14, 14, 0.3), transparent);
+      transform: translate(-50%, -50%) rotate(-17deg) scaleX(0);
+    }
+
+    .voice-rift__grid {
+      left: 50%;
+      top: 50%;
+      width: min(680px, 78vw);
+      aspect-ratio: 1.58;
+      border: 1px solid rgba(14, 14, 14, 0.18);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle, rgba(14, 14, 14, 0.28) 0 1px, transparent 1px) 0 0 / 16px 16px,
+        linear-gradient(90deg, transparent 0 48%, rgba(255, 79, 31, 0.34) 48% calc(48% + 1px), transparent calc(48% + 1px)),
+        rgba(245, 242, 235, 0.3);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(76deg) rotateZ(20deg) scale(0.44);
+    }
+
+    .voice-rift__slice {
+      top: -18vh;
+      bottom: -18vh;
+      width: 13vw;
+      border-inline: 1px solid rgba(255, 79, 31, 0.2);
+      background: rgba(255, 79, 31, 0.12);
+      transform: translateY(118%) skewX(14deg);
+      opacity: 0;
+    }
+
+    .voice-rift__slice:nth-child(4) { left: 10vw; animation-delay: 24ms; }
+    .voice-rift__slice:nth-child(5) { left: 31vw; animation-delay: 78ms; }
+    .voice-rift__slice:nth-child(6) { left: 52vw; animation-delay: 132ms; }
+    .voice-rift__slice:nth-child(7) { left: 73vw; animation-delay: 186ms; }
+
+    .voice-rift.is-active .voice-rift__ring {
+      animation: voice-rift-ring 1250ms var(--ease-out) both;
+    }
+
+    .voice-rift.is-active .voice-rift__beam {
+      animation: voice-rift-beam 1250ms var(--ease-out) both;
+    }
+
+    .voice-rift.is-active .voice-rift__grid {
+      animation: voice-rift-grid 1250ms var(--ease-out) both;
+    }
+
+    .voice-rift.is-active .voice-rift__slice {
+      animation-name: voice-rift-slice;
+      animation-duration: 1250ms;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+    }
+
+    .notes-rift {
+      --notes-x: 50vw;
+      --notes-y: 15vh;
+      position: fixed;
+      inset: 0;
+      z-index: 1001;
+      pointer-events: none;
+      overflow: hidden;
+      max-width: 100vw;
+      contain: paint;
+      opacity: 0;
+      perspective: 1100px;
+    }
+
+    .notes-rift::before,
+    .notes-rift::after {
+      position: absolute;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .notes-rift::before {
+      background: var(--signal);
+      clip-path: polygon(0 42%, 100% 28%, 100% 62%, 0 76%);
+      transform: translateX(-120%) skewX(-18deg);
+    }
+
+    .notes-rift::after {
+      background: none;
+      opacity: 0 !important;
+    }
+
+    .notes-rift.is-active {
+      opacity: 1;
+    }
+
+    .notes-rift__folio,
+    .notes-rift__pulse,
+    .notes-rift__scan,
+    .notes-rift__page,
+    .notes-rift__ink {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .notes-rift__pulse {
+      left: var(--notes-x);
+      top: var(--notes-y);
+      width: 160vmax;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 12vmax solid var(--void);
+      background: var(--signal);
+      box-shadow: inset 0 0 0 8vmax var(--paper), inset 0 0 0 18vmax var(--signal), inset 0 0 0 24vmax var(--void);
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    .notes-rift__folio {
+      left: 50%;
+      top: 50%;
+      width: min(720px, 76vw);
+      aspect-ratio: 1.55;
+      border: 1px solid rgba(246, 237, 219, 0.46);
+      border-radius: var(--radius);
+      background: var(--void);
+      box-shadow: 0 28px 120px rgba(0, 0, 0, 0.42);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(78deg) rotateZ(-24deg) scale(0.35);
+    }
+
+    .notes-rift__folio::before,
+    .notes-rift__folio::after {
+      position: absolute;
+      content: "";
+      pointer-events: none;
+    }
+
+    .notes-rift__folio::before {
+      left: 32px;
+      right: 32px;
+      top: 34px;
+      height: 1px;
+      background: var(--paper);
+      box-shadow: 0 36px 0 var(--signal), 0 96px 0 rgba(246, 237, 219, 0.54), 0 156px 0 rgba(246, 237, 219, 0.34);
+    }
+
+    .notes-rift__folio::after {
+      left: 22%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(246, 237, 219, 0.46);
+      box-shadow: 220px 0 0 rgba(255, 79, 31, 0.5);
+    }
+
+    .notes-rift__scan {
+      inset: 0;
+      background: var(--paper);
+      clip-path: polygon(0 47%, 100% 38%, 100% 42%, 0 51%);
+      box-shadow: 0 18px 0 var(--signal), 0 -18px 0 var(--void);
+      transform: translateX(-120%) skewX(-18deg);
+      opacity: 0;
+    }
+
+    .notes-rift__page {
+      top: -14vh;
+      bottom: -14vh;
+      width: 21vw;
+      border-inline: 1px solid rgba(246, 237, 219, 0.26);
+      background: var(--void);
+      opacity: 0.95;
+      transform: translateY(-120%) skewX(-12deg) rotate(2deg);
+    }
+
+    .notes-rift__page::before {
+      position: absolute;
+      left: 50%;
+      top: 22%;
+      width: 10px;
+      height: 10px;
+      content: "";
+      background: var(--signal);
+      border-radius: 50%;
+      box-shadow: 0 58px 0 var(--paper), 0 116px 0 var(--signal);
+      transform: translateX(-50%);
+    }
+
+    .notes-rift__page:nth-child(4) { left: -7vw; animation-delay: 0ms; }
+    .notes-rift__page:nth-child(5) { left: 14vw; animation-delay: 46ms; }
+    .notes-rift__page:nth-child(6) { left: 35vw; animation-delay: 92ms; }
+    .notes-rift__page:nth-child(7) { left: 56vw; animation-delay: 138ms; }
+    .notes-rift__page:nth-child(8) { left: 77vw; animation-delay: 184ms; }
+
+    .notes-rift__ink {
+      display: block;
+      left: 50%;
+      top: 50%;
+      width: min(760px, 82vw);
+      height: min(420px, 58vh);
+      opacity: 0;
+      transform: translate(-50%, -50%) rotateX(66deg) rotateZ(18deg) scale(0.72);
+      transform-style: preserve-3d;
+    }
+
+    .notes-rift__ink::before,
+    .notes-rift__ink::after {
+      position: absolute;
+      content: "SOAP / SOURCE / NOTE";
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: clamp(12px, 2vw, 22px);
+      font-weight: 800;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--paper);
+      border: 1px solid rgba(246, 237, 219, 0.44);
+      background: var(--void);
+      box-shadow: 18px 18px 0 rgba(255, 79, 31, 0.74), -14px -14px 0 rgba(246, 237, 219, 0.18);
+      padding: 18px 24px;
+      white-space: nowrap;
+    }
+
+    .notes-rift__ink::before {
+      left: 6%;
+      top: 12%;
+      transform: rotate(-7deg) translateZ(80px);
+    }
+
+    .notes-rift__ink::after {
+      right: 4%;
+      bottom: 14%;
+      content: "CLINICAL / FOLIO";
+      color: var(--signal);
+      background: var(--paper);
+      box-shadow: -16px 16px 0 var(--void), 14px -14px 0 rgba(255, 79, 31, 0.76);
+      transform: rotate(8deg) translateZ(-42px);
+    }
+
+    .notes-rift.is-active .notes-rift__pulse {
+      animation: rift-burst 1360ms var(--ease-out) both;
+    }
+
+    .notes-rift.is-active .notes-rift__folio {
+      animation: rift-plate 1360ms var(--ease-out) both;
+    }
+
+    .notes-rift.is-active .notes-rift__scan {
+      animation: rift-flash 1360ms var(--ease-out) both;
+    }
+
+    .notes-rift.is-active .notes-rift__page {
+      animation-name: rift-slice;
+      animation-duration: 1360ms;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+    }
+
+    .notes-rift.is-active .notes-rift__ink {
+      animation: notes-type-slam 1360ms var(--ease-out) both;
+    }
+
+    .notes-rift.is-active::before {
+      animation: rift-flash 1360ms var(--ease-out) both;
+    }
+
+    .notes-rift.is-active::after {
+      animation: none;
+      opacity: 0;
+    }
+
+    .voice-panel {
+      position: fixed;
+      right: var(--edge);
+      bottom: var(--edge);
+      z-index: 70;
+      width: min(440px, calc(100vw - (var(--edge) * 2)));
+      border: 1px solid rgba(14, 14, 14, 0.14);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(110deg, rgba(255, 79, 31, 0.12), transparent 34%),
+        rgba(245, 242, 235, 0.92);
+      box-shadow: 0 22px 70px rgba(14, 14, 14, 0.16);
+      backdrop-filter: blur(18px);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(18px) rotateX(8deg);
+      transform-origin: 50% 100%;
+      transition: opacity 260ms ease, transform 360ms var(--ease-out);
+    }
+
+    .voice-panel.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) rotateX(0);
+    }
+
+    .voice-panel__head,
+    .voice-panel__body {
+      padding: 14px;
+    }
+
+    .voice-panel__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.1);
+    }
+
+    .voice-panel__title {
+      margin: 0;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .voice-panel__state {
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .voice-panel__body {
+      display: grid;
+      gap: 10px;
+    }
+
+    .voice-panel__transcript,
+    .voice-panel__result {
+      margin: 0;
+      min-height: 24px;
+      color: rgba(14, 14, 14, 0.74);
+      font-family: "Lora", Georgia, serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .voice-panel__transcript {
+      color: var(--ink);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .voice-panel__meter {
+      display: grid;
+      grid-template-columns: repeat(22, 1fr);
+      align-items: end;
+      gap: 3px;
+      height: 34px;
+      overflow: hidden;
+    }
+
+    .voice-panel__meter span {
+      height: calc(8px + (var(--h, 0.5) * 24px));
+      background: var(--signal);
+      transform-origin: bottom;
+      animation: voice-meter 620ms ease-in-out infinite;
+      animation-delay: calc(var(--i, 0) * -42ms);
+    }
+
+    .voice-panel:not([data-state="listening"]) .voice-panel__meter span {
+      animation-play-state: paused;
+      opacity: 0.45;
+    }
+
+    .voice-panel__manual {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .voice-panel__manual input {
+      min-width: 0;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid rgba(14, 14, 14, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--ink);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      outline: none;
+    }
+
+    .voice-panel__manual input:focus {
+      border-color: var(--signal);
+      box-shadow: 0 0 0 3px rgba(255, 79, 31, 0.12);
+    }
+
+    .voice-panel__manual .ghost-button {
+      min-height: 42px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: grid;
+      place-items: center;
+      padding: var(--edge);
+      background: rgba(14, 14, 14, 0.32);
+      backdrop-filter: blur(14px);
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .command-modal {
+      position: relative;
+      width: min(640px, 100%);
+      max-height: min(780px, calc(100vh - (var(--edge) * 2)));
+      overflow: auto;
+      border: 1px solid rgba(14, 14, 14, 0.16);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at 86% 18%, rgba(255, 79, 31, 0.14), transparent 24%),
+        var(--paper-soft);
+      box-shadow: 0 32px 100px rgba(14, 14, 14, 0.28);
+      transform: translateY(0) rotateX(0);
+      animation: modal-arrive 440ms var(--ease-out) both;
+    }
+
+    .command-modal.notes-modal-arrive {
+      animation: notes-modal-materialize 900ms var(--ease-out) both;
+      transform-origin: 50% 12%;
+    }
+
+    .command-modal::before {
+      position: absolute;
+      inset: 12px;
+      content: "";
+      pointer-events: none;
+      background:
+        linear-gradient(var(--signal), var(--signal)) left top / 52px 1px no-repeat,
+        linear-gradient(var(--signal), var(--signal)) left top / 1px 52px no-repeat,
+        linear-gradient(var(--signal), var(--signal)) right bottom / 52px 1px no-repeat,
+        linear-gradient(var(--signal), var(--signal)) right bottom / 1px 52px no-repeat;
+      opacity: 0.48;
+    }
+
+    .command-modal__header,
+    .command-modal__body,
+    .command-modal__footer {
+      position: relative;
+      z-index: 1;
+      padding: 18px;
+    }
+
+    .command-modal__header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid rgba(14, 14, 14, 0.1);
+    }
+
+    .command-modal__eyebrow,
+    .field label {
+      margin: 0 0 8px;
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .command-modal__title {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 56px);
+      letter-spacing: -0.075em;
+      line-height: 0.96;
+    }
+
+    .command-modal__body {
+      display: grid;
+      gap: 14px;
+      color: rgba(14, 14, 14, 0.72);
+      font-family: "Lora", Georgia, serif;
+      font-size: 17px;
+      line-height: 1.62;
+    }
+
+    .command-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .command-list li {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid rgba(14, 14, 14, 0.1);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.28);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      line-height: 1.2;
+    }
+
+    .command-list strong,
+    .field input,
+    .field textarea {
+      font-family: "Space Grotesk", Arial, sans-serif;
+    }
+
+    .command-list span {
+      color: var(--signal);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .modal-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(14, 14, 14, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.52);
+      color: var(--ink);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--signal);
+      box-shadow: 0 0 0 3px rgba(255, 79, 31, 0.12);
+    }
+
+    .clinical-notes-output {
+      margin-top: 6px;
+      padding: 16px;
+      border: 1px solid rgba(14, 14, 14, 0.12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.38);
+      box-shadow: inset 42px 0 0 rgba(255, 79, 31, 0.08);
+      color: var(--ink);
+      font-family: "Lora", Georgia, serif;
+      font-size: 15px;
+      line-height: 1.62;
+      white-space: pre-wrap;
+    }
+
+    .clinical-notes-output[hidden] {
+      display: none;
+    }
+
+    .clinical-notes-output.is-generating {
+      min-height: 190px;
+      color: rgba(14, 14, 14, 0.34);
+      background: rgba(255, 255, 255, 0.38);
+      box-shadow: inset 42px 0 0 rgba(255, 79, 31, 0.12), 0 0 0 1px rgba(255, 79, 31, 0.16);
+      animation: notes-output-scan 980ms ease-in-out infinite;
+    }
+
+    .command-modal__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid rgba(14, 14, 14, 0.1);
+    }
+
+    .focus-pulse {
+      animation: focus-pulse 1100ms var(--ease-out) both;
+    }
+
+    .theme-rift {
+      --rift-bg: #10100D;
+      --rift-fg: #F5F2EB;
+      --rift-accent: #FF4F1F;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      overflow: hidden;
+      max-width: 100vw;
+      contain: paint;
+      pointer-events: none;
+      opacity: 0;
+      perspective: 900px;
+    }
+
+    .theme-rift.is-active {
+      opacity: 1;
+    }
+
+    .theme-rift__burst {
+      position: absolute;
+      left: var(--rift-x, 50%);
+      top: var(--rift-y, 50%);
+      width: 160vmax;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, var(--rift-accent) 0 9%, var(--rift-bg) 10% 36%, var(--rift-fg) 37% 43%, transparent 44%),
+        repeating-conic-gradient(from 12deg, rgba(255, 79, 31, 0.92) 0 9deg, transparent 9deg 16deg);
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    .theme-rift__plate {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(720px, 76vw);
+      aspect-ratio: 1.55;
+      border: 1px solid rgba(246, 237, 219, 0.46);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(90deg, transparent 0 22%, rgba(246, 237, 219, 0.32) 22% calc(22% + 1px), transparent calc(22% + 1px)),
+        linear-gradient(0deg, transparent 0 61%, rgba(246, 237, 219, 0.28) 61% calc(61% + 1px), transparent calc(61% + 1px)),
+        radial-gradient(circle, var(--rift-fg) 0 1px, transparent 1px) 0 0 / 18px 18px,
+        var(--rift-bg);
+      box-shadow: 0 28px 120px rgba(0, 0, 0, 0.42);
+      transform: translate(-50%, -50%) rotateX(78deg) rotateZ(-24deg) scale(0.35);
+      opacity: 0;
+    }
+
+    .theme-rift__flash {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent, rgba(255, 79, 31, 0.74), transparent),
+        repeating-linear-gradient(0deg, transparent 0 8px, rgba(246, 237, 219, 0.22) 8px 9px);
+      transform: translateX(-120%) skewX(-18deg);
+      opacity: 0;
+    }
+
+    .theme-rift__slices {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .theme-rift__slices span {
+      position: absolute;
+      top: -14vh;
+      bottom: -14vh;
+      width: 16vw;
+      border-inline: 1px solid rgba(246, 237, 219, 0.26);
+      background:
+        radial-gradient(circle at 50% 22%, rgba(255, 79, 31, 0.8) 0 5px, transparent 6px),
+        var(--rift-bg);
+      transform: translateY(-120%) skewX(-12deg) rotate(2deg);
+      opacity: 0.95;
+    }
+
+    .theme-rift__slices span:nth-child(1) { left: -7vw; animation-delay: 0ms; }
+    .theme-rift__slices span:nth-child(2) { left: 9vw; animation-delay: 44ms; }
+    .theme-rift__slices span:nth-child(3) { left: 25vw; animation-delay: 88ms; }
+    .theme-rift__slices span:nth-child(4) { left: 41vw; animation-delay: 132ms; }
+    .theme-rift__slices span:nth-child(5) { left: 57vw; animation-delay: 176ms; }
+    .theme-rift__slices span:nth-child(6) { left: 73vw; animation-delay: 220ms; }
+    .theme-rift__slices span:nth-child(7) { left: 89vw; animation-delay: 264ms; }
+
+    .theme-rift.is-active .theme-rift__burst {
+      animation: rift-burst 1180ms var(--ease-out) both;
+    }
+
+    .theme-rift.is-active .theme-rift__plate {
+      animation: rift-plate 1180ms var(--ease-out) both;
+    }
+
+    .theme-rift.is-active .theme-rift__flash {
+      animation: rift-flash 1180ms var(--ease-out) both;
+    }
+
+    .theme-rift.is-active .theme-rift__slices span {
+      animation-name: rift-slice;
+      animation-duration: 1180ms;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+    }
+
+    body.theme-switching .app-shell {
+      animation: shell-fold 1180ms var(--ease-out);
+      transform-origin: 50% 14%;
+    }
+
+    body[data-theme="dark"] {
+      --paper: #10100D;
+      --paper-deep: #191711;
+      --paper-soft: #201E17;
+      --ink: #F6EDDB;
+      --mist: #343027;
+      --mist-strong: #5B5548;
+      --slate: #D6D0C4;
+      --void: #050504;
+      --cream: #F5F2EB;
+      --shadow-rest: 0 2px 10px rgba(0, 0, 0, 0.26);
+      --shadow-lift: 0 18px 48px rgba(0, 0, 0, 0.42);
+      background:
+        radial-gradient(circle, rgba(246, 237, 219, 0.12) 0 1px, transparent 1px) 0 0 / 8px 8px,
+        linear-gradient(90deg, rgba(255, 79, 31, 0.04), transparent 34%, rgba(246, 237, 219, 0.035)),
+        var(--paper);
+      color: var(--ink);
+      color-scheme: dark;
+    }
+
+    body[data-theme="dark"]::before {
+      opacity: 0.055;
+      mix-blend-mode: screen;
+    }
+
+    body[data-theme="dark"] .motion-field {
+      opacity: 0.82;
+      mix-blend-mode: screen;
+    }
+
+    body[data-theme="dark"] .motion-field::before {
+      background:
+        repeating-linear-gradient(90deg, transparent 0 92px, rgba(255, 79, 31, 0.12) 92px 93px, transparent 93px 184px),
+        repeating-linear-gradient(0deg, transparent 0 84px, rgba(246, 237, 219, 0.06) 84px 85px, transparent 85px 168px);
+    }
+
+    body[data-theme="dark"] .motion-field span {
+      background: linear-gradient(90deg, transparent, rgba(255, 79, 31, 0.72), rgba(246, 237, 219, 0.28), transparent);
+    }
+
+    body[data-theme="dark"] .sidebar,
+    body[data-theme="dark"] .topbar {
+      border-color: rgba(246, 237, 219, 0.16);
+      background:
+        linear-gradient(180deg, rgba(246, 237, 219, 0.06), rgba(246, 237, 219, 0)),
+        rgba(16, 16, 13, 0.96);
+    }
+
+    body[data-theme="dark"] .brand,
+    body[data-theme="dark"] .side-section,
+    body[data-theme="dark"] .shift-card,
+    body[data-theme="dark"] .panel-header,
+    body[data-theme="dark"] .rule-list,
+    body[data-theme="dark"] .rule-row,
+    body[data-theme="dark"] .timeline-item {
+      border-color: rgba(246, 237, 219, 0.14);
+    }
+
+    body[data-theme="dark"] .brand-mark,
+    body[data-theme="dark"] .avatar,
+    body[data-theme="dark"] .bar {
+      background: var(--cream);
+      color: #10100D;
+    }
+
+    body[data-theme="dark"] .bar.alert {
+      background: var(--signal);
+    }
+
+    body[data-theme="dark"] .brand span,
+    body[data-theme="dark"] .brand::after,
+    body[data-theme="dark"] .side-label,
+    body[data-theme="dark"] .panel-label,
+    body[data-theme="dark"] .micro-label,
+    body[data-theme="dark"] .topbar-title p,
+    body[data-theme="dark"] .patient-meta,
+    body[data-theme="dark"] .nav-count,
+    body[data-theme="dark"] .metric span,
+    body[data-theme="dark"] .doctor-card span,
+    body[data-theme="dark"] .care-item span,
+    body[data-theme="dark"] .care-item time,
+    body[data-theme="dark"] .timeline-item span {
+      color: rgba(246, 237, 219, 0.56);
+    }
+
+    body[data-theme="dark"] .nav-item,
+    body[data-theme="dark"] .queue-button,
+    body[data-theme="dark"] .search input,
+    body[data-theme="dark"] .ghost-button,
+    body[data-theme="dark"] .icon-button,
+    body[data-theme="dark"] .seg-button,
+    body[data-theme="dark"] .theme-toggle,
+    body[data-theme="dark"] .voice-button,
+    body[data-theme="dark"] .panel,
+    body[data-theme="dark"] .metric,
+    body[data-theme="dark"] .segmented,
+    body[data-theme="dark"] .care-item,
+    body[data-theme="dark"] .report,
+    body[data-theme="dark"] .vital-chart {
+      border-color: rgba(246, 237, 219, 0.16);
+      background: rgba(246, 237, 219, 0.06);
+      color: var(--ink);
+    }
+
+    body[data-theme="dark"] .nav-item:hover,
+    body[data-theme="dark"] .nav-item.active,
+    body[data-theme="dark"] .queue-button.active {
+      background: rgba(255, 79, 31, 0.12);
+      border-color: rgba(255, 79, 31, 0.56);
+    }
+
+    body[data-theme="dark"] .panel.dark {
+      background:
+        radial-gradient(circle at 78% 14%, rgba(255, 79, 31, 0.18), transparent 28%),
+        #050504;
+      color: var(--cream);
+    }
+
+    body[data-theme="dark"] .spark {
+      box-shadow: 0 0 20px rgba(255, 79, 31, 0.46);
+    }
+
+    body[data-theme="dark"] .summary-copy,
+    body[data-theme="dark"] .confidence {
+      border-color: rgba(246, 237, 219, 0.18);
+      background: rgba(246, 237, 219, 0.07);
+    }
+
+    body[data-theme="dark"] .summary-copy h2 {
+      color: var(--cream);
+    }
+
+    body[data-theme="dark"] .summary-copy p {
+      color: rgba(246, 237, 219, 0.72);
+    }
+
+    body[data-theme="dark"] .queue-symptoms,
+    body[data-theme="dark"] .rule-row span {
+      color: rgba(246, 237, 219, 0.68);
+    }
+
+    body[data-theme="dark"] .theme-toggle {
+      background:
+        radial-gradient(circle at 72% 50%, var(--cream) 0 5px, transparent 6px),
+        rgba(246, 237, 219, 0.06);
+    }
+
+    body[data-theme="dark"] .theme-toggle::before {
+      border-color: rgba(246, 237, 219, 0.22);
+      transform: skewX(12deg);
+    }
+
+    body[data-theme="dark"] .theme-toggle::after {
+      transform: translate(-28px, -50%);
+      box-shadow: 22px 0 0 -5px var(--signal);
+    }
+
+    body[data-theme="dark"] .button {
+      color: #10100D;
+    }
+
+    body[data-theme="dark"] .button:hover,
+    body[data-theme="dark"] .seg-button.active {
+      background: var(--cream);
+      border-color: var(--cream);
+      color: #10100D;
+    }
+
+    body[data-theme="dark"] .voice-button {
+      --voice-ink: var(--cream);
+      background:
+        linear-gradient(135deg, rgba(255, 79, 31, 0.18), transparent 42%),
+        rgba(246, 237, 219, 0.06);
+    }
+
+    body[data-theme="dark"] .voice-button.is-listening {
+      background:
+        radial-gradient(circle at 18px 50%, rgba(255, 79, 31, 0.34), transparent 38px),
+        rgba(246, 237, 219, 0.08);
+    }
+
+    body[data-theme="dark"] .voice-button.is-success {
+      color: #10100D;
+    }
+
+    body[data-theme="dark"] .clinical-button {
+      color: #10100D;
+      box-shadow: 0 18px 58px rgba(255, 79, 31, 0.26);
+    }
+
+    body[data-theme="dark"] .clinical-button.is-success {
+      background: var(--cream);
+      color: var(--signal);
+    }
+
+    body[data-theme="dark"] .voice-rift__ring {
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle, transparent 0 10%, rgba(255, 79, 31, 0.86) 11% 12%, transparent 13% 20%, rgba(246, 237, 219, 0.28) 21% 21.5%, transparent 22%),
+        repeating-conic-gradient(from 0deg, rgba(255, 79, 31, 0.72) 0 5deg, transparent 5deg 12deg);
+    }
+
+    body[data-theme="dark"] .voice-rift__grid,
+    body[data-theme="dark"] .voice-panel,
+    body[data-theme="dark"] .command-modal {
+      border-color: rgba(246, 237, 219, 0.16);
+      background:
+        radial-gradient(circle at 86% 18%, rgba(255, 79, 31, 0.18), transparent 24%),
+        rgba(16, 16, 13, 0.94);
+      color: var(--ink);
+    }
+
+    body[data-theme="dark"] .notes-rift__folio {
+      border-color: rgba(246, 237, 219, 0.2);
+      background: var(--void);
+      color: var(--cream);
+    }
+
+    body[data-theme="dark"] .voice-panel__head,
+    body[data-theme="dark"] .command-modal__header,
+    body[data-theme="dark"] .command-modal__footer {
+      border-color: rgba(246, 237, 219, 0.14);
+    }
+
+    body[data-theme="dark"] .voice-panel__transcript,
+    body[data-theme="dark"] .command-modal__title {
+      color: var(--cream);
+    }
+
+    body[data-theme="dark"] .voice-panel__result,
+    body[data-theme="dark"] .command-modal__body {
+      color: rgba(246, 237, 219, 0.7);
+    }
+
+    body[data-theme="dark"] .command-list li,
+    body[data-theme="dark"] .voice-panel__manual input,
+    body[data-theme="dark"] .field input,
+    body[data-theme="dark"] .field textarea,
+    body[data-theme="dark"] .clinical-notes-output {
+      border-color: rgba(246, 237, 219, 0.14);
+      background: rgba(246, 237, 219, 0.06);
+      color: var(--cream);
+    }
+
+    body[data-theme="dark"] .notes-rift__pulse {
+      mix-blend-mode: screen;
+    }
+
+    body[data-theme="dark"] .clinical-notes-output.is-generating {
+      color: rgba(246, 237, 219, 0.38);
+      background: rgba(246, 237, 219, 0.06);
+    }
+
+    @keyframes glyph-pop {
+      0% { transform: rotate(0deg) scale(1); }
+      38% { transform: rotate(-18deg) scale(1.34); }
+      70% { transform: rotate(12deg) scale(0.92); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    @keyframes field-drift {
+      to { transform: rotate(-8deg) translate3d(184px, 0, 0); }
+    }
+
+    @keyframes field-sweep {
+      0%, 42% {
+        opacity: 0;
+        transform: translateX(-42%) skewX(-16deg);
+      }
+      58% { opacity: 0.85; }
+      100% {
+        opacity: 0;
+        transform: translateX(82%) skewX(-16deg);
+      }
+    }
+
+    @keyframes signal-rail {
+      0% {
+        opacity: 0;
+        transform: translateX(-22vw) rotate(var(--rail-rotate, 0deg));
+      }
+      14% { opacity: 1; }
+      72% { opacity: 0.75; }
+      100% {
+        opacity: 0;
+        transform: translateX(128vw) rotate(var(--rail-rotate, 0deg));
+      }
+    }
+
+    @keyframes spark-flight {
+      0% {
+        opacity: 0;
+        transform: translate3d(-50%, -50%, 0) rotate(var(--spark-rotate, 0deg)) scaleX(0.18);
+      }
+      18% { opacity: 1; }
+      100% {
+        opacity: 0;
+        transform: translate3d(calc(-50% + var(--spark-x, 0px)), calc(-50% + var(--spark-y, 0px)), 0) rotate(calc(var(--spark-rotate, 0deg) + 38deg)) scaleX(1);
+      }
+    }
+
+    @keyframes topbar-scan {
+      0%, 38% {
+        opacity: 0;
+        transform: translateX(-120%) skewX(-16deg);
+      }
+      56% { opacity: 1; }
+      100% {
+        opacity: 0;
+        transform: translateX(120%) skewX(-16deg);
+      }
+    }
+
+    @keyframes italic-charge {
+      0%, 100% {
+        transform: translateY(0) skewX(0deg);
+        text-shadow: none;
+      }
+      50% {
+        transform: translateY(-2px) skewX(-4deg);
+        text-shadow: 0 0 26px rgba(255, 79, 31, 0.22);
+      }
+    }
+
+    @keyframes idle-scan {
+      0%, 54% { transform: translateX(-120%) skewX(-18deg); }
+      76% { transform: translateX(120%) skewX(-18deg); }
+      100% { transform: translateX(120%) skewX(-18deg); }
+    }
+
+    @keyframes number-shock {
+      0% { transform: translateY(0) skewX(0deg); filter: none; }
+      24% { transform: translateY(-8px) skewX(-7deg); filter: blur(0.4px); }
+      42% { transform: translateY(5px) skewX(5deg); }
+      72% { transform: translateY(-2px) skewX(-2deg); }
+      100% { transform: translateY(0) skewX(0deg); filter: none; }
+    }
+
+    @keyframes confidence-orbit {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes bar-breathe {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.08); }
+    }
+
+    @keyframes bar-wave {
+      0% { transform: scaleY(1); }
+      34% { transform: scaleY(1.34) translateY(-6px); }
+      66% { transform: scaleY(0.82); }
+      100% { transform: scaleY(1); }
+    }
+
+    @keyframes alert-pulse {
+      0%, 100% { box-shadow: 0 0 0 rgba(255, 79, 31, 0); }
+      50% { box-shadow: 0 -10px 24px rgba(255, 79, 31, 0.38); }
+    }
+
+    @keyframes doctor-alert-flare {
+      0% { opacity: 0; transform: translateY(-16px) rotateX(72deg) scale(0.94); filter: saturate(2.4) contrast(1.4); }
+      34% { opacity: 1; transform: translateY(6px) rotateX(-10deg) rotateZ(-0.8deg) scale(1.02); }
+      68% { transform: translateY(-2px) rotateX(5deg) rotateZ(0.4deg) scale(0.992); }
+      100% { opacity: 1; transform: translateY(0) rotateX(0) rotateZ(0) scale(1); filter: none; }
+    }
+
+    @keyframes doctor-alert-grid {
+      0% { opacity: 0; transform: rotate(-18deg) scale(0.82) skewX(-10deg); }
+      30% { opacity: 0.7; transform: rotate(8deg) scale(1.04) skewX(12deg); }
+      62% { opacity: 0.42; transform: rotate(-4deg) scale(1.14) skewX(-8deg); }
+      100% { opacity: 0; transform: rotate(16deg) scale(1.28) skewX(14deg); }
+    }
+
+    @keyframes chart-signal {
+      0%, 24% {
+        opacity: 0;
+        transform: translateX(-100%);
+      }
+      42% { opacity: 1; }
+      100% {
+        opacity: 0;
+        transform: translateX(320%);
+      }
+    }
+
+    @keyframes active-breathe {
+      0%, 100% {
+        box-shadow: var(--shadow-rest);
+      }
+      50% {
+        box-shadow: 0 0 0 3px rgba(255, 79, 31, 0.08), 0 14px 42px rgba(255, 79, 31, 0.18);
+      }
+    }
+
+    @keyframes dark-panel-bloom {
+      0%, 100% {
+        box-shadow: var(--shadow-rest);
+      }
+      50% {
+        box-shadow: 0 18px 60px rgba(255, 79, 31, 0.12);
+      }
+    }
+
+    @keyframes card-arrive {
+      from {
+        opacity: 0;
+        transform: translateY(16px) rotate(-1deg);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+      }
+    }
+
+    @keyframes toggle-comet {
+      0% { transform: translate(12px, -50%) rotate(0deg) scale(1); }
+      22% {
+        transform: translate(-28px, -50%) rotate(210deg) scale(1.9);
+        box-shadow: 0 0 0 12px rgba(255, 79, 31, 0.22), 28px 0 0 -3px var(--signal);
+      }
+      48% { transform: translate(4px, -50%) rotate(540deg) scale(0.72); }
+      76% { transform: translate(26px, -50%) rotate(760deg) scale(1.35); }
+      100% { transform: translate(12px, -50%) rotate(900deg) scale(1); }
+    }
+
+    @keyframes rift-burst {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+      18% { opacity: 1; }
+      58% { transform: translate(-50%, -50%) scale(1) rotate(230deg); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.18) rotate(360deg); }
+    }
+
+    @keyframes rift-plate {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(78deg) rotateZ(-24deg) scale(0.35); }
+      28% { opacity: 0.96; transform: translate(-50%, -50%) rotateX(18deg) rotateZ(12deg) scale(0.84); }
+      62% { opacity: 0.96; transform: translate(-50%, -50%) rotateX(-10deg) rotateZ(186deg) scale(1.06); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(-74deg) rotateZ(360deg) scale(1.42); }
+    }
+
+    @keyframes rift-slice {
+      0% { transform: translateY(-120%) skewX(-12deg) rotate(2deg); }
+      35% { transform: translateY(0) skewX(-12deg) rotate(-5deg); }
+      68% { transform: translateY(0) skewX(10deg) rotate(4deg); }
+      100% { transform: translateY(120%) skewX(10deg) rotate(-3deg); }
+    }
+
+    @keyframes rift-flash {
+      0%, 22% { opacity: 0; transform: translateX(-120%) skewX(-18deg); }
+      38% { opacity: 0.9; }
+      64% { opacity: 0.36; transform: translateX(120%) skewX(-18deg); }
+      100% { opacity: 0; transform: translateX(140%) skewX(-18deg); }
+    }
+
+    @keyframes shell-fold {
+      0% { filter: none; transform: perspective(1000px) rotateX(0) scale(1); }
+      24% { filter: saturate(1.4) contrast(1.12); transform: perspective(1000px) rotateX(5deg) rotateZ(-0.45deg) scale(0.982); }
+      52% { filter: invert(1) hue-rotate(20deg) contrast(1.15); transform: perspective(1000px) rotateX(-4deg) rotateZ(0.38deg) scale(1.006); }
+      100% { filter: none; transform: perspective(1000px) rotateX(0) scale(1); }
+    }
+
+    @keyframes voice-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes voice-core {
+      0%, 100% { transform: scale(1); filter: none; }
+      45% { transform: scale(1.18) rotate(-8deg); filter: drop-shadow(0 0 12px rgba(255, 79, 31, 0.5)); }
+      70% { transform: scale(0.94) rotate(10deg); }
+    }
+
+    @keyframes voice-button-warp {
+      0%, 100% { transform: translateY(-2px) skewX(0deg); }
+      34% { transform: translateY(-5px) skewX(-3deg) rotate(-0.8deg); }
+      68% { transform: translateY(-3px) skewX(3deg) rotate(0.8deg); }
+    }
+
+    @keyframes voice-error {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px) rotate(-1.4deg); }
+      50% { transform: translateX(5px) rotate(1.4deg); }
+      75% { transform: translateX(-3px) rotate(-0.8deg); }
+    }
+
+    @keyframes voice-meter {
+      0%, 100% { transform: scaleY(0.38); opacity: 0.52; }
+      50% { transform: scaleY(1.12); opacity: 1; }
+    }
+
+    @keyframes voice-rift-ring {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); filter: blur(0); }
+      24% { opacity: 1; transform: translate(-50%, -50%) scale(0.22) rotate(18deg); }
+      68% { opacity: 0.72; transform: translate(-50%, -50%) scale(1.04) rotate(126deg); filter: blur(0.6px); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.42) rotate(168deg); filter: blur(3px); }
+    }
+
+    @keyframes voice-rift-beam {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotate(-17deg) scaleX(0); }
+      20% { opacity: 1; transform: translate(-50%, -50%) rotate(-17deg) scaleX(0.24); }
+      54% { opacity: 0.9; transform: translate(-50%, -50%) rotate(10deg) scaleX(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotate(28deg) scaleX(1.16); }
+    }
+
+    @keyframes voice-rift-grid {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(86deg) rotateZ(20deg) scale(0.34); }
+      36% { opacity: 0.86; transform: translate(-50%, -50%) rotateX(58deg) rotateZ(-11deg) scale(1); }
+      72% { opacity: 0.56; transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-24deg) scale(1.18); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(88deg) rotateZ(-36deg) scale(1.34); }
+    }
+
+    @keyframes voice-rift-slice {
+      0% { opacity: 0; transform: translateY(118%) skewX(14deg); }
+      28% { opacity: 0.78; transform: translateY(4%) skewX(-12deg); }
+      72% { opacity: 0.28; transform: translateY(-32%) skewX(8deg); }
+      100% { opacity: 0; transform: translateY(-118%) skewX(-16deg); }
+    }
+
+    @keyframes clinical-spin {
+      to { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes clinical-mark-fold {
+      0%, 100% { transform: rotate(-8deg) skewX(0deg) scale(1); }
+      32% { transform: rotate(18deg) skewX(-18deg) scale(1.12); }
+      64% { transform: rotate(-24deg) skewX(12deg) scale(0.92); }
+    }
+
+    @keyframes clinical-button-summon {
+      0%, 100% { transform: translateY(-2px) rotate(0deg) skewX(0deg); filter: none; }
+      28% { transform: translateY(-8px) rotate(-2deg) skewX(-4deg); filter: saturate(1.35) contrast(1.08); }
+      66% { transform: translateY(-4px) rotate(1.4deg) skewX(4deg); }
+    }
+
+    @keyframes clinical-button-fold {
+      0%, 100% { transform: skewX(-12deg) rotateY(0deg) scaleX(1); opacity: 0.42; }
+      42% { transform: skewX(12deg) rotateY(68deg) scaleX(0.72); opacity: 0.9; }
+      72% { transform: skewX(-16deg) rotateY(-42deg) scaleX(1.08); opacity: 0.64; }
+    }
+
+    @keyframes notes-pulse {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); filter: blur(0); }
+      16% { opacity: 1; transform: translate(-50%, -50%) scale(0.16) rotate(22deg); }
+      48% { opacity: 0.88; transform: translate(-50%, -50%) scale(0.82) rotate(152deg); filter: blur(0.8px); }
+      76% { opacity: 0.72; transform: translate(-50%, -50%) scale(1.12) rotate(238deg); filter: blur(2px); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.34) rotate(320deg); filter: blur(5px); }
+    }
+
+    @keyframes notes-folio {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotateX(82deg) rotateZ(-28deg) scale(0.38); }
+      24% { opacity: 1; transform: translate(-50%, -50%) rotateX(18deg) rotateZ(10deg) scale(0.9); }
+      54% { opacity: 0.96; transform: translate(-50%, -50%) rotateX(-10deg) rotateZ(172deg) scale(1.08); }
+      78% { opacity: 0.62; transform: translate(-50%, -50%) rotateX(-46deg) rotateZ(274deg) scale(1.24); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotateX(-86deg) rotateZ(374deg) scale(1.42); }
+    }
+
+    @keyframes notes-scan {
+      0%, 12% { opacity: 0; transform: translateX(-110%) rotate(-9deg); }
+      32% { opacity: 1; }
+      68% { opacity: 0.58; transform: translateX(44%) rotate(8deg); }
+      100% { opacity: 0; transform: translateX(118%) rotate(16deg); }
+    }
+
+    @keyframes notes-page {
+      0% { opacity: 0; transform: translateY(-118%) skewX(-18deg) rotate(4deg); }
+      30% { opacity: 0.92; transform: translateY(-4%) skewX(14deg) rotate(-8deg); }
+      70% { opacity: 0.44; transform: translateY(28%) skewX(-10deg) rotate(6deg); }
+      100% { opacity: 0; transform: translateY(118%) skewX(18deg) rotate(-8deg); }
+    }
+
+    @keyframes notes-ink {
+      0% { opacity: 0; transform: translate(-50%, -50%) rotate(-20deg) scale(0); }
+      28% { opacity: 0.88; transform: translate(-50%, -50%) rotate(40deg) scale(0.74); }
+      70% { opacity: 0.46; transform: translate(-50%, -50%) rotate(180deg) scale(1.28); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotate(260deg) scale(1.62); }
+    }
+
+    @keyframes notes-field-flash {
+      0%, 12% { opacity: 0; transform: translateX(-120%) skewX(-18deg); }
+      24% { opacity: 0.92; }
+      54% { opacity: 0.42; transform: translateX(16%) skewX(14deg); }
+      100% { opacity: 0; transform: translateX(126%) skewX(18deg); }
+    }
+
+    @keyframes notes-grid-rush {
+      0% { opacity: 0; transform: scale(1.3) rotate(-9deg); filter: blur(1px); }
+      26% { opacity: 0.5; transform: scale(1.02) rotate(7deg); filter: blur(0); }
+      62% { opacity: 0.28; transform: scale(0.96) rotate(-14deg); }
+      100% { opacity: 0; transform: scale(1.22) rotate(-22deg); filter: blur(2px); }
+    }
+
+    @keyframes notes-shell-warp {
+      0% { filter: none; transform: perspective(1000px) rotateX(0) scale(1); }
+      18% { filter: contrast(1.1); transform: perspective(1000px) rotateX(7deg) rotateZ(-0.52deg) scale(0.978); }
+      40% { filter: contrast(1.18); transform: perspective(1000px) rotateX(-5deg) rotateY(2deg) rotateZ(0.44deg) scale(1.01); }
+      66% { filter: contrast(1.08); transform: perspective(1000px) rotateX(3deg) rotateY(-1.4deg) rotateZ(-0.2deg) scale(0.992); }
+      100% { filter: none; transform: perspective(1000px) rotateX(0) rotateY(0) scale(1); }
+    }
+
+    @keyframes notes-type-slam {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotateX(76deg) rotateZ(18deg) scale(0.62);
+      }
+      24% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotateX(20deg) rotateZ(-9deg) scale(0.9);
+      }
+      54% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotateX(-8deg) rotateZ(12deg) scale(1.04);
+      }
+      78% {
+        opacity: 0.82;
+        transform: translate(-50%, -50%) rotateX(28deg) rotateZ(178deg) scale(1.1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotateX(84deg) rotateZ(340deg) scale(1.32);
+      }
+    }
+
+    @keyframes notes-modal-materialize {
+      0% { opacity: 0; transform: translateY(34px) rotateX(78deg) rotateZ(-9deg) scale(0.72); filter: blur(6px); }
+      36% { opacity: 1; transform: translateY(-10px) rotateX(-12deg) rotateZ(3deg) scale(1.03); filter: blur(0); }
+      68% { transform: translateY(4px) rotateX(5deg) rotateZ(-1deg) scale(0.992); }
+      100% { opacity: 1; transform: translateY(0) rotateX(0) rotateZ(0) scale(1); filter: blur(0); }
+    }
+
+    @keyframes notes-output-scan {
+      0%, 100% { opacity: 0.72; transform: translateY(0); }
+      50% { opacity: 1; transform: translateY(-2px); }
+    }
+
+    @keyframes modal-arrive {
+      0% { opacity: 0; transform: translateY(24px) rotateX(14deg) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) rotateX(0) scale(1); }
+    }
+
+    @keyframes focus-pulse {
+      0% { box-shadow: var(--shadow-rest); transform: translateY(0); }
+      42% { box-shadow: 0 0 0 4px rgba(255, 79, 31, 0.16), 0 26px 80px rgba(255, 79, 31, 0.22); transform: translateY(-8px) rotate(-0.6deg); }
+      100% { box-shadow: var(--shadow-rest); transform: translateY(0); }
+    }
+
+    @media (max-width: 1540px) {
+      .topbar {
+        grid-template-columns: minmax(320px, 1fr) max-content;
+        grid-template-areas:
+          "title actions"
+          "search search";
+        align-items: end;
+      }
+
+      .top-actions {
+        flex-wrap: wrap;
+        max-width: 620px;
+      }
+
+      .search {
+        width: 100%;
+      }
+
+      .dashboard {
+        grid-template-columns: minmax(280px, 0.8fr) minmax(560px, 1.45fr);
+      }
+
+      .right-stack {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+      }
+
+      .side-section,
+      .shift-card {
+        display: none;
+      }
+
+      .brand {
+        grid-template-columns: 48px 1fr auto;
+      }
+
+      .brand::after {
+        content: "Clinical Command";
+        color: rgba(14, 14, 14, 0.48);
+        font-family: "JetBrains Mono", Consolas, monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .right-stack {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      .topbar {
+        position: static;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "title"
+          "search"
+          "actions";
+      }
+
+      .search {
+        width: 100%;
+      }
+
+      .top-actions {
+        flex-wrap: wrap;
+        justify-content: stretch;
+        max-width: none;
+      }
+
+      .voice-button {
+        flex: 1 1 132px;
+        justify-content: center;
+      }
+
+      .clinical-button {
+        flex: 1 1 176px;
+        justify-content: center;
+      }
+
+      .dashboard,
+      .right-stack,
+      .clinical-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .ai-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      :root {
+        --edge: 14px;
+      }
+
+      .brand {
+        padding: 22px 16px;
+      }
+
+      .brand::after {
+        display: none;
+      }
+
+      .topbar-title h1 {
+        font-size: 40px;
+      }
+
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .rule-row,
+      .timeline-item {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .top-actions .ghost-button,
+      .top-actions .button {
+        flex: 1 1 148px;
+      }
+
+      .voice-panel {
+        left: var(--edge);
+        right: var(--edge);
+        bottom: var(--edge);
+        width: auto;
+      }
+
+      .modal-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .command-modal__header,
+      .command-modal__footer {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+
+      .motion-field,
+      .spark-layer,
+      .voice-rift,
+      .notes-rift {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="motion-field" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <div class="theme-rift" id="theme-rift" aria-hidden="true">
+    <div class="theme-rift__burst"></div>
+    <div class="theme-rift__slices">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="theme-rift__plate"></div>
+    <div class="theme-rift__flash"></div>
+  </div>
+  <div class="voice-rift" id="voice-rift" aria-hidden="true">
+    <div class="voice-rift__ring"></div>
+    <div class="voice-rift__beam"></div>
+    <div class="voice-rift__grid"></div>
+    <div class="voice-rift__slice"></div>
+    <div class="voice-rift__slice"></div>
+    <div class="voice-rift__slice"></div>
+    <div class="voice-rift__slice"></div>
+  </div>
+  <div class="notes-rift" id="clinicalNotesRift" aria-hidden="true">
+    <div class="notes-rift__pulse"></div>
+    <div class="notes-rift__folio"></div>
+    <div class="notes-rift__scan"></div>
+    <div class="notes-rift__page"></div>
+    <div class="notes-rift__page"></div>
+    <div class="notes-rift__page"></div>
+    <div class="notes-rift__page"></div>
+    <div class="notes-rift__page"></div>
+    <div class="notes-rift__ink"></div>
+  </div>
+  <div class="spark-layer" id="spark-layer" aria-hidden="true"></div>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Synaptic Doctor workspace navigation">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M14 10L36 22L18 27L14 10Z" stroke="#60FFE8" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M19 28L23 39" stroke="#B8FF65" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <div>
+          <strong>Synaptic Doctor</strong>
+          <span>AI care studio / v0.7</span>
+        </div>
+      </div>
+
+      <section class="side-section">
+        <p class="side-label">Workspace</p>
+        <nav class="nav-list">
+          <a class="nav-item active" href="#overview"><span class="nav-glyph">01</span><span>Clinical command</span><span class="nav-count">24</span></a>
+          <a class="nav-item" href="#triage"><span class="nav-glyph">02</span><span>AI triage</span><span class="nav-count">08</span></a>
+          <a class="nav-item" href="#records"><span class="nav-glyph">03</span><span>Records</span><span class="nav-count">131</span></a>
+          <a class="nav-item" href="#appointments"><span class="nav-glyph">04</span><span>Appointments</span><span class="nav-count">12</span></a>
+          <a class="nav-item" href="#reports"><span class="nav-glyph">05</span><span>Reports</span><span class="nav-count">19</span></a>
+        </nav>
+      </section>
+
+      <section class="side-section">
+        <p class="side-label">Live filters</p>
+        <div class="nav-list">
+          <button class="nav-item active" type="button"><span class="nav-glyph">A</span><span>Urgent first</span><span class="nav-count">ON</span></button>
+          <button class="nav-item" type="button"><span class="nav-glyph">B</span><span>Remote consults</span><span class="nav-count">07</span></button>
+          <button class="nav-item" type="button"><span class="nav-glyph">C</span><span>Lab pending</span><span class="nav-count">15</span></button>
+        </div>
+      </section>
+
+      <div class="shift-card">
+        <div class="shift-box">
+          <p class="side-label">Shift signal</p>
+          <strong>92%</strong>
+          <p>AI summaries reconciled with clinician notes across the current care queue.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main" id="overview">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>Clinical command <span class="serif">for care teams</span>.</h1>
+          <p>May 18, 2026 / 09:42 IST / Synaptic Doctor</p>
+        </div>
+        <label class="search">
+          <span class="side-label" style="position:absolute;clip:rect(0 0 0 0);clip-path:inset(50%);height:1px;overflow:hidden;white-space:nowrap;width:1px;">Search patients</span>
+          <input type="search" id="search" placeholder="Search patient, symptom, report">
+        </label>
+        <div class="top-actions">
+          <button class="clinical-button" id="clinicalNotesButton" type="button" aria-label="Create clinical notes">
+            <span class="clinical-mark" aria-hidden="true"></span>
+            <span>Clinical notes</span>
+          </button>
+          <button class="voice-button" id="voiceButton" type="button" aria-label="Start voice command" aria-pressed="false">
+            <span class="voice-mark" aria-hidden="true"></span>
+            <span>Voice</span>
+          </button>
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">Theme</button>
+          <button class="ghost-button" type="button">Export brief</button>
+          <button class="button" type="button">New consult</button>
+        </div>
+      </header>
+
+      <div class="doctor-alert" id="doctorAlert" role="alert" aria-live="assertive" hidden>
+        <span class="doctor-alert__glyph" aria-hidden="true">!</span>
+        <div>
+          <strong id="doctorAlertTitle">Patient alert</strong>
+          <span class="doctor-alert__detail" id="doctorAlertDetail">Incoming patient signal.</span>
+        </div>
+        <button class="icon-button" id="doctorAlertClose" type="button" aria-label="Dismiss patient alert">X</button>
+      </div>
+
+      <section class="dashboard">
+        <section class="panel" aria-labelledby="queue-title">
+          <div class="panel-header">
+            <div>
+              <p class="panel-label">Patient queue</p>
+              <h2 class="panel-title" id="queue-title">Triage stream</h2>
+            </div>
+            <button class="icon-button" type="button" aria-label="Refresh queue">R</button>
+          </div>
+          <div class="panel-body">
+            <div class="queue" id="patientQueue"></div>
+          </div>
+        </section>
+
+        <section class="center-stack">
+          <section class="panel dark" id="triage" aria-labelledby="triage-title">
+            <div class="panel-header">
+              <div>
+                <p class="panel-label">AI triage</p>
+                <h2 class="panel-title" id="triage-title">Clinical synthesis</h2>
+              </div>
+              <span class="micro-label" id="caseId">Case SD-1024</span>
+            </div>
+            <div class="panel-body">
+              <div class="metric-grid" id="metrics"></div>
+              <div class="ai-summary">
+                <div class="summary-copy">
+                  <h2 id="patientHeadline">Maya Rao <span class="serif">requires review</span>.</h2>
+                  <p id="aiSummary">Respiratory complaint with elevated resting heart rate and oxygen variation. Recommend clinician review before routine scheduling.</p>
+                </div>
+                <div class="confidence">
+                  <p class="panel-label">Confidence</p>
+                  <strong id="confidence">91%</strong>
+                  <p class="micro-label" id="riskText">High acuity</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="clinical-grid">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="panel-label">Vitals</p>
+                  <h2 class="panel-title">Signal trace</h2>
+                </div>
+                <span class="micro-label">12 hr</span>
+              </div>
+              <div class="panel-body">
+                <div class="vital-chart" id="chart"></div>
+              </div>
+            </article>
+
+            <article class="panel" id="records">
+              <div class="panel-header">
+                <div>
+                  <p class="panel-label">Differential</p>
+                  <h2 class="panel-title">Doctor review</h2>
+                </div>
+                <span class="micro-label">Ranked</span>
+              </div>
+              <div class="panel-body">
+                <div class="rule-list" id="differentials"></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="panel" id="appointments">
+            <div class="panel-header">
+              <div>
+                <p class="panel-label">Care timeline</p>
+                <h2 class="panel-title">Today</h2>
+              </div>
+              <button class="ghost-button" type="button">Schedule</button>
+            </div>
+            <div class="panel-body">
+              <div class="timeline" id="timeline"></div>
+            </div>
+          </section>
+        </section>
+
+        <aside class="right-stack" aria-label="Care plan and reporting">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-label">Clinician</p>
+                <h2 class="panel-title">Handoff</h2>
+              </div>
+              <span class="micro-label">Online</span>
+            </div>
+            <div class="panel-body">
+              <div class="doctor-card">
+                <span class="avatar">s</span>
+                <div>
+                  <strong>Dr. S. Mehta</strong>
+                  <span>Internal medicine / Mumbai</span>
+                </div>
+              </div>
+              <div class="segmented" style="margin-top:18px;">
+                <button class="seg-button active" type="button">Brief</button>
+                <button class="seg-button" type="button">Video</button>
+                <button class="seg-button" type="button">Message</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-label">Care plan</p>
+                <h2 class="panel-title">Next actions</h2>
+              </div>
+              <span class="micro-label" id="careCount">04 tasks</span>
+            </div>
+            <div class="panel-body">
+              <div class="care-list" id="carePlan"></div>
+            </div>
+          </section>
+
+          <section class="panel" id="reports">
+            <div class="panel-header">
+              <div>
+                <p class="panel-label">Reports</p>
+                <h2 class="panel-title">Artifacts</h2>
+              </div>
+              <button class="icon-button" type="button" aria-label="Upload report">+</button>
+            </div>
+            <div class="panel-body">
+              <div class="report-list" id="reportsList"></div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <aside class="voice-panel" id="voicePanel" data-state="idle" aria-live="polite" aria-label="Voice command status">
+    <div class="voice-panel__head">
+      <p class="voice-panel__title">Voice command</p>
+      <span class="voice-panel__state" id="voiceState">Idle</span>
+    </div>
+    <div class="voice-panel__body">
+      <p class="voice-panel__transcript" id="voiceTranscript">Tap Voice and speak a dashboard command.</p>
+      <div class="voice-panel__meter" aria-hidden="true">
+        <span style="--i:0;--h:.18"></span><span style="--i:1;--h:.6"></span><span style="--i:2;--h:.34"></span><span style="--i:3;--h:.92"></span><span style="--i:4;--h:.42"></span><span style="--i:5;--h:.76"></span><span style="--i:6;--h:.22"></span><span style="--i:7;--h:.88"></span><span style="--i:8;--h:.54"></span><span style="--i:9;--h:.3"></span><span style="--i:10;--h:.82"></span><span style="--i:11;--h:.48"></span><span style="--i:12;--h:.68"></span><span style="--i:13;--h:.25"></span><span style="--i:14;--h:.96"></span><span style="--i:15;--h:.38"></span><span style="--i:16;--h:.72"></span><span style="--i:17;--h:.2"></span><span style="--i:18;--h:.62"></span><span style="--i:19;--h:.44"></span><span style="--i:20;--h:.84"></span><span style="--i:21;--h:.32"></span>
+      </div>
+      <form class="voice-panel__manual" id="voiceManualForm">
+        <input id="voiceManualInput" type="text" autocomplete="off" placeholder="Type a command if mic is blocked">
+        <button class="ghost-button" type="submit">Run</button>
+      </form>
+      <p class="voice-panel__result" id="voiceResult">Commands can open settings, search patients, schedule appointments, mark notifications, and answer recovery questions through the Flask AI endpoint.</p>
+    </div>
+  </aside>
+
+  <div class="modal-backdrop" id="commandModal" hidden>
+    <section class="command-modal" role="dialog" aria-modal="true" aria-labelledby="commandModalTitle">
+      <header class="command-modal__header">
+        <div>
+          <p class="command-modal__eyebrow" id="commandModalEyebrow">AI command</p>
+          <h2 class="command-modal__title" id="commandModalTitle">Ready.</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-modal aria-label="Close command modal">X</button>
+      </header>
+      <div class="command-modal__body" id="commandModalBody"></div>
+      <footer class="command-modal__footer">
+        <button class="ghost-button" type="button" data-close-modal>Close</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="appointmentModal" hidden>
+    <form class="command-modal" id="appointmentForm" role="dialog" aria-modal="true" aria-labelledby="appointmentModalTitle">
+      <header class="command-modal__header">
+        <div>
+          <p class="command-modal__eyebrow">Schedule action</p>
+          <h2 class="command-modal__title" id="appointmentModalTitle">Add appointment.</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-modal aria-label="Close appointment modal">X</button>
+      </header>
+      <div class="command-modal__body">
+        <div class="modal-fields">
+          <div class="field full">
+            <label for="appointmentTitle">Title</label>
+            <input id="appointmentTitle" name="title" type="text" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="appointmentDate">Date</label>
+            <input id="appointmentDate" name="date" type="date">
+          </div>
+          <div class="field">
+            <label for="appointmentTime">Time</label>
+            <input id="appointmentTime" name="time" type="time">
+          </div>
+          <div class="field full">
+            <label for="appointmentPlace">Place</label>
+            <input id="appointmentPlace" name="place" type="text" autocomplete="off">
+          </div>
+          <div class="field full">
+            <label for="appointmentBring">Bring</label>
+            <textarea id="appointmentBring" name="bring"></textarea>
+          </div>
+          <div class="field">
+            <label for="appointmentStatus">Status</label>
+            <input id="appointmentStatus" name="status" type="text" autocomplete="off">
+          </div>
+        </div>
+      </div>
+      <footer class="command-modal__footer">
+        <button class="ghost-button" type="button" data-close-modal>Cancel</button>
+        <button class="button" type="submit">Confirm</button>
+      </footer>
+    </form>
+  </div>
+
+  <div class="modal-backdrop" id="clinicalNotesModal" hidden>
+    <form class="command-modal" id="clinicalNotesForm" role="dialog" aria-modal="true" aria-labelledby="clinicalNotesModalTitle">
+      <header class="command-modal__header">
+        <div>
+          <p class="command-modal__eyebrow">Clinical notes</p>
+          <h2 class="command-modal__title" id="clinicalNotesModalTitle">Source-only note.</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-modal aria-label="Close clinical notes modal">X</button>
+      </header>
+      <div class="command-modal__body">
+        <div class="modal-fields">
+          <div class="field">
+            <label for="clinicalAge">Age</label>
+            <input id="clinicalAge" name="age" type="text" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="clinicalGender">Gender</label>
+            <input id="clinicalGender" name="gender" type="text" autocomplete="off" required>
+          </div>
+          <div class="field full">
+            <label for="clinicalIllness">Illness</label>
+            <textarea id="clinicalIllness" name="illness" required></textarea>
+          </div>
+          <div class="field full">
+            <label for="clinicalMedicines">Medicines administered</label>
+            <textarea id="clinicalMedicines" name="medicines" required></textarea>
+          </div>
+        </div>
+        <output class="clinical-notes-output" id="clinicalNotesOutput" hidden></output>
+      </div>
+      <footer class="command-modal__footer">
+        <button class="ghost-button" type="button" data-close-modal>Close</button>
+        <button class="button" type="submit">Generate notes</button>
+      </footer>
+    </form>
+  </div>
+
+  <script>
+    (() => {
+      const body = document.body;
+      const toggle = document.getElementById("theme-toggle");
+      const rift = document.getElementById("theme-rift");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      let busy = false;
+
+      if (!toggle || !rift) return;
+
+      const storage = {
+        get() {
+          try {
+            return window.localStorage.getItem("synaptic-doctor-theme");
+          } catch {
+            return null;
+          }
+        },
+        set(value) {
+          try {
+            window.localStorage.setItem("synaptic-doctor-theme", value);
+          } catch {
+            return;
+          }
+        }
+      };
+
+      const setButtonState = (theme) => {
+        const isDark = theme === "dark";
+        toggle.setAttribute("aria-pressed", String(isDark));
+        toggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+        toggle.title = isDark ? "Light mode" : "Dark mode";
+      };
+
+      const applyTheme = (theme) => {
+        body.dataset.theme = theme;
+        setButtonState(theme);
+      };
+
+      const savedTheme = storage.get();
+      applyTheme(savedTheme === "dark" || savedTheme === "light" ? savedTheme : "light");
+
+      const setRiftColors = (targetTheme) => {
+        if (targetTheme === "dark") {
+          rift.style.setProperty("--rift-bg", "#10100D");
+          rift.style.setProperty("--rift-fg", "#F5F2EB");
+        } else {
+          rift.style.setProperty("--rift-bg", "#F5F2EB");
+          rift.style.setProperty("--rift-fg", "#10100D");
+        }
+
+        rift.style.setProperty("--rift-accent", "#FF4F1F");
+      };
+
+      const activateRift = (event, targetTheme) => {
+        const rect = toggle.getBoundingClientRect();
+        const x = event?.clientX || rect.left + rect.width / 2;
+        const y = event?.clientY || rect.top + rect.height / 2;
+
+        rift.style.setProperty("--rift-x", `${x}px`);
+        rift.style.setProperty("--rift-y", `${y}px`);
+        setRiftColors(targetTheme);
+        rift.classList.remove("is-active");
+        toggle.classList.remove("is-bursting");
+        void rift.offsetWidth;
+        rift.classList.add("is-active");
+        toggle.classList.add("is-bursting");
+        body.classList.add("theme-switching");
+      };
+
+      toggle.addEventListener("click", (event) => {
+        if (busy) return;
+
+        const current = body.dataset.theme === "dark" ? "dark" : "light";
+        const next = current === "dark" ? "light" : "dark";
+        busy = true;
+
+        if (reducedMotion.matches) {
+          applyTheme(next);
+          storage.set(next);
+          busy = false;
+          return;
+        }
+
+        activateRift(event, next);
+
+        window.setTimeout(() => {
+          applyTheme(next);
+          storage.set(next);
+        }, 520);
+
+        window.setTimeout(() => {
+          rift.classList.remove("is-active");
+          toggle.classList.remove("is-bursting");
+          body.classList.remove("theme-switching");
+          busy = false;
+        }, 1260);
+      });
+    })();
+
+    (() => {
+      const panels = Array.from(document.querySelectorAll(".panel"));
+      panels.forEach((panel) => {
+        panel.addEventListener("pointermove", (event) => {
+          const rect = panel.getBoundingClientRect();
+          const x = ((event.clientX - rect.left) / rect.width) * 100;
+          const y = ((event.clientY - rect.top) / rect.height) * 100;
+          panel.style.setProperty("--mx", `${x}%`);
+          panel.style.setProperty("--my", `${y}%`);
+        });
+      });
+    })();
+
+    (() => {
+      const layer = document.getElementById("spark-layer");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      if (!layer || reducedMotion.matches) return;
+
+      const emit = (x, y, count = 5) => {
+        const fragment = document.createDocumentFragment();
+
+        for (let index = 0; index < count; index += 1) {
+          const spark = document.createElement("span");
+          const angle = (Math.PI * 2 * index) / count + (Math.random() * 0.9);
+          const distance = 22 + Math.random() * 34;
+          const width = 10 + Math.random() * 26;
+          spark.className = "spark";
+          spark.style.left = `${x}px`;
+          spark.style.top = `${y}px`;
+          spark.style.setProperty("--spark-x", `${Math.cos(angle) * distance}px`);
+          spark.style.setProperty("--spark-y", `${Math.sin(angle) * distance}px`);
+          spark.style.setProperty("--spark-rotate", `${angle * 57.2958}deg`);
+          spark.style.setProperty("--spark-w", `${width}px`);
+          fragment.appendChild(spark);
+          window.setTimeout(() => spark.remove(), 820);
+        }
+
+        layer.appendChild(fragment);
+      };
+
+      const centerOf = (element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        };
+      };
+
+      document.addEventListener("pointerenter", (event) => {
+        if (!(event.target instanceof Element)) return;
+        const target = event.target.closest("button, a, .panel, .metric, .care-item, .report, .timeline-item, .rule-row");
+        if (!target) return;
+        const point = centerOf(target);
+        emit(point.x, point.y, target.classList.contains("panel") ? 7 : 4);
+      }, true);
+
+      document.addEventListener("click", (event) => {
+        if (!(event.target instanceof Element)) return;
+        const target = event.target.closest("button, a, .queue-button, .seg-button");
+        if (!target) return;
+        emit(event.clientX, event.clientY, 10);
+      });
+    })();
+
+    (() => {
+      const patients = [
+        {
+          id: "SD-1024",
+          name: "Maya Rao",
+          age: "34F",
+          status: "High",
+          statusClass: "high",
+          symptoms: "Chest tightness, dry cough, fatigue after mild exertion.",
+          metrics: [
+            ["HR", "118"],
+            ["SpO2", "92"],
+            ["Temp", "99.8"],
+            ["BP", "136/88"]
+          ],
+          headline: "Maya Rao requires review.",
+          summary: "Respiratory complaint with elevated resting heart rate and oxygen variation. Recommend clinician review before routine scheduling.",
+          confidence: "91%",
+          riskText: "High acuity",
+          chart: [42, 48, 52, 57, 64, 72, 78, 68, 74, 82, 76, 88],
+          differential: [
+            ["01", "Acute bronchitis with exertional stress pattern."],
+            ["02", "Asthma flare or reactive airway episode."],
+            ["03", "Rule out pneumonia if oxygen trend persists."]
+          ],
+          timeline: [
+            ["09:10", "AI intake completed", "Symptom history and medication conflicts reconciled."],
+            ["09:22", "Vitals flagged", "SpO2 variation crossed review threshold."],
+            ["09:40", "Doctor handoff", "Brief prepared for internal medicine review."]
+          ],
+          care: [
+            ["Vitals repeat", "Capture SpO2 and HR after 10 minutes seated rest.", "Now"],
+            ["Doctor review", "Escalate triage summary to Dr. Mehta.", "09:50"],
+            ["Report request", "Ask patient for prior asthma or allergy record.", "10:05"],
+            ["Follow-up", "Schedule remote consult if vitals normalize.", "Today"]
+          ],
+          reports: [
+            ["Intake summary", "Ready"],
+            ["Vitals trace", "Flagged"],
+            ["Medication check", "Ready"]
+          ]
+        },
+        {
+          id: "SD-1031",
+          name: "Arjun Sen",
+          age: "52M",
+          status: "Watch",
+          statusClass: "watch",
+          symptoms: "Glucose variability, dizziness, recent medication change.",
+          metrics: [
+            ["HR", "86"],
+            ["Glucose", "182"],
+            ["Temp", "98.4"],
+            ["BP", "148/92"]
+          ],
+          headline: "Arjun Sen needs medication reconciliation.",
+          summary: "Metabolic signal suggests glucose variation after a recent prescription update. Recommend medication review and home glucose log capture.",
+          confidence: "87%",
+          riskText: "Watch list",
+          chart: [56, 62, 58, 74, 70, 76, 84, 78, 86, 80, 72, 69],
+          differential: [
+            ["01", "Medication timing mismatch with meal pattern."],
+            ["02", "Possible dehydration contributing to dizziness."],
+            ["03", "Monitor hypertension trend before consult."]
+          ],
+          timeline: [
+            ["08:45", "Patient uploaded readings", "Seven-day glucose trend attached."],
+            ["09:12", "Medication conflict scan", "Two timing conflicts suggested."],
+            ["11:30", "Nurse callback", "Confirm diet, hydration, and dosage adherence."]
+          ],
+          care: [
+            ["Medication review", "Compare current dosage against last prescription.", "11:00"],
+            ["Glucose log", "Request pre-meal and post-meal readings.", "Today"],
+            ["BP repeat", "Repeat seated BP after five minutes.", "Today"],
+            ["Diet note", "Capture skipped meals and caffeine intake.", "Today"]
+          ],
+          reports: [
+            ["Glucose trend", "Ready"],
+            ["Medication scan", "Review"],
+            ["BP log", "Pending"]
+          ]
+        },
+        {
+          id: "SD-1040",
+          name: "Elena Park",
+          age: "29F",
+          status: "Stable",
+          statusClass: "",
+          symptoms: "Migraine pattern, light sensitivity, nausea improving.",
+          metrics: [
+            ["HR", "72"],
+            ["Pain", "4/10"],
+            ["Temp", "98.1"],
+            ["BP", "118/76"]
+          ],
+          headline: "Elena Park is stable for guided follow-up.",
+          summary: "Migraine presentation is improving with no neurological red flags reported. Recommend hydration, trigger tracking, and follow-up if symptoms recur.",
+          confidence: "94%",
+          riskText: "Stable",
+          chart: [62, 58, 55, 52, 50, 48, 46, 42, 40, 38, 34, 32],
+          differential: [
+            ["01", "Migraine without acute warning signs."],
+            ["02", "Screen for medication-overuse headache."],
+            ["03", "Track sleep and light exposure triggers."]
+          ],
+          timeline: [
+            ["07:30", "Intake opened", "Patient reported symptom improvement overnight."],
+            ["08:05", "Red flag screen", "No acute neurological indicators."],
+            ["15:00", "Follow-up reminder", "Confirm pain score and hydration."]
+          ],
+          care: [
+            ["Trigger log", "Send structured migraine trigger checklist.", "Today"],
+            ["Hydration plan", "Recommend oral hydration and rest interval.", "Now"],
+            ["Pain score", "Repeat pain scale in six hours.", "15:00"],
+            ["Follow-up", "Escalate only if red flags appear.", "Today"]
+          ],
+          reports: [
+            ["Migraine intake", "Ready"],
+            ["Red flag screen", "Clear"],
+            ["Trigger log", "Pending"]
+          ]
+        }
+      ];
+
+      const queue = document.getElementById("patientQueue");
+      const metrics = document.getElementById("metrics");
+      const headline = document.getElementById("patientHeadline");
+      const summary = document.getElementById("aiSummary");
+      const confidence = document.getElementById("confidence");
+      const riskText = document.getElementById("riskText");
+      const caseId = document.getElementById("caseId");
+      const chart = document.getElementById("chart");
+      const differentials = document.getElementById("differentials");
+      const timeline = document.getElementById("timeline");
+      const carePlan = document.getElementById("carePlan");
+      const careCount = document.getElementById("careCount");
+      const reportsList = document.getElementById("reportsList");
+      const search = document.getElementById("search");
+      const doctorAlert = document.getElementById("doctorAlert");
+      const doctorAlertTitle = document.getElementById("doctorAlertTitle");
+      const doctorAlertDetail = document.getElementById("doctorAlertDetail");
+      const doctorAlertClose = document.getElementById("doctorAlertClose");
+      const SHARED_APPOINTMENTS_KEY = "synaptic-patient-appointments";
+      const SHARED_ALERTS_KEY = "synaptic-patient-emergency-alerts";
+      const PROCESSED_SIGNALS_KEY = "synaptic-doctor-processed-patient-signals";
+      let selected = 0;
+
+      const escapeHTML = (value = "") => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const renderQueue = (filter = "") => {
+        if (!queue) return;
+        queue.innerHTML = "";
+        patients
+          .map((patient, index) => ({ patient, index }))
+          .filter(({ patient }) => {
+            const query = filter.trim().toLowerCase();
+            if (!query) return true;
+            return [patient.name, patient.symptoms, patient.id, patient.status].join(" ").toLowerCase().includes(query);
+          })
+          .forEach(({ patient, index }) => {
+            const button = document.createElement("button");
+            button.className = "queue-button" + (index === selected ? " active" : "");
+            button.type = "button";
+            button.style.setProperty("--i", index);
+            button.innerHTML = `
+              <span>
+                <span class="patient-name">${patient.name}</span>
+                <span class="patient-meta">${patient.id} / ${patient.age}</span>
+              </span>
+              <span class="risk-pill ${patient.statusClass}">${patient.status}</span>
+              <span class="queue-symptoms">${patient.symptoms}</span>
+            `;
+            button.addEventListener("click", () => {
+              selected = index;
+              render();
+            });
+            queue.appendChild(button);
+          });
+      };
+
+      const renderMetrics = (patient) => {
+        if (!metrics) return;
+        const existing = Array.from(metrics.querySelectorAll(".metric"));
+        const canPatch = existing.length === patient.metrics.length && patient.metrics.every(([label], index) => existing[index]?.dataset.label === label);
+        if (canPatch) {
+          patient.metrics.forEach(([label, value], index) => {
+            const item = existing[index];
+            const valueNode = item?.querySelector("strong");
+            const next = String(value);
+            if (!valueNode || valueNode.textContent === next) return;
+            valueNode.textContent = next;
+            item.classList.remove("is-updating");
+            void item.offsetWidth;
+            item.classList.add("is-updating");
+            window.setTimeout(() => item.classList.remove("is-updating"), 540);
+          });
+          return;
+        }
+        metrics.innerHTML = patient.metrics.map(([label, value], index) => `
+          <div class="metric" data-label="${escapeHTML(label)}" style="--i:${index}">
+            <span>${escapeHTML(label)}</span>
+            <strong>${escapeHTML(value)}</strong>
+          </div>
+        `).join("");
+      };
+
+      const renderChart = (patient) => {
+        if (!chart) return;
+        const bars = Array.from(chart.querySelectorAll(".bar"));
+        if (bars.length === patient.chart.length) {
+          patient.chart.forEach((value, index) => {
+            const bar = bars[index];
+            if (!bar) return;
+            bar.style.height = `${value}%`;
+            bar.style.setProperty("--bar-index", index);
+            bar.classList.toggle("alert", index > 8 && patient.statusClass === "high");
+          });
+          return;
+        }
+        chart.innerHTML = patient.chart.map((value, index) => `
+          <span class="bar ${index > 8 && patient.statusClass === "high" ? "alert" : ""}" style="height:${value}%;--bar-index:${index}"></span>
+        `).join("");
+      };
+
+      const renderLiveStats = (patient) => {
+        renderMetrics(patient);
+        renderChart(patient);
+      };
+
+      const render = () => {
+        const patient = patients[selected];
+        renderQueue(search?.value || "");
+        if (caseId) caseId.textContent = "Case " + patient.id;
+        if (headline) headline.innerHTML = `${patient.name} <span class="serif">${patient.status === "Stable" ? "is stable" : "requires review"}</span>.`;
+        if (summary) summary.textContent = patient.summary;
+        if (confidence) confidence.textContent = patient.confidence;
+        if (riskText) riskText.textContent = patient.riskText;
+
+        renderLiveStats(patient);
+
+        if (differentials) {
+          differentials.innerHTML = patient.differential.map(([rank, text], index) => `
+            <div class="rule-row" style="--i:${index}"><strong>${rank}</strong><span>${text}</span></div>
+          `).join("");
+        }
+
+        if (timeline) {
+          timeline.innerHTML = patient.timeline.map(([time, title, detail], index) => `
+            <div class="timeline-item" style="--i:${index}"><time>${time}</time><div><strong>${title}</strong><span>${detail}</span></div></div>
+          `).join("");
+        }
+
+        if (carePlan) {
+          carePlan.innerHTML = patient.care.map(([title, detail, time], index) => `
+            <div class="care-item" style="--i:${index}"><span class="check">+</span><div><strong>${title}</strong><span>${detail}</span></div><time>${time}</time></div>
+          `).join("");
+        }
+
+        if (careCount) careCount.textContent = String(patient.care.length).padStart(2, "0") + " tasks";
+
+        if (reportsList) {
+          reportsList.innerHTML = patient.reports.map(([title, state], index) => `
+            <div class="report" style="--i:${index}"><strong>${title}</strong><span>${state}</span></div>
+          `).join("");
+        }
+      };
+
+      const pulseElement = (element) => {
+        if (!element) return;
+        element.classList.remove("focus-pulse");
+        void element.offsetWidth;
+        element.classList.add("focus-pulse");
+        window.setTimeout(() => element.classList.remove("focus-pulse"), 1180);
+      };
+
+      const selectPatient = (index) => {
+        if (typeof index !== "number" || !patients[index]) return false;
+        selected = index;
+        render();
+        window.requestAnimationFrame(() => {
+          const active = queue?.querySelector(".queue-button.active");
+          pulseElement(active);
+          document.getElementById("triage")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        return true;
+      };
+
+      const findPatientIndex = (query = "") => {
+        const needle = String(query).trim().toLowerCase();
+        if (!needle) return -1;
+        return patients.findIndex((patient) => {
+          return [patient.name, patient.id, patient.status, patient.symptoms, patient.summary]
+            .join(" ")
+            .toLowerCase()
+            .includes(needle);
+        });
+      };
+
+      const searchPatients = (query = "") => {
+        const value = String(query || "").trim();
+        if (search) search.value = value;
+        renderQueue(value);
+        const match = findPatientIndex(value);
+        if (match >= 0) selectPatient(match);
+        return match;
+      };
+
+      const clearSearch = () => {
+        if (search) search.value = "";
+        renderQueue("");
+      };
+
+      const addTimelineItem = ({ time = "Now", title = "Appointment added", detail = "Care action created from voice command." } = {}) => {
+        patients[selected].timeline.unshift([time, title, detail]);
+        render();
+      };
+
+      const addCareItem = ({ title = "Voice note", detail = "Saved from voice command.", time = "Now" } = {}) => {
+        patients[selected].care.unshift([title, detail, time]);
+        render();
+      };
+
+      const addReport = ({ title = "Voice artifact", state = "Ready" } = {}) => {
+        patients[selected].reports.unshift([title, state]);
+        render();
+      };
+
+      const readSharedList = (key) => {
+        try {
+          const parsed = JSON.parse(window.localStorage.getItem(key) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      };
+
+      const readProcessedSignals = () => {
+        try {
+          const parsed = JSON.parse(window.localStorage.getItem(PROCESSED_SIGNALS_KEY) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      };
+
+      const markSignalProcessed = (id) => {
+        if (!id) return false;
+        const current = readProcessedSignals();
+        if (current.includes(id)) return false;
+        window.localStorage.setItem(PROCESSED_SIGNALS_KEY, JSON.stringify([id, ...current].slice(0, 80)));
+        return true;
+      };
+
+      const signalTime = (iso) => {
+        const date = new Date(iso || Date.now());
+        if (Number.isNaN(date.getTime())) return "Now";
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      };
+
+      const vitalsSummary = (signal = {}) => {
+        const vitals = signal.vitals || {};
+        const pieces = [
+          vitals.hr ? `HR ${vitals.hr}` : "",
+          vitals.spo2 ? `SpO2 ${vitals.spo2}%` : "",
+          vitals.bp ? `BP ${vitals.bp}` : "",
+          vitals.temp ? `Temp ${vitals.temp}` : ""
+        ].filter(Boolean);
+        return pieces.length ? ` Current vitals: ${pieces.join(", ")}.` : "";
+      };
+
+      const findSignalPatientIndex = (signal = {}) => {
+        const patientId = String(signal.patient_id || "SD-1024");
+        const index = patients.findIndex((patient) => patient.id === patientId);
+        return index >= 0 ? index : selected;
+      };
+
+      const showDoctorAlert = ({ title = "Patient alert", detail = "Incoming patient signal.", emergency = false } = {}) => {
+        if (!doctorAlert) return;
+        if (doctorAlertTitle) doctorAlertTitle.textContent = title;
+        if (doctorAlertDetail) doctorAlertDetail.textContent = detail;
+        doctorAlert.hidden = false;
+        doctorAlert.classList.toggle("is-emergency", emergency);
+        doctorAlert.classList.remove("is-arriving");
+        void doctorAlert.offsetWidth;
+        doctorAlert.classList.add("is-arriving");
+      };
+
+      const applyPatientAppointment = (signal = {}) => {
+        const patientIndex = findSignalPatientIndex(signal);
+        const patient = patients[patientIndex];
+        if (!patient) return false;
+        const title = String(signal.title || "Appointment request").trim();
+        const date = String(signal.date || "today").trim();
+        const time = String(signal.time || signalTime(signal.created_at)).trim();
+        const place = String(signal.place || "Remote consult").trim();
+        const notes = String(signal.notes || "Patient requested scheduling from dashboard.").trim();
+        patient.timeline.unshift([time || date || "Now", `Appointment request: ${title}`, `${place}. ${notes}${vitalsSummary(signal)}`]);
+        patient.care.unshift(["Patient appointment request", `${title} on ${date}${time ? ` at ${time}` : ""}.`, "New"]);
+        if (patientIndex === selected) render();
+        else renderQueue(search?.value || "");
+        showDoctorAlert({
+          title: `Appointment request from ${signal.name || patient.name}`,
+          detail: `${title} - ${date}${time ? ` at ${time}` : ""}. ${place}.`,
+          emergency: false
+        });
+        return true;
+      };
+
+      const applyPatientEmergencyAlert = (signal = {}) => {
+        const patientIndex = findSignalPatientIndex(signal);
+        const patient = patients[patientIndex];
+        if (!patient) return false;
+        const detail = `${signal.message || "Emergency alert triggered from patient dashboard."}${vitalsSummary(signal)}`;
+        patient.status = "High";
+        patient.statusClass = "high";
+        patient.riskText = "Emergency alert";
+        patient.summary = detail;
+        patient.timeline.unshift([signalTime(signal.created_at), "Emergency alert from patient dashboard", detail]);
+        patient.care.unshift(["Emergency escalation", "Immediate clinician review requested by patient dashboard.", "Now"]);
+        if (patientIndex === selected) render();
+        else renderQueue(search?.value || "");
+        showDoctorAlert({
+          title: `Emergency alert from ${signal.name || patient.name}`,
+          detail,
+          emergency: true
+        });
+        return true;
+      };
+
+      const processSharedSignals = () => {
+        const processed = new Set(readProcessedSignals());
+        const processList = (key, handler) => {
+          readSharedList(key).slice().reverse().forEach((signal) => {
+            if (!signal?.id || processed.has(signal.id)) return;
+            if (handler(signal)) {
+              processed.add(signal.id);
+              markSignalProcessed(signal.id);
+            }
+          });
+        };
+        processList(SHARED_APPOINTMENTS_KEY, applyPatientAppointment);
+        processList(SHARED_ALERTS_KEY, applyPatientEmergencyAlert);
+      };
+
+      const focusSection = (target) => {
+        const element = typeof target === "string" ? document.querySelector(target) : target;
+        if (!element) return false;
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        pulseElement(element);
+        const id = element.id;
+        if (id) {
+          document.querySelectorAll(".nav-item[href]").forEach((item) => {
+            item.classList.toggle("active", item.getAttribute("href") === `#${id}`);
+          });
+        }
+        return true;
+      };
+
+      const setMetric = (patient, label, value) => {
+        if (value === undefined || value === null || value === "") return;
+        const index = patient.metrics.findIndex(([metricLabel]) => metricLabel.toLowerCase() === label.toLowerCase());
+        const nextValue = String(value);
+        if (index >= 0) patient.metrics[index][1] = nextValue;
+        else patient.metrics.unshift([label, nextValue]);
+      };
+
+      const applyLiveVitals = (vitals = {}) => {
+        const patientId = String(vitals.patient_id || "SD-1024");
+        const patientIndex = patients.findIndex((patient) => patient.id === patientId);
+        if (patientIndex < 0) return false;
+
+        const patient = patients[patientIndex];
+        patient.liveVitals = vitals;
+        setMetric(patient, "HR", vitals.hr);
+        setMetric(patient, "SpO2", vitals.spo2);
+        setMetric(patient, "Temp", vitals.temp);
+        setMetric(patient, "BP", vitals.bp);
+        setMetric(patient, "Steps", vitals.steps);
+        setMetric(patient, "Fatigue", vitals.fatigue);
+        setMetric(patient, "Balance", vitals.balance);
+        if (vitals.updated_at) {
+          const time = new Date(vitals.updated_at);
+          setMetric(patient, "Live", Number.isNaN(time.getTime()) ? vitals.updated_at : time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+        }
+
+        if (typeof vitals.hr === "number") {
+          const nextHeight = Math.max(30, Math.min(92, Math.round((vitals.hr - 48) * 0.85)));
+          patient.chart = [...patient.chart.slice(1), nextHeight];
+        }
+
+        if (patientIndex === selected) renderLiveStats(patient);
+        return true;
+      };
+
+      const API_BASE = window.SYNAPTIC_API_BASE || (
+        window.location.protocol === "file:" ||
+        ((window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && window.location.port && window.location.port !== "8000")
+          ? "http://127.0.0.1:8000"
+          : window.location.origin
+      );
+      let lastVitalsSignature = "";
+
+      const pollLiveVitals = async () => {
+        let vitals = null;
+        try {
+          const response = await fetch(`${API_BASE}/api/patient-vitals?patient_id=SD-1024`, { cache: "no-store" });
+          const payload = await response.json();
+          vitals = payload?.vitals;
+        } catch {
+          try {
+            vitals = JSON.parse(window.localStorage.getItem("synaptic-live-vitals") || "null");
+          } catch {
+            vitals = null;
+          }
+        }
+
+        if (!vitals) return;
+        const signature = JSON.stringify(vitals);
+        if (signature === lastVitalsSignature) return;
+        lastVitalsSignature = signature;
+        applyLiveVitals(vitals);
+      };
+
+      window.SynapticDoctor = {
+        patients,
+        get selectedPatient() {
+          return patients[selected];
+        },
+        get selectedIndex() {
+          return selected;
+        },
+        selectPatient,
+        findPatientIndex,
+        searchPatients,
+        clearSearch,
+        addTimelineItem,
+        addCareItem,
+        addReport,
+        applyLiveVitals,
+        applyPatientAppointment,
+        applyPatientEmergencyAlert,
+        processSharedSignals,
+        showDoctorAlert,
+        getLiveVitals: (patientId = "SD-1024") => patients.find((patient) => patient.id === patientId)?.liveVitals || null,
+        focusSection,
+        render
+      };
+
+      search?.addEventListener("input", () => renderQueue(search.value));
+      doctorAlertClose?.addEventListener("click", () => {
+        if (doctorAlert) doctorAlert.hidden = true;
+      });
+      render();
+      processSharedSignals();
+      pollLiveVitals();
+      window.setInterval(pollLiveVitals, 1000);
+      window.addEventListener("storage", (event) => {
+        if (event.key === "synaptic-live-vitals" && event.newValue) {
+          try {
+            applyLiveVitals(JSON.parse(event.newValue));
+          } catch {
+            return;
+          }
+        }
+        if (event.key === SHARED_APPOINTMENTS_KEY || event.key === SHARED_ALERTS_KEY) {
+          processSharedSignals();
+        }
+      });
+    })();
+
+    (() => {
+      const api = () => window.SynapticDoctor;
+      const button = document.getElementById("voiceButton");
+      const rift = document.getElementById("voice-rift");
+      const panel = document.getElementById("voicePanel");
+      const state = document.getElementById("voiceState");
+      const transcriptNode = document.getElementById("voiceTranscript");
+      const resultNode = document.getElementById("voiceResult");
+      const commandModal = document.getElementById("commandModal");
+      const modalEyebrow = document.getElementById("commandModalEyebrow");
+      const modalTitle = document.getElementById("commandModalTitle");
+      const modalBody = document.getElementById("commandModalBody");
+      const appointmentModal = document.getElementById("appointmentModal");
+      const appointmentForm = document.getElementById("appointmentForm");
+      const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const API_BASE = window.SYNAPTIC_API_BASE || (
+        window.location.protocol === "file:" ||
+        ((window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && window.location.port && window.location.port !== "8000")
+          ? "http://127.0.0.1:8000"
+          : window.location.origin
+      );
+      const VOICE_API_URL = window.VOICE_API_URL || `${API_BASE}/api/voice-command`;
+
+      if (!button) return;
+
+      const notifications = [
+        ["High", "Maya Rao oxygen trend needs clinician review."],
+        ["Watch", "Arjun Sen medication reconciliation is pending."],
+        ["Info", "Elena Park follow-up reminder queued for 15:00."]
+      ];
+
+      let recognition = null;
+      let listening = false;
+      let pendingAppointment = null;
+
+      const escapeHTML = (value = "") => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const setPanel = (nextState, transcript = "", result = "") => {
+        panel?.classList.add("is-visible");
+        if (panel) panel.dataset.state = nextState;
+        if (state) state.textContent = nextState;
+        if (transcriptNode && transcript) transcriptNode.textContent = transcript;
+        if (resultNode && result) resultNode.textContent = result;
+      };
+
+      const setButtonState = (nextState) => {
+        button.classList.remove("is-listening", "is-processing", "is-success", "is-error");
+        if (nextState) button.classList.add(`is-${nextState}`);
+        button.setAttribute("aria-pressed", String(nextState === "listening"));
+      };
+
+      const activateVoiceRift = (event) => {
+        if (!rift || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const rect = button.getBoundingClientRect();
+        const x = event?.clientX || rect.left + rect.width / 2;
+        const y = event?.clientY || rect.top + rect.height / 2;
+        rift.style.setProperty("--voice-x", `${x}px`);
+        rift.style.setProperty("--voice-y", `${y}px`);
+        rift.classList.remove("is-active");
+        void rift.offsetWidth;
+        rift.classList.add("is-active");
+        window.setTimeout(() => rift.classList.remove("is-active"), 1320);
+      };
+
+      const closeModals = () => {
+        if (commandModal) commandModal.hidden = true;
+        if (appointmentModal) appointmentModal.hidden = true;
+        const clinicalNotesModal = document.getElementById("clinicalNotesModal");
+        if (clinicalNotesModal) clinicalNotesModal.hidden = true;
+      };
+
+      const openModal = ({ eyebrow = "AI command", title = "Command complete.", html = "" } = {}) => {
+        if (!commandModal || !modalTitle || !modalBody) return;
+        if (modalEyebrow) modalEyebrow.textContent = eyebrow;
+        modalTitle.textContent = title;
+        modalBody.innerHTML = html;
+        commandModal.hidden = false;
+      };
+
+      const openListModal = ({ eyebrow, title, items }) => {
+        const html = `<ul class="command-list">${items.map(([label, text, meta = ""]) => `
+          <li><span>${escapeHTML(label)}</span><strong>${escapeHTML(text)}</strong><span>${escapeHTML(meta)}</span></li>
+        `).join("")}</ul>`;
+        openModal({ eyebrow, title, html });
+      };
+
+      const normalizeKey = (value = "") => String(value).toLowerCase().replace(/[^a-z0-9]/g, "");
+
+      const canonicalAction = (action = "") => {
+        const key = normalizeKey(action);
+        const aliases = {
+          navigateto: "NavigateTo",
+          navigate: "NavigateTo",
+          goto: "NavigateTo",
+          addappointment: "AddAppointment",
+          scheduleappointment: "AddAppointment",
+          confirmaddappointment: "ConfirmAddAppointment",
+          confirmappointment: "ConfirmAddAppointment",
+          opennotifications: "OpenNotifications",
+          notifications: "OpenNotifications",
+          markallread: "MarkAllRead",
+          opensettings: "OpenSettings",
+          settings: "OpenSettings",
+          opencareteam: "OpenCareTeam",
+          careteam: "OpenCareTeam",
+          searchfor: "SearchFor",
+          search: "SearchFor",
+          clearsearch: "ClearSearch",
+          savequestion: "SaveQuestion",
+          closemodal: "CloseModal",
+          close: "CloseModal",
+          emergencyalert: "EmergencyAlert",
+          emergency: "EmergencyAlert",
+          generalinquiry: "GeneralInquiry",
+          question: "GeneralInquiry"
+        };
+        return aliases[key] || action;
+      };
+
+      const getParam = (params, ...keys) => {
+        if (!params || typeof params !== "object") return "";
+        const entries = Object.entries(params);
+        for (const key of keys) {
+          const wanted = normalizeKey(key);
+          const found = entries.find(([candidate]) => normalizeKey(candidate) === wanted);
+          if (found && found[1] !== undefined && found[1] !== null) return String(found[1]).trim();
+        }
+        return "";
+      };
+
+      const todayISO = (offset = 0) => {
+        const date = new Date();
+        date.setDate(date.getDate() + offset);
+        return date.toISOString().slice(0, 10);
+      };
+
+      const guessDate = (text = "") => {
+        const lower = text.toLowerCase();
+        const iso = lower.match(/\b(20\d{2}-\d{2}-\d{2})\b/);
+        if (iso) return iso[1];
+        if (lower.includes("tomorrow")) return todayISO(1);
+        if (lower.includes("today")) return todayISO(0);
+        return "";
+      };
+
+      const guessTime = (text = "") => {
+        const lower = text.toLowerCase();
+        const match = lower.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
+        if (!match) return "";
+        let hour = Number(match[1]);
+        const minute = match[2] || "00";
+        const meridiem = match[3];
+        if (meridiem === "pm" && hour < 12) hour += 12;
+        if (meridiem === "am" && hour === 12) hour = 0;
+        if (hour > 23) return "";
+        return `${String(hour).padStart(2, "0")}:${minute}`;
+      };
+
+      const localIntent = (text = "") => {
+        const raw = String(text).trim();
+        const lower = raw.toLowerCase();
+
+        if (!raw) return { action: "Error", params: { message: "No command heard." } };
+        if (/\b(close|dismiss|cancel|exit)\b/.test(lower)) return { action: "CloseModal", params: {} };
+        if (/\b(clear|reset)\b.*\bsearch\b/.test(lower)) return { action: "ClearSearch", params: {} };
+        if (/\bmark\b.*\bread\b/.test(lower)) return { action: "MarkAllRead", params: {} };
+        if (/\b(notification|alert|inbox)\b/.test(lower)) return { action: "OpenNotifications", params: {} };
+        if (/\b(setting|preference|config)\b/.test(lower)) return { action: "OpenSettings", params: {} };
+        if (/\b(care team|doctor|clinician|handoff|mehta)\b/.test(lower)) return { action: "OpenCareTeam", params: {} };
+        if (/\b(emergency|urgent|escalate|help now|red flag)\b/.test(lower)) return { action: "EmergencyAlert", params: {} };
+
+        const patientMatch = lower.match(/\b(maya|rao|arjun|sen|elena|park|sd-?\d{4})\b/);
+        const searchMatch = raw.match(/\b(?:search|find|look up|select|show)\s+(?:for\s+)?(.+)/i);
+        if (searchMatch) return { action: "SearchFor", params: { query: searchMatch[1].trim() } };
+        if (patientMatch) return { action: "SearchFor", params: { query: patientMatch[0] } };
+
+        if (/\b(add|book|schedule|create)\b.*\b(appointment|consult|visit|follow-up|follow up)\b/.test(lower)) {
+          return {
+            action: "AddAppointment",
+            params: {
+              title: raw.replace(/\b(add|book|schedule|create)\b/ig, "").trim() || "Clinical consult",
+              date: guessDate(raw),
+              time: guessTime(raw),
+              place: lower.includes("remote") ? "Remote consult" : "Synaptic clinic",
+              bring: "Latest vitals, current medication list, and prior reports.",
+              status: "Draft"
+            }
+          };
+        }
+
+        if (/\b(confirm|save|submit)\b.*\b(appointment|consult|visit)\b/.test(lower)) {
+          return { action: "ConfirmAddAppointment", params: {} };
+        }
+
+        if (/\b(save|remember|note|question)\b/.test(lower)) {
+          return { action: "SaveQuestion", params: { title: "Voice question", details: raw, visit: "Current consult" } };
+        }
+
+        if (/\b(table|tables|record|records)\b/.test(lower)) return { action: "NavigateTo", params: { section: "Tables" } };
+        if (/\b(billing|bill|care plan|next action)\b/.test(lower)) return { action: "NavigateTo", params: { section: "Billing" } };
+        if (/\b(rtl|handoff|support)\b/.test(lower)) return { action: "NavigateTo", params: { section: "RTL" } };
+        if (/\b(triage|summary|dashboard|overview|command)\b/.test(lower)) return { action: "NavigateTo", params: { section: lower.includes("triage") ? "Triage" : "Dashboard" } };
+
+        return {
+          action: "GeneralInquiry",
+          params: {
+            query: raw,
+            answer: "I captured that as a clinical question. For safety, I can surface it to the care team with the current patient context rather than inventing medical advice locally."
+          }
+        };
+      };
+
+      const normalizeCommand = (payload, transcript) => {
+        if (!payload || typeof payload !== "object") return localIntent(transcript);
+        const action = canonicalAction(payload.action || "");
+        if (!action || action === "Error") return localIntent(transcript);
+        return { action, params: payload.params && typeof payload.params === "object" ? payload.params : {} };
+      };
+
+      const fetchCommand = async (transcript) => {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 14000);
+        try {
+          const response = await fetch(VOICE_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ transcript }),
+            signal: controller.signal
+          });
+          if (!response.ok) throw new Error(`Voice server returned ${response.status}`);
+          const payload = await response.json();
+          return normalizeCommand(payload, transcript);
+        } finally {
+          window.clearTimeout(timeout);
+        }
+      };
+
+      const focusPanel = (selector) => {
+        const element = document.querySelector(selector);
+        if (!element) return false;
+        const panelElement = element.classList.contains("panel") ? element : element.closest(".panel") || element;
+        return api()?.focusSection(panelElement);
+      };
+
+      const navigateTo = (section = "") => {
+        const key = normalizeKey(section || "Dashboard");
+        const map = {
+          dashboard: "#overview",
+          overview: "#overview",
+          clinicalcommand: "#overview",
+          triage: "#triage",
+          aitriage: "#triage",
+          tables: "#records",
+          table: "#records",
+          records: "#records",
+          appointments: "#appointments",
+          appointment: "#appointments",
+          reports: "#reports",
+          report: "#reports",
+          billing: "#carePlan",
+          bill: "#carePlan",
+          careplan: "#carePlan",
+          nextactions: "#carePlan",
+          rtl: ".right-stack",
+          handoff: ".right-stack",
+          support: ".right-stack"
+        };
+        const selector = map[key] || "#overview";
+        focusPanel(selector);
+        return `Moved to ${section || "Dashboard"}.`;
+      };
+
+      const fillAppointment = (params = {}) => {
+        pendingAppointment = {
+          title: getParam(params, "title") || "Clinical consult",
+          date: getParam(params, "date") || guessDate("today"),
+          time: getParam(params, "time") || "",
+          place: getParam(params, "place") || "Synaptic clinic",
+          bring: getParam(params, "bring") || "Current medication list and latest vitals.",
+          status: getParam(params, "status") || "Draft"
+        };
+
+        Object.entries(pendingAppointment).forEach(([key, value]) => {
+          const input = appointmentForm?.elements.namedItem(key);
+          if (input) input.value = value;
+        });
+
+        if (appointmentModal) appointmentModal.hidden = false;
+        return `Appointment draft ready for ${pendingAppointment.title}.`;
+      };
+
+      const confirmAppointment = () => {
+        if (!appointmentForm) return "Appointment form is unavailable.";
+        const formData = new FormData(appointmentForm);
+        const item = {
+          title: String(formData.get("title") || pendingAppointment?.title || "Clinical consult").trim(),
+          date: String(formData.get("date") || pendingAppointment?.date || todayISO()).trim(),
+          time: String(formData.get("time") || pendingAppointment?.time || "Now").trim(),
+          place: String(formData.get("place") || pendingAppointment?.place || "Synaptic clinic").trim(),
+          bring: String(formData.get("bring") || pendingAppointment?.bring || "Current medication list and latest vitals.").trim(),
+          status: String(formData.get("status") || pendingAppointment?.status || "Confirmed").trim()
+        };
+        api()?.addTimelineItem({
+          time: item.time || item.date || "Now",
+          title: item.title,
+          detail: `${item.place}. Bring: ${item.bring}`
+        });
+        api()?.addCareItem({
+          title: "Appointment confirmed",
+          detail: `${item.title} on ${item.date || "today"}${item.time ? ` at ${item.time}` : ""}.`,
+          time: item.status || "Confirmed"
+        });
+        if (appointmentModal) appointmentModal.hidden = true;
+        pendingAppointment = null;
+        focusPanel("#appointments");
+        return `Appointment confirmed: ${item.title}.`;
+      };
+
+      const executeCommand = (command, transcript = "") => {
+        const { action, params = {} } = normalizeCommand(command, transcript);
+        let message = "Command handled.";
+
+        switch (action) {
+          case "NavigateTo":
+            message = navigateTo(getParam(params, "section") || "Dashboard");
+            break;
+          case "AddAppointment":
+            message = fillAppointment(params);
+            break;
+          case "ConfirmAddAppointment":
+            message = confirmAppointment();
+            break;
+          case "OpenNotifications":
+            openListModal({
+              eyebrow: "Notifications",
+              title: "Live clinical alerts.",
+              items: notifications.map(([label, text]) => [label, text, "Unread"])
+            });
+            message = "Opened notifications.";
+            break;
+          case "MarkAllRead":
+            openListModal({
+              eyebrow: "Notifications",
+              title: "All alerts marked read.",
+              items: notifications.map(([label, text]) => [label, text, "Read"])
+            });
+            message = "Marked all notifications read.";
+            break;
+          case "OpenSettings":
+            openListModal({
+              eyebrow: "Settings",
+              title: "Control surface.",
+              items: [
+                ["Voice", "AI intent repair with local fallback", "On"],
+                ["Escalation", "Emergency actions require visible confirmation", "On"],
+                ["Display", document.body.dataset.theme === "dark" ? "Dark operating mode" : "Light operating mode", "Live"]
+              ]
+            });
+            message = "Opened settings.";
+            break;
+          case "OpenCareTeam":
+            focusPanel(".right-stack");
+            openListModal({
+              eyebrow: "Care team",
+              title: "Clinician handoff.",
+              items: [
+                ["Lead", "Dr. S. Mehta - Internal medicine / Mumbai", "Online"],
+                ["Nurse", "Remote triage nurse for vitals and intake", "Standby"],
+                ["AI", "Synaptic Doctor synthesis and report preparation", "Live"]
+              ]
+            });
+            message = "Opened care team.";
+            break;
+          case "SearchFor": {
+            const query = getParam(params, "query") || transcript;
+            const index = api()?.searchPatients(query);
+            message = index >= 0 ? `Selected matching patient for ${query}.` : `Filtered the queue for ${query}.`;
+            focusPanel("#patientQueue");
+            break;
+          }
+          case "ClearSearch":
+            api()?.clearSearch();
+            focusPanel("#patientQueue");
+            message = "Cleared patient search.";
+            break;
+          case "SaveQuestion": {
+            const title = getParam(params, "title") || "Voice question";
+            const details = getParam(params, "details", "query") || transcript;
+            api()?.addCareItem({ title, detail: details, time: getParam(params, "visit") || "Current" });
+            api()?.addReport({ title: "Saved question", state: "Ready" });
+            focusPanel("#carePlan");
+            openModal({
+              eyebrow: "Saved question",
+              title: title + ".",
+              html: `<p>${escapeHTML(details)}</p>`
+            });
+            message = "Saved question to the care plan.";
+            break;
+          }
+          case "CloseModal":
+            closeModals();
+            message = "Closed modal.";
+            break;
+          case "EmergencyAlert":
+            api()?.addCareItem({
+              title: "Emergency escalation",
+              detail: "Immediate clinician review requested from voice command.",
+              time: "Now"
+            });
+            focusPanel("#triage");
+            openModal({
+              eyebrow: "Emergency alert",
+              title: "Escalation prepared.",
+              html: "<p>Immediate clinician review is flagged in the care plan. Keep the patient visible and use local emergency protocols for urgent symptoms.</p>"
+            });
+            message = "Emergency escalation prepared.";
+            break;
+          case "GeneralInquiry": {
+            const query = getParam(params, "query") || transcript;
+            const answer = getParam(params, "answer") || "I captured the question and can attach it to the current consult.";
+            openModal({
+              eyebrow: "General inquiry",
+              title: "Clinical question.",
+              html: `<p><strong>${escapeHTML(query)}</strong></p><p>${escapeHTML(answer)}</p>`
+            });
+            message = "Answered general inquiry.";
+            break;
+          }
+          default:
+            return executeCommand(localIntent(transcript), transcript);
+        }
+
+        setPanel("success", transcript || action, message);
+        setButtonState("success");
+        window.setTimeout(() => setButtonState(""), 1100);
+        return message;
+      };
+
+      const processText = async (transcript) => {
+        const clean = String(transcript || "").trim();
+        if (!clean) {
+          setPanel("error", "No command captured.", "Try: open settings, search Maya, schedule appointment tomorrow at 17:00.");
+          setButtonState("error");
+          return null;
+        }
+
+        setButtonState("processing");
+        setPanel("processing", clean, "Asking the Synaptic voice interpreter...");
+
+        try {
+          const command = await fetchCommand(clean);
+          executeCommand(command, clean);
+          return command;
+        } catch (error) {
+          const fallback = localIntent(clean);
+          executeCommand(fallback, clean);
+          setPanel("success", clean, `Voice server fallback used: ${error.message}`);
+          return fallback;
+        }
+      };
+
+      const ensureRecognition = () => {
+        if (!Recognition) return null;
+        if (recognition) return recognition;
+        recognition = new Recognition();
+        recognition.lang = navigator.language || "en-US";
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+          listening = true;
+          setButtonState("listening");
+          setPanel("listening", "Listening...", "Say things like: search Maya, open settings, schedule a remote consult tomorrow at 5 pm.");
+        };
+
+        recognition.onresult = (event) => {
+          let interim = "";
+          let finalText = "";
+          for (let index = event.resultIndex; index < event.results.length; index += 1) {
+            const phrase = event.results[index][0]?.transcript || "";
+            if (event.results[index].isFinal) finalText += phrase;
+            else interim += phrase;
+          }
+          const heard = (finalText || interim).trim();
+          if (heard) setPanel("listening", heard, "Capturing command...");
+          if (finalText.trim()) processText(finalText.trim());
+        };
+
+        recognition.onerror = (event) => {
+          listening = false;
+          const reason = event.error || "speech recognition error";
+          setButtonState("error");
+          setPanel("error", "Speech capture failed.", `${reason}. You can still test with window.SynapticVoice.processText("open settings").`);
+          window.setTimeout(() => setButtonState(""), 1300);
+        };
+
+        recognition.onend = () => {
+          listening = false;
+          if (!button.classList.contains("is-processing") && !button.classList.contains("is-success")) {
+            setButtonState("");
+          }
+        };
+
+        return recognition;
+      };
+
+      button.addEventListener("click", (event) => {
+        activateVoiceRift(event);
+        if (listening && recognition) {
+          recognition.stop();
+          return;
+        }
+
+        const engine = ensureRecognition();
+        if (!engine) {
+          setPanel("error", "Speech recognition is unavailable in this browser.", "Run Chrome on localhost or test commands from the console with SynapticVoice.processText().");
+          setButtonState("error");
+          window.setTimeout(() => setButtonState(""), 1300);
+          return;
+        }
+
+        try {
+          engine.start();
+        } catch (error) {
+          setPanel("error", "Voice engine did not start.", error.message || "Try again after the current capture ends.");
+          setButtonState("error");
+          window.setTimeout(() => setButtonState(""), 1300);
+        }
+      });
+
+      document.querySelectorAll("[data-close-modal]").forEach((control) => {
+        control.addEventListener("click", closeModals);
+      });
+
+      const manualForm = document.getElementById("voiceManualForm");
+      const manualInput = document.getElementById("voiceManualInput");
+
+      manualForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const command = manualInput?.value || "";
+        processText(command);
+        if (manualInput) manualInput.value = "";
+      });
+
+      commandModal?.addEventListener("click", (event) => {
+        if (event.target === commandModal) closeModals();
+      });
+
+      appointmentModal?.addEventListener("click", (event) => {
+        if (event.target === appointmentModal) closeModals();
+      });
+
+      appointmentForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const message = confirmAppointment();
+        setPanel("success", "Confirm appointment", message);
+      });
+
+      document.querySelector(".top-actions .button")?.addEventListener("click", () => {
+        fillAppointment({ title: "New consult", date: todayISO(), place: "Synaptic clinic", status: "Draft" });
+      });
+
+      document.querySelector("#appointments .ghost-button")?.addEventListener("click", () => {
+        fillAppointment({ title: "Follow-up consult", date: todayISO(), place: "Remote consult", status: "Draft" });
+      });
+
+      document.querySelector(".top-actions .ghost-button")?.addEventListener("click", () => {
+        const patient = api()?.selectedPatient;
+        openModal({
+          eyebrow: "Export brief",
+          title: "Brief prepared.",
+          html: `<p>${escapeHTML(patient?.name || "Selected patient")} - ${escapeHTML(patient?.summary || "No summary available.")}</p>`
+        });
+      });
+
+      document.querySelectorAll(".seg-button").forEach((control) => {
+        control.addEventListener("click", () => {
+          control.parentElement?.querySelectorAll(".seg-button").forEach((item) => item.classList.remove("active"));
+          control.classList.add("active");
+          setPanel("success", control.textContent || "Care action", `${control.textContent || "Care action"} selected.`);
+        });
+      });
+
+      window.SynapticVoice = {
+        processText,
+        executeCommand,
+        localIntent,
+        endpoint: VOICE_API_URL
+      };
+    })();
+
+    (() => {
+      const button = document.getElementById("clinicalNotesButton");
+      const rift = document.getElementById("clinicalNotesRift");
+      const modal = document.getElementById("clinicalNotesModal");
+      const form = document.getElementById("clinicalNotesForm");
+      const output = document.getElementById("clinicalNotesOutput");
+      const commandModal = document.getElementById("commandModal");
+      const modalEyebrow = document.getElementById("commandModalEyebrow");
+      const modalTitle = document.getElementById("commandModalTitle");
+      const modalBody = document.getElementById("commandModalBody");
+      const API_BASE = window.SYNAPTIC_API_BASE || (
+        window.location.protocol === "file:" ||
+        ((window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && window.location.port && window.location.port !== "8000")
+          ? "http://127.0.0.1:8000"
+          : window.location.origin
+      );
+      const CLINICAL_NOTES_API_URL = window.CLINICAL_NOTES_API_URL || `${API_BASE}/api/clinical-notes`;
+
+      if (!button || !form || !modal) return;
+
+      const escapeHTML = (value = "") => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const setClinicalState = (nextState) => {
+        button.classList.remove("is-summoning", "is-processing", "is-success", "is-error");
+        if (nextState) button.classList.add(`is-${nextState}`);
+      };
+
+      const activateNotesRift = (event) => {
+        if (!rift || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const rect = button.getBoundingClientRect();
+        const x = event?.clientX || rect.left + rect.width / 2;
+        const y = event?.clientY || rect.top + rect.height / 2;
+        rift.style.setProperty("--notes-x", `${x}px`);
+        rift.style.setProperty("--notes-y", `${y}px`);
+        rift.classList.remove("is-active");
+        void rift.offsetWidth;
+        document.body.classList.add("notes-switching");
+        rift.classList.add("is-active");
+        window.setTimeout(() => {
+          rift.classList.remove("is-active");
+          document.body.classList.remove("notes-switching");
+        }, 1380);
+      };
+
+      const animateModal = (modalElement) => {
+        if (!modalElement) return;
+        modalElement.classList.remove("notes-modal-arrive");
+        void modalElement.offsetWidth;
+        modalElement.classList.add("notes-modal-arrive");
+        window.setTimeout(() => modalElement.classList.remove("notes-modal-arrive"), 960);
+      };
+
+      const openResultModal = (notes, source = {}) => {
+        if (!commandModal || !modalTitle || !modalBody) return;
+        if (modalEyebrow) modalEyebrow.textContent = "Clinical notes";
+        modalTitle.textContent = "Generated note.";
+        modalBody.innerHTML = `
+          <div class="clinical-notes-output">${escapeHTML(notes)}</div>
+          <ul class="command-list">
+            <li><span>Model</span><strong>${escapeHTML(source.model || "Ollama model")}</strong><span>AI</span></li>
+            <li><span>Age</span><strong>${escapeHTML(source.age || "Not provided")}</strong><span>Source</span></li>
+            <li><span>Gender</span><strong>${escapeHTML(source.gender || "Not provided")}</strong><span>Source</span></li>
+            <li><span>Medicines</span><strong>${escapeHTML(source.medicines || "Not provided")}</strong><span>Source</span></li>
+          </ul>
+        `;
+        commandModal.hidden = false;
+        animateModal(commandModal.querySelector(".command-modal"));
+      };
+
+      const parsePatientAgeGender = () => {
+        const patient = window.SynapticDoctor?.selectedPatient;
+        const compact = String(patient?.age || "");
+        const match = compact.match(/^(\d+)\s*([a-z])$/i);
+        if (!match) return { age: "", gender: "" };
+        const genderCode = match[2].toUpperCase();
+        return {
+          age: match[1],
+          gender: genderCode === "F" ? "Female" : genderCode === "M" ? "Male" : genderCode
+        };
+      };
+
+      const prefillFromPatient = () => {
+        const patient = window.SynapticDoctor?.selectedPatient;
+        const parsed = parsePatientAgeGender();
+        const fields = form.elements;
+        if (fields.namedItem("age")) fields.namedItem("age").value = parsed.age;
+        if (fields.namedItem("gender")) fields.namedItem("gender").value = parsed.gender;
+        if (fields.namedItem("illness")) fields.namedItem("illness").value = patient?.symptoms || "";
+        if (fields.namedItem("medicines")) fields.namedItem("medicines").value = "";
+        if (output) {
+          output.hidden = true;
+          output.classList.remove("is-generating");
+          output.textContent = "";
+        }
+      };
+
+      const collectPayload = () => {
+        const data = new FormData(form);
+        return {
+          age: String(data.get("age") || "").trim(),
+          gender: String(data.get("gender") || "").trim(),
+          illness: String(data.get("illness") || "").trim(),
+          medicines: String(data.get("medicines") || "").trim()
+        };
+      };
+
+      const renderOutput = (text) => {
+        if (!output) return;
+        output.hidden = false;
+        output.classList.remove("is-generating");
+        output.textContent = text;
+      };
+
+      const generateClinicalNotes = async (payload) => {
+        const response = await fetch(CLINICAL_NOTES_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const parsed = await response.json().catch(() => ({}));
+        if (!response.ok || parsed.ok === false) {
+          throw new Error(parsed.message || `Clinical notes server returned ${response.status}`);
+        }
+        return parsed;
+      };
+
+      button.addEventListener("click", (event) => {
+        activateNotesRift(event);
+        setClinicalState("summoning");
+        prefillFromPatient();
+        window.setTimeout(() => {
+          modal.hidden = false;
+          animateModal(form);
+        }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 420);
+        window.setTimeout(() => setClinicalState(""), 1360);
+      });
+
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) modal.hidden = true;
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = collectPayload();
+        activateNotesRift(event);
+        setClinicalState("processing");
+        if (output) {
+          output.hidden = false;
+          output.textContent = "Contacting AI model for source-only clinical note...";
+          output.classList.add("is-generating");
+        }
+
+        try {
+          const result = await generateClinicalNotes(payload);
+          const notes = result.clinical_notes || "No clinical note returned.";
+          renderOutput(notes);
+          window.SynapticDoctor?.addReport({ title: "Clinical note", state: "Ready" });
+          openResultModal(notes, { ...(result.source || payload), model: result.model || "Ollama" });
+          setClinicalState("success");
+        } catch (error) {
+          renderOutput(error.message || "Clinical note generation failed.");
+          setClinicalState("error");
+        } finally {
+          window.setTimeout(() => setClinicalState(""), 1400);
+        }
+      });
+
+      window.SynapticClinicalNotes = {
+        endpoint: CLINICAL_NOTES_API_URL,
+        generate: generateClinicalNotes
+      };
+    })();
+  </script>
+</body>
+</html>
