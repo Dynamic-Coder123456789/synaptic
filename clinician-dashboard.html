@@ -1,0 +1,3309 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-density="comfortable">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#0B0F17" />
+<meta name="description" content="Meridian Clinical Intelligence Platform — Rehabilitation command center for clinicians." />
+<title>Meridian · Clinical Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<style>
+/* =========================================================================
+   MERIDIAN — CLINICAL INTELLIGENCE PLATFORM
+   Design System · Tokens · Theme · Components
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. DESIGN TOKENS
+   ------------------------------------------------------------------------- */
+:root {
+  /* Surfaces */
+  --bg-base:           #0B0F17;
+  --bg-canvas:         #0E131F;
+  --bg-surface:        #121826;
+  --bg-elevated:       #1A2233;
+  --bg-elevated-hi:    #222C42;
+  --bg-overlay:        rgba(11, 15, 23, 0.72);
+  --bg-glass:          rgba(26, 34, 51, 0.55);
+  --bg-glass-strong:   rgba(26, 34, 51, 0.78);
+
+  /* Borders */
+  --border-subtle:     rgba(255, 255, 255, 0.05);
+  --border-default:    rgba(255, 255, 255, 0.08);
+  --border-strong:     rgba(255, 255, 255, 0.12);
+  --border-focus:      rgba(37, 99, 235, 0.55);
+
+  /* Text */
+  --text-primary:      #F4F6FB;
+  --text-secondary:    #B6BFCE;
+  --text-tertiary:     #7B8597;
+  --text-muted:        #5A6376;
+  --text-inverse:      #0B0F17;
+
+  /* Brand & Semantic */
+  --color-primary:        #2563EB;
+  --color-primary-hi:     #3B82F6;
+  --color-primary-lo:     #1D4ED8;
+  --color-primary-soft:   rgba(37, 99, 235, 0.14);
+
+  --color-secondary:      #06B6D4;
+  --color-secondary-hi:   #22D3EE;
+  --color-secondary-soft: rgba(6, 182, 212, 0.12);
+
+  --color-success:        #10B981;
+  --color-success-hi:     #34D399;
+  --color-success-soft:   rgba(16, 185, 129, 0.14);
+
+  --color-warning:        #F59E0B;
+  --color-warning-hi:     #FBBF24;
+  --color-warning-soft:   rgba(245, 158, 11, 0.14);
+
+  --color-danger:         #EF4444;
+  --color-danger-hi:      #F87171;
+  --color-danger-soft:    rgba(239, 68, 68, 0.14);
+
+  --color-ai:             #8B5CF6;
+  --color-ai-hi:          #A78BFA;
+  --color-ai-soft:        rgba(139, 92, 246, 0.14);
+
+  --color-info:           #38BDF8;
+  --color-info-soft:      rgba(56, 189, 248, 0.12);
+
+  /* Charts */
+  --chart-1: #2563EB;
+  --chart-2: #06B6D4;
+  --chart-3: #8B5CF6;
+  --chart-4: #10B981;
+  --chart-5: #F59E0B;
+  --chart-6: #EF4444;
+  --chart-grid: rgba(255, 255, 255, 0.05);
+
+  /* Shadows */
+  --shadow-xs:  0 1px 1px rgba(0,0,0,0.18);
+  --shadow-sm:  0 2px 6px rgba(0,0,0,0.22);
+  --shadow-md:  0 8px 24px rgba(0,0,0,0.28);
+  --shadow-lg:  0 18px 48px rgba(0,0,0,0.38);
+  --shadow-xl:  0 32px 80px rgba(0,0,0,0.45);
+  --shadow-glow-primary: 0 0 0 1px rgba(37,99,235,0.35), 0 8px 24px rgba(37,99,235,0.18);
+  --shadow-glow-ai:      0 0 0 1px rgba(139,92,246,0.35), 0 8px 24px rgba(139,92,246,0.18);
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-pill: 999px;
+
+  /* Spacing scale */
+  --s-0: 0;
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 32px;
+  --s-8: 40px;
+  --s-9: 48px;
+  --s-10: 64px;
+  --s-11: 80px;
+  --s-12: 96px;
+
+  /* Layout */
+  --sidebar-w: 264px;
+  --sidebar-w-collapsed: 76px;
+  --topbar-h: 64px;
+  --content-max: 1640px;
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Fraunces", "Inter", serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+
+  --fs-display:   44px;
+  --fs-h1:        32px;
+  --fs-h2:        24px;
+  --fs-h3:        20px;
+  --fs-h4:        17px;
+  --fs-body:      14px;
+  --fs-body-lg:   15px;
+  --fs-sm:        13px;
+  --fs-xs:        12px;
+  --fs-xxs:       11px;
+  --fs-data:      28px;
+  --fs-data-lg:   36px;
+  --fs-data-xl:   56px;
+
+  --lh-tight:   1.15;
+  --lh-snug:    1.3;
+  --lh-normal:  1.5;
+  --lh-relaxed: 1.65;
+
+  --fw-light:     300;
+  --fw-regular:   400;
+  --fw-medium:    500;
+  --fw-semibold:  600;
+  --fw-bold:      700;
+  --fw-extra:     800;
+
+  /* Motion */
+  --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast:   120ms;
+  --dur-base:   200ms;
+  --dur-slow:   320ms;
+  --dur-page:   420ms;
+
+  /* Z-index */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-overlay: 800;
+  --z-modal: 900;
+  --z-popover: 950;
+  --z-toast: 1000;
+  --z-tooltip: 1100;
+}
+
+/* High density variant */
+[data-density="compact"] {
+  --topbar-h: 56px;
+  --s-4: 12px;
+  --s-5: 16px;
+  --s-6: 20px;
+  --fs-body: 13px;
+}
+
+/* -------------------------------------------------------------------------
+   2. RESET & BASE
+   ------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11", "tnum";
+  letter-spacing: -0.005em;
+  min-height: 100vh;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 12% -10%, rgba(37, 99, 235, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(139, 92, 246, 0.06), transparent 60%),
+    var(--bg-base);
+  background-attachment: fixed;
+}
+
+a {
+  color: var(--color-primary-hi);
+  text-decoration: none;
+}
+a:hover { color: var(--color-primary); }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  color: inherit;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--text-primary);
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.10) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  z-index: var(--z-tooltip);
+  font-weight: var(--fw-semibold);
+}
+.skip-link:focus { top: 12px; }
+
+/* -------------------------------------------------------------------------
+   3. UTILITIES
+   ------------------------------------------------------------------------- */
+.u-stack { display: flex; flex-direction: column; }
+.u-row   { display: flex; align-items: center; }
+.u-row-between { display: flex; align-items: center; justify-content: space-between; }
+.u-grow  { flex: 1 1 auto; min-width: 0; }
+.u-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.u-num   { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.u-mono  { font-family: var(--font-mono); }
+.u-serif { font-family: var(--font-serif); font-feature-settings: "ss01"; }
+.u-hidden { display: none !important; }
+.u-sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.u-glow-primary { box-shadow: var(--shadow-glow-primary); }
+.u-glow-ai { box-shadow: var(--shadow-glow-ai); }
+
+.gap-1 { gap: var(--s-1); } .gap-2 { gap: var(--s-2); }
+.gap-3 { gap: var(--s-3); } .gap-4 { gap: var(--s-4); }
+.gap-5 { gap: var(--s-5); } .gap-6 { gap: var(--s-6); }
+.gap-7 { gap: var(--s-7); } .gap-8 { gap: var(--s-8); }
+
+.muted { color: var(--text-tertiary); }
+.subtle { color: var(--text-secondary); }
+
+.text-display { font-size: var(--fs-display); font-weight: var(--fw-light); letter-spacing: -0.03em; line-height: var(--lh-tight); }
+.text-h1 { font-size: var(--fs-h1); font-weight: var(--fw-semibold); letter-spacing: -0.018em; }
+.text-h2 { font-size: var(--fs-h2); font-weight: var(--fw-semibold); letter-spacing: -0.014em; }
+.text-h3 { font-size: var(--fs-h3); font-weight: var(--fw-semibold); letter-spacing: -0.012em; }
+.text-h4 { font-size: var(--fs-h4); font-weight: var(--fw-semibold); }
+.text-body-lg { font-size: var(--fs-body-lg); }
+.text-sm { font-size: var(--fs-sm); }
+.text-xs { font-size: var(--fs-xs); }
+.text-xxs { font-size: var(--fs-xxs); letter-spacing: 0.06em; text-transform: uppercase; }
+.text-data { font-size: var(--fs-data); font-weight: var(--fw-semibold); letter-spacing: -0.02em; }
+.text-data-lg { font-size: var(--fs-data-lg); font-weight: var(--fw-light); letter-spacing: -0.03em; }
+.text-data-xl { font-size: var(--fs-data-xl); font-weight: var(--fw-light); letter-spacing: -0.04em; }
+
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.dot.success { background: var(--color-success); box-shadow: 0 0 0 3px var(--color-success-soft); }
+.dot.warning { background: var(--color-warning); box-shadow: 0 0 0 3px var(--color-warning-soft); }
+.dot.danger  { background: var(--color-danger);  box-shadow: 0 0 0 3px var(--color-danger-soft); }
+.dot.info    { background: var(--color-info);    box-shadow: 0 0 0 3px var(--color-info-soft); }
+.dot.ai      { background: var(--color-ai);      box-shadow: 0 0 0 3px var(--color-ai-soft); }
+
+.divider { height: 1px; background: var(--border-default); }
+.divider-v { width: 1px; background: var(--border-default); align-self: stretch; }
+
+/* Status chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; font-size: var(--fs-xs);
+  border-radius: var(--radius-pill);
+  background: var(--bg-elevated); color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.005em;
+}
+.chip.success { background: var(--color-success-soft); color: var(--color-success-hi); border-color: rgba(16,185,129,0.25); }
+.chip.warning { background: var(--color-warning-soft); color: var(--color-warning-hi); border-color: rgba(245,158,11,0.25); }
+.chip.danger  { background: var(--color-danger-soft);  color: var(--color-danger-hi);  border-color: rgba(239,68,68,0.25); }
+.chip.info    { background: var(--color-info-soft);    color: var(--color-info);      border-color: rgba(56,189,248,0.25); }
+.chip.ai      { background: var(--color-ai-soft);      color: var(--color-ai-hi);     border-color: rgba(139,92,246,0.25); }
+.chip.primary { background: var(--color-primary-soft); color: var(--color-primary-hi); border-color: rgba(37,99,235,0.25); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 8px 14px;
+  font-size: var(--fs-body); font-weight: var(--fw-medium);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated); color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  white-space: nowrap;
+  user-select: none;
+}
+.btn:hover { background: var(--bg-elevated-hi); border-color: var(--border-strong); }
+.btn:active { transform: translateY(0.5px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn.icon { padding: 8px; width: 36px; height: 36px; }
+.btn.sm { padding: 5px 10px; font-size: var(--fs-sm); }
+.btn.lg { padding: 11px 18px; font-size: var(--fs-body-lg); }
+
+.btn.primary {
+  background: linear-gradient(180deg, var(--color-primary-hi), var(--color-primary));
+  border-color: var(--color-primary-lo);
+  color: #fff;
+  box-shadow: var(--shadow-glow-primary);
+}
+.btn.primary:hover { background: linear-gradient(180deg, #4F8BF7, var(--color-primary-hi)); }
+
+.btn.ai {
+  background: linear-gradient(180deg, var(--color-ai-hi), var(--color-ai));
+  border-color: rgba(139,92,246,0.45);
+  color: #fff;
+  box-shadow: var(--shadow-glow-ai);
+}
+
+.btn.ghost { background: transparent; border-color: transparent; color: var(--text-secondary); }
+.btn.ghost:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+.btn.danger {
+  background: var(--color-danger-soft); color: var(--color-danger-hi); border-color: rgba(239,68,68,0.30);
+}
+.btn.danger:hover { background: rgba(239,68,68,0.22); }
+
+.btn-group { display: inline-flex; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-default); }
+.btn-group .btn { border-radius: 0; border: 0; }
+.btn-group .btn + .btn { border-left: 1px solid var(--border-default); }
+.btn-group .btn.active { background: var(--bg-elevated-hi); color: var(--text-primary); }
+
+/* Inputs */
+.input, .select, .textarea {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--fs-body);
+  transition: border-color var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+}
+.input::placeholder, .textarea::placeholder { color: var(--text-muted); }
+.input:hover, .select:hover, .textarea:hover { border-color: var(--border-strong); }
+.input:focus, .select:focus, .textarea:focus { border-color: var(--border-focus); outline: none; }
+.input.sm { padding: 6px 10px; font-size: var(--fs-sm); }
+.input.lg { padding: 12px 14px; font-size: var(--fs-body-lg); }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: var(--fs-xs); color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; font-weight: var(--fw-medium); }
+.field .hint { font-size: var(--fs-xs); color: var(--text-muted); }
+
+.input-with-icon { position: relative; }
+.input-with-icon i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); font-size: 16px; }
+.input-with-icon .input { padding-left: 38px; }
+.input-with-icon.right i { left: auto; right: 12px; }
+.input-with-icon.right .input { padding-left: 12px; padding-right: 38px; }
+
+/* Avatars */
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-ai));
+  color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: var(--fs-sm); font-weight: var(--fw-semibold);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.avatar.sm { width: 24px; height: 24px; font-size: var(--fs-xs); }
+.avatar.lg { width: 44px; height: 44px; font-size: var(--fs-body-lg); }
+.avatar.xl { width: 64px; height: 64px; font-size: 22px; }
+
+.avatar-stack { display: inline-flex; }
+.avatar-stack .avatar { margin-left: -8px; border: 2px solid var(--bg-surface); }
+.avatar-stack .avatar:first-child { margin-left: 0; }
+
+.avatar-soft {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hi);
+}
+
+/* -------------------------------------------------------------------------
+   4. APP SHELL
+   ------------------------------------------------------------------------- */
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-rows: 100vh;
+  min-height: 100vh;
+}
+
+.app[data-sidebar="collapsed"] { grid-template-columns: var(--sidebar-w-collapsed) 1fr; }
+
+/* Sidebar */
+.sidebar {
+  background: var(--bg-canvas);
+  border-right: 1px solid var(--border-default);
+  display: flex; flex-direction: column;
+  position: relative;
+  z-index: var(--z-sticky);
+  overflow: hidden;
+}
+.sidebar::before {
+  content: "";
+  position: absolute; top: 0; right: 0; bottom: 0; width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(37,99,235,0.20), transparent);
+  opacity: 0.5;
+}
+
+.sidebar-brand {
+  height: var(--topbar-h);
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+.brand-mark {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%),
+    linear-gradient(135deg, var(--color-primary), var(--color-ai));
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-family: var(--font-serif);
+  font-weight: var(--fw-semibold);
+  font-size: 17px;
+  box-shadow: 0 6px 20px rgba(37,99,235,0.32);
+  flex-shrink: 0;
+}
+.brand-text {
+  display: flex; flex-direction: column; line-height: 1;
+}
+.brand-text strong {
+  font-size: 15px; font-weight: var(--fw-semibold); letter-spacing: -0.01em; color: var(--text-primary);
+}
+.brand-text span {
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-tertiary);
+  margin-top: 3px;
+}
+.app[data-sidebar="collapsed"] .brand-text { display: none; }
+
+.sidebar-scroll {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 12px 24px;
+}
+.sidebar-section { margin-bottom: 18px; }
+.sidebar-section-label {
+  font-size: 10px; font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.14em;
+  padding: 0 12px 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.app[data-sidebar="collapsed"] .sidebar-section-label { opacity: 0; height: 0; padding: 0; overflow: hidden; }
+.app[data-sidebar="collapsed"] .sidebar-section-label .label-action { display: none; }
+.label-action {
+  font-size: 11px; color: var(--text-tertiary); cursor: pointer;
+}
+.label-action:hover { color: var(--text-primary); }
+
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  position: relative;
+  margin-bottom: 2px;
+  cursor: pointer;
+  transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+.nav-item:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.nav-item .nav-icon {
+  width: 18px; height: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.nav-item:hover .nav-icon { color: var(--text-secondary); }
+.nav-item .nav-text { flex: 1; }
+.nav-item .nav-meta {
+  font-size: var(--fs-xs); color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.nav-item .nav-badge {
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-size: 10px; font-weight: var(--fw-semibold);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(37,99,235,0.18), rgba(37,99,235,0.05));
+  color: var(--text-primary);
+}
+.nav-item.active::before {
+  content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 3px;
+  background: var(--color-primary-hi); border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 12px var(--color-primary-hi);
+}
+.nav-item.active .nav-icon { color: var(--color-primary-hi); }
+.nav-item .nav-ai {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-ai);
+  box-shadow: 0 0 8px var(--color-ai);
+  flex-shrink: 0;
+}
+
+.app[data-sidebar="collapsed"] .nav-item { justify-content: center; padding: 10px 0; }
+.app[data-sidebar="collapsed"] .nav-item .nav-text,
+.app[data-sidebar="collapsed"] .nav-item .nav-meta,
+.app[data-sidebar="collapsed"] .nav-item .nav-badge { display: none; }
+.app[data-sidebar="collapsed"] .nav-item.active::before { left: -8px; }
+
+.sidebar-footer {
+  border-top: 1px solid var(--border-default);
+  padding: 14px 12px;
+  flex-shrink: 0;
+}
+.system-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+.system-card .dot { flex-shrink: 0; }
+.system-card .label { font-weight: var(--fw-semibold); color: var(--text-secondary); display: block; font-size: var(--fs-sm); }
+.system-card .meta { font-variant-numeric: tabular-nums; }
+.app[data-sidebar="collapsed"] .system-card .label,
+.app[data-sidebar="collapsed"] .system-card .meta { display: none; }
+
+/* Main */
+.main {
+  display: grid;
+  grid-template-rows: var(--topbar-h) 1fr;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Topbar */
+.topbar {
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-default);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 24px;
+  z-index: var(--z-sticky);
+  backdrop-filter: blur(12px);
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; flex: 0 0 auto; }
+.topbar-center { flex: 1 1 auto; display: flex; justify-content: center; padding: 0 24px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+
+.crumbs {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+}
+.crumbs a { color: var(--text-tertiary); }
+.crumbs a:hover { color: var(--text-primary); }
+.crumbs .current { color: var(--text-primary); font-weight: var(--fw-semibold); }
+.crumbs .sep { color: var(--text-muted); }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  position: relative;
+  transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+.icon-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.icon-btn .badge-dot {
+  position: absolute; top: 8px; right: 9px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--color-danger);
+  border: 2px solid var(--bg-canvas);
+}
+
+.global-search {
+  position: relative;
+  max-width: 560px; width: 100%;
+}
+.global-search .input {
+  height: 38px;
+  padding-left: 38px; padding-right: 90px;
+  background: var(--bg-elevated);
+}
+.global-search i.search-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-tertiary);
+  font-size: 16px;
+}
+.global-search .kbd {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+}
+.global-search .kbd .key { color: var(--text-tertiary); }
+
+.search-results {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  display: none;
+  z-index: var(--z-popover);
+  max-height: 480px; overflow-y: auto;
+}
+.global-search.active .search-results { display: block; }
+
+.search-group { padding: 6px 4px; }
+.search-group-title {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-muted); font-weight: var(--fw-semibold);
+  padding: 6px 8px;
+}
+.search-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 8px; border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.search-row:hover { background: var(--bg-elevated-hi); }
+.search-row .row-icon { color: var(--text-tertiary); font-size: 16px; }
+.search-row .row-main { flex: 1; min-width: 0; }
+.search-row .row-title { font-size: var(--fs-sm); color: var(--text-primary); font-weight: var(--fw-medium); }
+.search-row .row-meta { font-size: var(--fs-xs); color: var(--text-tertiary); }
+.search-row .row-tag { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+
+.user-pill {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 10px 4px 4px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  transition: background var(--dur-base) var(--ease-out);
+}
+.user-pill:hover { background: var(--bg-elevated-hi); }
+.user-pill .who { display: flex; flex-direction: column; line-height: 1.15; }
+.user-pill .who .name { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-primary); }
+.user-pill .who .role { font-size: 10px; color: var(--text-tertiary); letter-spacing: 0.04em; }
+
+/* Notification panel */
+.notif-panel {
+  position: absolute;
+  top: calc(var(--topbar-h) - 6px);
+  right: 24px;
+  width: 400px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-popover);
+  display: none;
+  overflow: hidden;
+}
+.notif-panel.open { display: block; }
+.notif-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-default);
+}
+.notif-head h4 { margin: 0; font-size: var(--fs-h4); }
+.notif-tabs { display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--border-default); }
+.notif-tab {
+  padding: 5px 10px; font-size: var(--fs-xs); color: var(--text-tertiary);
+  border-radius: var(--radius-pill);
+}
+.notif-tab.active { background: var(--bg-elevated-hi); color: var(--text-primary); }
+.notif-list { max-height: 380px; overflow-y: auto; padding: 6px; }
+.notif-item {
+  display: flex; gap: 12px;
+  padding: 12px 10px; border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.notif-item:hover { background: var(--bg-elevated-hi); }
+.notif-item .n-icon {
+  width: 32px; height: 32px; border-radius: var(--radius-md);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.notif-item .n-body { flex: 1; min-width: 0; }
+.notif-item .n-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-primary); }
+.notif-item .n-meta { font-size: var(--fs-xs); color: var(--text-tertiary); margin-top: 2px; }
+.notif-item .n-time { font-size: var(--fs-xxs); color: var(--text-muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.notif-item .unread { width: 6px; height: 6px; border-radius: 50%; background: var(--color-primary-hi); margin-top: 8px; flex-shrink: 0; }
+.notif-foot { padding: 10px; border-top: 1px solid var(--border-default); text-align: center; }
+
+/* Content */
+.content {
+  overflow-y: auto;
+  padding: 28px 32px 64px;
+  position: relative;
+}
+.content-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: flex; flex-direction: column; gap: 28px;
+}
+
+/* -------------------------------------------------------------------------
+   5. PANELS, CARDS, SURFACES
+   ------------------------------------------------------------------------- */
+.panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  position: relative;
+  overflow: hidden;
+}
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px 14px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.panel-head .titles { display: flex; flex-direction: column; gap: 4px; }
+.panel-head h3 { margin: 0; font-size: var(--fs-h3); font-weight: var(--fw-semibold); letter-spacing: -0.012em; }
+.panel-head .sub { font-size: var(--fs-sm); color: var(--text-tertiary); }
+.panel-head .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.panel-body { padding: 6px 22px 22px; }
+.panel-body.tight { padding: 0 0 8px; }
+.panel-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 22px; border-top: 1px solid var(--border-default);
+  font-size: var(--fs-sm); color: var(--text-tertiary);
+}
+
+.panel.ai-panel {
+  background:
+    radial-gradient(800px 300px at 0% 0%, rgba(139,92,246,0.08), transparent 60%),
+    var(--bg-surface);
+  border-color: rgba(139,92,246,0.18);
+}
+.panel.ai-panel::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-ai), transparent);
+  opacity: 0.5;
+}
+
+.panel.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  border-color: var(--border-subtle);
+}
+
+.panel-head .eyebrow {
+  font-size: 10px; font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.18em;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-head .eyebrow .pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 0 var(--color-success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+
+/* Stat cards */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1280px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px)  { .stat-grid { grid-template-columns: 1fr; } }
+
+.stat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+.stat-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.stat-card::after {
+  content: ""; position: absolute; top: 0; right: 0; width: 120px; height: 120px;
+  background: radial-gradient(circle at top right, var(--card-accent, rgba(37,99,235,0.10)), transparent 70%);
+  pointer-events: none;
+}
+.stat-card .stat-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.stat-card .stat-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-tertiary); font-weight: var(--fw-semibold);
+}
+.stat-card .stat-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--card-accent-soft, var(--color-primary-soft));
+  color: var(--card-accent, var(--color-primary-hi));
+  font-size: 17px;
+}
+.stat-card .stat-value {
+  font-size: var(--fs-data-lg);
+  font-weight: var(--fw-light);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  display: flex; align-items: baseline; gap: 4px;
+}
+.stat-card .stat-value .unit { font-size: 14px; color: var(--text-tertiary); font-weight: var(--fw-regular); }
+.stat-card .stat-trend {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--fs-xs); color: var(--text-tertiary);
+}
+.stat-card .trend-pill {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 7px; border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.trend-pill.up { background: var(--color-success-soft); color: var(--color-success-hi); }
+.trend-pill.down { background: var(--color-danger-soft); color: var(--color-danger-hi); }
+.trend-pill.flat { background: var(--bg-elevated); color: var(--text-tertiary); }
+.stat-card .stat-spark { height: 36px; margin-top: 4px; }
+
+/* Progress */
+.progress {
+  width: 100%; height: 6px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  position: relative;
+}
+.progress .bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: inherit;
+  position: relative;
+  transition: width var(--dur-slow) var(--ease-out);
+}
+.progress.success .bar { background: linear-gradient(90deg, var(--color-success), #34D399); }
+.progress.warning .bar { background: linear-gradient(90deg, var(--color-warning), #FBBF24); }
+.progress.danger .bar  { background: linear-gradient(90deg, var(--color-danger), #F87171); }
+.progress.ai .bar      { background: linear-gradient(90deg, var(--color-ai), var(--color-ai-hi)); }
+
+/* -------------------------------------------------------------------------
+   6. HERO (Overview)
+   ------------------------------------------------------------------------- */
+.hero {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 1100px) { .hero { grid-template-columns: 1fr; } }
+
+.hero-card {
+  position: relative;
+  background:
+    radial-gradient(900px 400px at 0% 0%, rgba(37,99,235,0.14), transparent 60%),
+    radial-gradient(600px 300px at 100% 100%, rgba(139,92,246,0.10), transparent 60%),
+    var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2xl);
+  padding: 28px 32px;
+  overflow: hidden;
+}
+.hero-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(37,99,235,0.5), rgba(139,92,246,0.5), transparent);
+}
+.hero-greet { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.hero-greet .dot { box-shadow: 0 0 0 3px var(--color-success-soft); }
+.hero-greet .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); box-shadow: 0 0 12px var(--color-success); }
+.hero-greet .greet-text { font-size: var(--fs-xs); color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.18em; font-weight: var(--fw-semibold); }
+.hero h1 {
+  font-family: var(--font-serif);
+  font-size: 38px;
+  font-weight: var(--fw-light);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 0 0 8px;
+}
+.hero h1 em {
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  background: linear-gradient(135deg, var(--color-primary-hi), var(--color-ai-hi));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero .hero-sub {
+  font-size: var(--fs-body-lg); color: var(--text-secondary); max-width: 60ch; line-height: var(--lh-relaxed);
+  margin-bottom: 22px;
+}
+.hero-meta {
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  padding-top: 18px; border-top: 1px solid var(--border-default);
+}
+.hero-meta .meta-item { display: flex; flex-direction: column; gap: 2px; }
+.hero-meta .meta-key { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); font-weight: var(--fw-semibold); }
+.hero-meta .meta-val { font-size: var(--fs-body); color: var(--text-primary); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+.hero-actions { display: flex; gap: 10px; margin-left: auto; align-self: flex-end; }
+
+.hero-side {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2xl);
+  padding: 22px 24px;
+  display: flex; flex-direction: column;
+  gap: 16px;
+}
+.hero-side h4 { margin: 0; font-size: var(--fs-h4); }
+.hero-side .sub { font-size: var(--fs-sm); color: var(--text-tertiary); }
+.shift-block { display: flex; flex-direction: column; gap: 12px; padding: 14px 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+.shift-row { display: flex; align-items: center; justify-content: space-between; }
+.shift-row .label { font-size: var(--fs-sm); color: var(--text-tertiary); }
+.shift-row .val { font-size: var(--fs-body); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; }
+.shift-bar { display: flex; gap: 4px; height: 28px; }
+.shift-bar .seg { flex: 1; background: var(--bg-elevated); border-radius: 2px; }
+.shift-bar .seg.busy { background: linear-gradient(180deg, var(--color-warning), #B45309); }
+.shift-bar .seg.now  { background: linear-gradient(180deg, var(--color-primary-hi), var(--color-primary)); box-shadow: 0 0 12px rgba(37,99,235,0.5); }
+.shift-bar .seg.done { background: var(--bg-elevated-hi); }
+
+/* -------------------------------------------------------------------------
+   7. AI SECTION
+   ------------------------------------------------------------------------- */
+.ai-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 1100px) { .ai-section { grid-template-columns: 1fr; } }
+
+.ai-hero {
+  position: relative;
+  background:
+    radial-gradient(700px 280px at 100% 0%, rgba(139,92,246,0.20), transparent 60%),
+    linear-gradient(160deg, rgba(139,92,246,0.06), transparent 50%),
+    var(--bg-surface);
+  border: 1px solid rgba(139,92,246,0.20);
+  border-radius: var(--radius-2xl);
+  padding: 24px 26px;
+  overflow: hidden;
+}
+.ai-hero::after {
+  content: ""; position: absolute; bottom: -40px; right: -40px;
+  width: 220px; height: 220px;
+  background: conic-gradient(from 0deg, var(--color-ai), var(--color-primary), var(--color-ai));
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.25;
+}
+.ai-head {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.ai-orb {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--color-ai), var(--color-primary));
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 19px;
+  box-shadow: 0 8px 24px rgba(139,92,246,0.35);
+  position: relative;
+}
+.ai-orb::after {
+  content: ""; position: absolute; inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, var(--color-ai), transparent 60%, var(--color-ai));
+  filter: blur(8px); z-index: -1; opacity: 0.6;
+  animation: spin 6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.ai-head h3 { margin: 0; font-size: var(--fs-h3); font-weight: var(--fw-semibold); }
+.ai-head .sub { font-size: var(--fs-sm); color: var(--text-tertiary); margin-top: 2px; }
+
+.ai-summary {
+  font-size: var(--fs-body-lg); color: var(--text-secondary);
+  line-height: var(--lh-relaxed);
+  margin-bottom: 16px;
+}
+.ai-summary strong { color: var(--text-primary); font-weight: var(--fw-semibold); }
+.ai-summary mark {
+  background: var(--color-ai-soft);
+  color: var(--color-ai-hi);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: var(--fw-semibold);
+}
+
+.ai-keypoints { display: flex; flex-direction: column; gap: 10px; }
+.ai-keypoint {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px;
+  background: rgba(139,92,246,0.06);
+  border: 1px solid rgba(139,92,246,0.14);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm); color: var(--text-secondary);
+}
+.ai-keypoint .kp-icon {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--color-ai-soft); color: var(--color-ai-hi);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+  margin-top: 1px;
+}
+.ai-keypoint strong { color: var(--text-primary); font-weight: var(--fw-semibold); }
+
+.ai-actions {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-default);
+}
+
+/* AI Risk scoring card */
+.risk-card {
+  position: relative;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2xl);
+  padding: 24px 26px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.risk-gauge { position: relative; height: 220px; display: flex; align-items: center; justify-content: center; }
+.risk-gauge svg { width: 220px; height: 130px; }
+.risk-center {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  text-align: center;
+}
+.risk-center .score {
+  font-size: 44px; font-weight: var(--fw-light); letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--color-warning), var(--color-danger));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  line-height: 1;
+}
+.risk-center .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-tertiary); margin-top: 4px; font-weight: var(--fw-semibold); }
+.risk-center .state { font-size: var(--fs-sm); color: var(--color-warning-hi); font-weight: var(--fw-semibold); margin-top: 6px; }
+
+.risk-factors { display: flex; flex-direction: column; gap: 10px; }
+.risk-factor { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.risk-factor .name { font-size: var(--fs-sm); color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+.risk-factor .name i { color: var(--text-tertiary); }
+.risk-factor .weight {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--fs-xs); font-variant-numeric: tabular-nums;
+}
+.risk-factor .weight .pct { color: var(--text-primary); font-weight: var(--fw-semibold); min-width: 36px; text-align: right; }
+.risk-factor .weight .bar { width: 80px; }
+
+/* AI Insight list */
+.insight-list { display: flex; flex-direction: column; }
+.insight-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.insight-row:last-child { border-bottom: 0; }
+.insight-row .i-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.insight-row .i-main { min-width: 0; }
+.insight-row .i-title { font-size: var(--fs-sm); color: var(--text-primary); font-weight: var(--fw-semibold); }
+.insight-row .i-meta { font-size: var(--fs-xs); color: var(--text-tertiary); margin-top: 2px; }
+.insight-row .i-meta strong { color: var(--text-secondary); font-weight: var(--fw-semibold); }
+.insight-row .i-action { font-size: var(--fs-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: 6px; }
+
+/* Mini chart bars */
+.mini-bars { display: flex; align-items: flex-end; gap: 3px; height: 36px; }
+.mini-bars .mb {
+  width: 4px; background: var(--color-primary-hi); border-radius: 1px; opacity: 0.85;
+}
+.mini-bars .mb.lo { opacity: 0.4; }
+.mini-bars .mb.hi { background: var(--color-ai-hi); }
+
+/* -------------------------------------------------------------------------
+   8. CHARTS (basic, no external lib)
+   ------------------------------------------------------------------------- */
+.chart {
+  width: 100%;
+  height: 260px;
+  position: relative;
+}
+.chart svg { width: 100%; height: 100%; display: block; }
+.chart-legend {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  padding: 0 22px 16px;
+  font-size: var(--fs-xs); color: var(--text-tertiary);
+}
+.chart-legend .li { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend .sw { width: 10px; height: 10px; border-radius: 2px; }
+
+.chart-tooltip {
+  position: absolute; pointer-events: none;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  font-size: var(--fs-xs);
+  box-shadow: var(--shadow-md);
+  display: none; min-width: 140px;
+  z-index: 5;
+}
+.chart-tooltip .tt-title { font-weight: var(--fw-semibold); color: var(--text-primary); margin-bottom: 4px; }
+.chart-tooltip .tt-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--text-secondary); }
+.chart-tooltip .tt-row .val { font-variant-numeric: tabular-nums; }
+
+/* Donut / arc helpers */
+.arc-track { fill: none; stroke: var(--bg-elevated); }
+.arc-fill  { fill: none; stroke-linecap: round; }
+
+/* -------------------------------------------------------------------------
+   9. TABLES
+   ------------------------------------------------------------------------- */
+.table-wrap { overflow-x: auto; }
+table.data {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  font-size: var(--fs-sm);
+}
+table.data th {
+  text-align: left;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-muted);
+  font-weight: var(--fw-semibold);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-canvas);
+  position: sticky; top: 0;
+}
+table.data td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+table.data tr:hover td { background: var(--bg-elevated); }
+table.data tr:last-child td { border-bottom: 0; }
+table.data td.num { font-variant-numeric: tabular-nums; text-align: right; }
+table.data td .stack-cell { display: flex; align-items: center; gap: 10px; }
+
+/* Patient row */
+.patient-cell { display: flex; align-items: center; gap: 10px; }
+.patient-cell .avatar { font-size: var(--fs-xs); }
+.patient-cell .pname { font-size: var(--fs-sm); color: var(--text-primary); font-weight: var(--fw-semibold); }
+.patient-cell .pmeta { font-size: var(--fs-xs); color: var(--text-tertiary); }
+
+/* -------------------------------------------------------------------------
+   10. LISTS
+   ------------------------------------------------------------------------- */
+.list { display: flex; flex-direction: column; }
+.list-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.list-row:last-child { border-bottom: 0; }
+.list-row .l-main { flex: 1; min-width: 0; }
+.list-row .l-title { font-size: var(--fs-sm); color: var(--text-primary); font-weight: var(--fw-medium); }
+.list-row .l-meta  { font-size: var(--fs-xs); color: var(--text-tertiary); margin-top: 2px; }
+.list-row .l-side  { font-size: var(--fs-xs); color: var(--text-tertiary); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 18px; }
+.timeline::before {
+  content: ""; position: absolute; left: 6px; top: 4px; bottom: 4px; width: 1px;
+  background: var(--border-default);
+}
+.tl-item { position: relative; padding: 0 0 14px; }
+.tl-item::before {
+  content: ""; position: absolute; left: -16px; top: 6px; width: 9px; height: 9px;
+  border-radius: 50%; background: var(--bg-canvas); border: 2px solid var(--color-primary-hi);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+.tl-item.warn::before { border-color: var(--color-warning-hi); box-shadow: 0 0 0 3px var(--color-warning-soft); }
+.tl-item.danger::before { border-color: var(--color-danger-hi); box-shadow: 0 0 0 3px var(--color-danger-soft); }
+.tl-item.ai::before { border-color: var(--color-ai-hi); box-shadow: 0 0 0 3px var(--color-ai-soft); }
+.tl-item .tl-title { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-primary); }
+.tl-item .tl-meta { font-size: var(--fs-xs); color: var(--text-tertiary); margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+/* -------------------------------------------------------------------------
+   11. PATIENT GRID
+   ------------------------------------------------------------------------- */
+.patient-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1100px) { .patient-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px)  { .patient-grid { grid-template-columns: 1fr; } }
+
+.patient-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 14px;
+  position: relative;
+  transition: border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  cursor: pointer;
+}
+.patient-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.patient-card .pc-head { display: flex; align-items: center; gap: 12px; }
+.patient-card .pc-head .who { flex: 1; min-width: 0; }
+.patient-card .pc-head .pname { font-size: var(--fs-h4); color: var(--text-primary); font-weight: var(--fw-semibold); }
+.patient-card .pc-head .pmeta { font-size: var(--fs-xs); color: var(--text-tertiary); margin-top: 2px; }
+.patient-card .pc-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.patient-card .pc-metric {
+  padding: 10px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.patient-card .pc-metric .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); font-weight: var(--fw-semibold); }
+.patient-card .pc-metric .v { font-size: var(--fs-h4); font-weight: var(--fw-semibold); font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.patient-card .pc-metric .v small { font-size: 11px; color: var(--text-tertiary); font-weight: var(--fw-regular); margin-left: 2px; }
+.patient-card .pc-foot { display: flex; align-items: center; justify-content: space-between; }
+.patient-card .pc-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.patient-card .pc-action { font-size: var(--fs-xs); color: var(--color-primary-hi); font-weight: var(--fw-semibold); display: flex; align-items: center; gap: 4px; }
+
+/* -------------------------------------------------------------------------
+   12. TABS
+   ------------------------------------------------------------------------- */
+.tabs { display: flex; gap: 2px; padding: 4px; background: var(--bg-elevated); border-radius: var(--radius-md); border: 1px solid var(--border-default); }
+.tabs .tab {
+  padding: 6px 12px;
+  font-size: var(--fs-sm); font-weight: var(--fw-medium);
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.tabs .tab:hover { color: var(--text-secondary); }
+.tabs .tab.active { background: var(--bg-elevated-hi); color: var(--text-primary); box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset; }
+.tabs .tab .count { font-size: 10px; padding: 1px 6px; background: rgba(255,255,255,0.05); border-radius: 999px; color: var(--text-tertiary); }
+
+/* Segmented */
+.segmented { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; }
+.segmented .seg {
+  padding: 6px 12px; font-size: var(--fs-sm); font-weight: var(--fw-medium);
+  color: var(--text-tertiary); background: transparent;
+  border-right: 1px solid var(--border-default);
+  cursor: pointer;
+}
+.segmented .seg:last-child { border-right: 0; }
+.segmented .seg.active { background: var(--bg-elevated-hi); color: var(--text-primary); }
+
+/* -------------------------------------------------------------------------
+   13. GRID HELPERS
+   ------------------------------------------------------------------------- */
+.grid-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; }
+@media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 1100px) { .grid-3 { grid-template-columns: 1fr; } }
+.grid-2-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .grid-2-eq { grid-template-columns: 1fr; } }
+
+/* -------------------------------------------------------------------------
+   14. SCROLLBAR-FRIENDLY UTILITIES
+   ------------------------------------------------------------------------- */
+.no-scroll-x { overflow-x: hidden; }
+.center-flex { display: flex; align-items: center; justify-content: center; }
+
+/* -------------------------------------------------------------------------
+   15. PRINT
+   ------------------------------------------------------------------------- */
+@media print {
+  .sidebar, .topbar, .no-print { display: none !important; }
+  .app { grid-template-columns: 1fr !important; }
+  .content { overflow: visible !important; padding: 0 !important; }
+  body { background: #fff; color: #000; }
+}
+</style>
+</head>
+<body data-page="overview">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- =========================================================================
+     APP SHELL
+     ========================================================================= -->
+<div class="app" id="app" data-sidebar="expanded">
+
+  <!-- =====================================================================
+       SIDEBAR
+       ===================================================================== -->
+  <aside class="sidebar" role="navigation" aria-label="Primary navigation">
+    <div class="sidebar-brand">
+      <div class="brand-mark" aria-hidden="true">M</div>
+      <div class="brand-text">
+        <strong>Meridian</strong>
+        <span>Clinical Intelligence</span>
+      </div>
+    </div>
+
+    <div class="sidebar-scroll">
+      <!-- Section: Workspace -->
+      <div class="sidebar-section" role="group" aria-label="Workspace">
+        <div class="sidebar-section-label">
+          <span>Workspace</span>
+          <span class="label-action" title="Customize">+</span>
+        </div>
+        <a class="nav-item active" href="#overview" data-route="overview" aria-current="page">
+          <i class="ri-dashboard-3-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Overview</span>
+        </a>
+        <a class="nav-item" href="#patients" data-route="patients">
+          <i class="ri-user-heart-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Patients</span>
+          <span class="nav-badge" aria-label="142 active">142</span>
+        </a>
+        <a class="nav-item" href="#sessions" data-route="sessions">
+          <i class="ri-pulse-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Sessions</span>
+          <span class="nav-meta">12 today</span>
+        </a>
+        <a class="nav-item" href="#assessments" data-route="assessments">
+          <i class="ri-clipboard-pulse-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Assessments</span>
+          <span class="nav-badge" style="background: var(--color-warning);">8</span>
+        </a>
+        <a class="nav-item" href="#schedule" data-route="schedule">
+          <i class="ri-calendar-check-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Schedule</span>
+        </a>
+        <a class="nav-item" href="#messaging" data-route="messaging">
+          <i class="ri-chat-voice-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Messages</span>
+          <span class="nav-badge" style="background: var(--color-danger);">4</span>
+        </a>
+        <a class="nav-item" href="#telehealth" data-route="telehealth">
+          <i class="ri-video-on-ai-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Telehealth</span>
+          <span class="nav-ai" aria-label="AI-assisted"></span>
+        </a>
+      </div>
+
+      <!-- Section: Intelligence -->
+      <div class="sidebar-section" role="group" aria-label="Intelligence">
+        <div class="sidebar-section-label">
+          <span>Intelligence</span>
+          <span class="label-action" title="Manage">⚙</span>
+        </div>
+        <a class="nav-item" href="#ai-insights" data-route="ai-insights">
+          <i class="ri-sparkling-2-fill nav-icon" aria-hidden="true" style="color: var(--color-ai-hi);"></i>
+          <span class="nav-text">AI Insights</span>
+          <span class="nav-ai" aria-hidden="true"></span>
+        </a>
+        <a class="nav-item" href="#analytics" data-route="analytics">
+          <i class="ri-bar-chart-box-ai-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Analytics</span>
+        </a>
+        <a class="nav-item" href="#outcomes" data-route="outcomes">
+          <i class="ri-line-chart-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Outcomes</span>
+        </a>
+        <a class="nav-item" href="#predictive" data-route="predictive">
+          <i class="ri-flow-chart nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Predictive Models</span>
+          <span class="nav-ai" aria-hidden="true"></span>
+        </a>
+        <a class="nav-item" href="#research" data-route="research">
+          <i class="ri-flask-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Research</span>
+        </a>
+      </div>
+
+      <!-- Section: Clinical -->
+      <div class="sidebar-section" role="group" aria-label="Clinical">
+        <div class="sidebar-section-label">
+          <span>Clinical</span>
+        </div>
+        <a class="nav-item" href="#protocols" data-route="protocols">
+          <i class="ri-book-mark-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Protocols</span>
+        </a>
+        <a class="nav-item" href="#library" data-route="library">
+          <i class="ri-book-2-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Knowledge Library</span>
+        </a>
+        <a class="nav-item" href="#pharmacy" data-route="pharmacy">
+          <i class="ri-capsule-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Pharmacy</span>
+        </a>
+        <a class="nav-item" href="#imaging" data-route="imaging">
+          <i class="ri-lungs-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Imaging</span>
+        </a>
+        <a class="nav-item" href="#labs" data-route="labs">
+          <i class="ri-test-tube-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Lab Results</span>
+        </a>
+      </div>
+
+      <!-- Section: Operations -->
+      <div class="sidebar-section" role="group" aria-label="Operations">
+        <div class="sidebar-section-label">
+          <span>Operations</span>
+        </div>
+        <a class="nav-item" href="#reports" data-route="reports">
+          <i class="ri-file-chart-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+        <a class="nav-item" href="#billing" data-route="billing">
+          <i class="ri-bill-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Billing</span>
+        </a>
+        <a class="nav-item" href="#staff" data-route="staff">
+          <i class="ri-team-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Staff & Caseloads</span>
+        </a>
+        <a class="nav-item" href="#inventory" data-route="inventory">
+          <i class="ri-stack-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Inventory</span>
+        </a>
+      </div>
+
+      <!-- Section: System -->
+      <div class="sidebar-section" role="group" aria-label="System">
+        <div class="sidebar-section-label">
+          <span>System</span>
+        </div>
+        <a class="nav-item" href="#notifications" data-route="notifications">
+          <i class="ri-notification-3-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Notifications</span>
+          <span class="nav-badge" style="background: var(--color-danger);">12</span>
+        </a>
+        <a class="nav-item" href="#documentation" data-route="documentation">
+          <i class="ri-book-read-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Documentation</span>
+        </a>
+        <a class="nav-item" href="#admin" data-route="admin">
+          <i class="ri-shield-keyhole-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Admin Console</span>
+        </a>
+        <a class="nav-item" href="#settings" data-route="settings">
+          <i class="ri-settings-3-line nav-icon" aria-hidden="true"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="system-card" role="status" aria-label="System status">
+        <span class="dot success" aria-hidden="true"></span>
+        <div>
+          <span class="label">All systems normal</span>
+          <span class="meta u-truncate">API 99.99% · Latency 38ms · v4.2.1</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- =====================================================================
+       MAIN AREA
+       ===================================================================== -->
+  <div class="main">
+
+    <!-- ===================================================================
+         TOPBAR
+         =================================================================== -->
+    <header class="topbar" role="banner">
+      <div class="topbar-left">
+        <button class="icon-btn" id="toggle-sidebar" aria-label="Toggle sidebar" title="Toggle sidebar">
+          <i class="ri-menu-line" aria-hidden="true"></i>
+        </button>
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="#home">Meridian</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <a href="#workspace">Workspace</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span class="current">Clinical Overview</span>
+        </nav>
+      </div>
+
+      <div class="topbar-center">
+        <div class="global-search" id="globalSearch" role="search">
+          <i class="ri-search-2-line search-icon" aria-hidden="true"></i>
+          <input
+            type="search"
+            class="input"
+            id="globalSearchInput"
+            placeholder="Search patients, sessions, assessments, protocols, or ask Meridian AI…"
+            aria-label="Global search"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <span class="kbd" aria-hidden="true">
+            <span class="key">⌘</span><span class="key">K</span>
+          </span>
+
+          <div class="search-results" id="searchResults" role="listbox" aria-label="Search results">
+            <div class="search-group">
+              <div class="search-group-title">Patients</div>
+              <div class="search-row" role="option">
+                <i class="ri-user-heart-line row-icon" aria-hidden="true"></i>
+                <div class="row-main">
+                  <div class="row-title">Marcus Whitfield <span class="muted">· 47y · ACL Reconstruction · Day 12</span></div>
+                  <div class="row-meta">Active rehabilitation · Risk: <span class="chip warning" style="padding:0 6px;">Moderate</span></div>
+                </div>
+                <span class="row-tag">PT-04218</span>
+              </div>
+              <div class="search-row" role="option">
+                <i class="ri-user-heart-line row-icon" aria-hidden="true"></i>
+                <div class="row-main">
+                  <div class="row-title">Elena Vasquez <span class="muted">· 62y · Total Knee Arthroplasty · Day 28</span></div>
+                  <div class="row-meta">Post-op protocol · ROM improving</div>
+                </div>
+                <span class="row-tag">PT-04102</span>
+              </div>
+              <div class="search-row" role="option">
+                <i class="ri-user-heart-line row-icon" aria-hidden="true"></i>
+                <div class="row-main">
+                  <div class="row-title">David Park <span class="muted">· 34y · Rotator Cuff Repair · Day 8</span></div>
+                  <div class="row-meta">Pain management review needed</div>
+                </div>
+                <span class="row-tag">PT-03891</span>
+              </div>
+            </div>
+            <div class="search-group">
+              <div class="search-group-title">Quick Actions</div>
+              <div class="search-row" role="option">
+                <i class="ri-add-circle-line row-icon" aria-hidden="true"></i>
+                <div class="row-main">
+                  <div class="row-title">Start new patient session</div>
+                  <div class="row-meta">Launch a live treatment workflow</div>
+                </div>
+              </div>
+              <div class="search-row" role="option">
+                <i class="ri-sparkling-2-fill row-icon" aria-hidden="true" style="color:var(--color-ai-hi);"></i>
+                <div class="row-main">
+                  <div class="row-title">Ask Meridian AI</div>
+                  <div class="row-meta">"Show me patients with declining ROM this week"</div>
+                </div>
+              </div>
+              <div class="search-row" role="option">
+                <i class="ri-file-chart-line row-icon" aria-hidden="true"></i>
+                <div class="row-main">
+                  <div class="row-title">Generate weekly outcomes report</div>
+                  <div class="row-meta">Auto-compile 7-day caseload summary</div>
+                </div>
+              </div>
+            </div>
+            <div class="search-group">
+              <div class="search-group-title">Protocols & Library</div>
+              <div class="search-row" role="option">
+                <i class="ri-book-mark-line row-icon" aria-hidden="true"></i>
+                <div class="row-main">
+                  <div class="row-title">ACL Post-Op Phase II Protocol</div>
+                  <div class="row-meta">Standardized · Last updated 2 weeks ago</div>
+                </div>
+              </div>
+              <div class="search-row" role="option">
+                <i class="ri-book-2-line row-icon" aria-hidden="true"></i>
+                <div class="row-main">
+                  <div class="row-title">TKA — Early Mobilization Guidelines</div>
+                  <div class="row-meta">Evidence-based · 14 citations</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="btn-group" role="group" aria-label="Quick actions">
+          <button class="btn sm" id="quickCapture" title="Quick clinical note">
+            <i class="ri-quill-pen-line" aria-hidden="true"></i>
+            <span>Note</span>
+          </button>
+          <button class="btn sm" id="quickOrder" title="New order">
+            <i class="ri-add-box-line" aria-hidden="true"></i>
+            <span>Order</span>
+          </button>
+          <button class="btn sm" id="quickMessage" title="New message">
+            <i class="ri-chat-new-line" aria-hidden="true"></i>
+            <span>Message</span>
+          </button>
+        </div>
+
+        <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+          <i class="ri-moon-line" aria-hidden="true"></i>
+        </button>
+        <button class="icon-btn" id="densityBtn" title="Toggle density" aria-label="Toggle density">
+          <i class="ri-expand-vertical-line" aria-hidden="true"></i>
+        </button>
+        <button class="icon-btn" id="commandBtn" title="Command palette" aria-label="Open command palette">
+          <i class="ri-command-line" aria-hidden="true"></i>
+        </button>
+        <button class="icon-btn" id="helpBtn" title="Help" aria-label="Help">
+          <i class="ri-question-line" aria-hidden="true"></i>
+        </button>
+        <button class="icon-btn" id="notifBtn" title="Notifications" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <i class="ri-notification-3-line" aria-hidden="true"></i>
+          <span class="badge-dot" aria-hidden="true"></span>
+        </button>
+
+        <div class="user-pill" id="userPill" role="button" tabindex="0" aria-haspopup="menu" aria-label="Account menu">
+          <div class="avatar" aria-hidden="true">DR</div>
+          <div class="who">
+            <span class="name">Dr. Riya Okafor</span>
+            <span class="role">DPT, OCS · Lead Clinician</span>
+          </div>
+          <i class="ri-arrow-down-s-line" style="color: var(--text-tertiary);" aria-hidden="true"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Notification Panel (absolute over content) -->
+    <div class="notif-panel" id="notifPanel" role="dialog" aria-label="Notifications">
+      <div class="notif-head">
+        <h4>Notifications</h4>
+        <div class="u-row gap-2">
+          <button class="btn ghost sm" title="Mark all as read">
+            <i class="ri-check-double-line" aria-hidden="true"></i>
+            <span>Mark all read</span>
+          </button>
+          <button class="icon-btn" title="Settings" aria-label="Notification settings">
+            <i class="ri-settings-3-line" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <div class="notif-tabs" role="tablist">
+        <div class="notif-tab active" role="tab" aria-selected="true">All <span class="muted">· 12</span></div>
+        <div class="notif-tab" role="tab">Clinical <span class="muted">· 5</span></div>
+        <div class="notif-tab" role="tab">AI <span class="muted">· 3</span></div>
+        <div class="notif-tab" role="tab">System <span class="muted">· 4</span></div>
+      </div>
+      <div class="notif-list">
+        <div class="notif-item">
+          <div class="n-icon" style="background: var(--color-danger-soft); color: var(--color-danger-hi);">
+            <i class="ri-alert-pulse-line" aria-hidden="true"></i>
+          </div>
+          <div class="n-body">
+            <div class="n-title">Critical alert · Marcus Whitfield (PT-04218)</div>
+            <div class="n-meta">ROM decline of 14° in last 48h. AI suggests immediate assessment.</div>
+            <div class="n-time">2 min ago · Patient Monitoring</div>
+          </div>
+          <div class="unread" aria-hidden="true"></div>
+        </div>
+        <div class="notif-item">
+          <div class="n-icon" style="background: var(--color-ai-soft); color: var(--color-ai-hi);">
+            <i class="ri-sparkling-2-fill" aria-hidden="true"></i>
+          </div>
+          <div class="n-body">
+            <div class="n-title">Meridian AI · New insight available</div>
+            <div class="n-meta">3 patients show patterns consistent with delayed recovery. Predictive confidence 87%.</div>
+            <div class="n-time">18 min ago · AI Insights</div>
+          </div>
+          <div class="unread" aria-hidden="true"></div>
+        </div>
+        <div class="notif-item">
+          <div class="n-icon" style="background: var(--color-warning-soft); color: var(--color-warning-hi);">
+            <i class="ri-time-line" aria-hidden="true"></i>
+          </div>
+          <div class="n-body">
+            <div class="n-title">Session starting in 5 minutes</div>
+            <div class="n-meta">Elena Vasquez · Telehealth visit · Goniometer check ready.</div>
+            <div class="n-time">5 min · Schedule</div>
+          </div>
+          <div class="unread" aria-hidden="true"></div>
+        </div>
+        <div class="notif-item">
+          <div class="n-icon" style="background: var(--color-primary-soft); color: var(--color-primary-hi);">
+            <i class="ri-file-list-3-line" aria-hidden="true"></i>
+          </div>
+          <div class="n-body">
+            <div class="n-title">Assessment due · David Park</div>
+            <div class="n-meta">DASH questionnaire due by end of day.</div>
+            <div class="n-time">1 hr ago · Assessments</div>
+          </div>
+          <div class="unread" aria-hidden="true"></div>
+        </div>
+        <div class="notif-item">
+          <div class="n-icon" style="background: var(--color-success-soft); color: var(--color-success-hi);">
+            <i class="ri-checkbox-circle-line" aria-hidden="true"></i>
+          </div>
+          <div class="n-body">
+            <div class="n-title">Weekly outcomes report ready</div>
+            <div class="n-meta">Caseload performance summary generated for 142 active patients.</div>
+            <div class="n-time">3 hr ago · Reports</div>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="n-icon" style="background: var(--bg-elevated); color: var(--text-tertiary);">
+            <i class="ri-user-add-line" aria-hidden="true"></i>
+          </div>
+          <div class="n-body">
+            <div class="n-title">New patient assigned</div>
+            <div class="n-meta">Sophia Chen · Cervical radiculopathy · Referred by Dr. Anand.</div>
+            <div class="n-time">Yesterday · Intake</div>
+          </div>
+        </div>
+      </div>
+      <div class="notif-foot">
+        <a href="#notifications" class="text-sm" style="color: var(--color-primary-hi); font-weight: var(--fw-semibold);">View all notifications →</a>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         CONTENT
+         =================================================================== -->
+    <main class="content" id="main-content" role="main" tabindex="-1">
+      <div class="content-inner">
+
+        <!-- ===============================================================
+             SECTION 1 · HERO + SHIFT STATUS
+             =============================================================== -->
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-card">
+            <div class="hero-greet">
+              <span class="pulse" aria-hidden="true"></span>
+              <span class="greet-text">Good morning · 22 June 2026 · Shift 07:00 – 15:00</span>
+            </div>
+            <h1 id="hero-title">
+              Welcome back, Dr. Okafor — <em>your caseload is healthier than last week.</em>
+            </h1>
+            <p class="hero-sub">
+              You have <strong>12 sessions</strong> scheduled today, <strong>3 high-priority assessments</strong>
+              awaiting review, and Meridian AI has flagged <strong>2 patients</strong> that may benefit from
+              an early protocol adjustment.
+            </p>
+            <div class="u-row gap-3" style="margin-bottom: 22px;">
+              <button class="btn primary">
+                <i class="ri-play-circle-line" aria-hidden="true"></i>
+                Start next session
+              </button>
+              <button class="btn ai">
+                <i class="ri-sparkling-2-fill" aria-hidden="true"></i>
+                Open Meridian AI briefing
+              </button>
+              <button class="btn">
+                <i class="ri-file-list-3-line" aria-hidden="true"></i>
+                Review pending assessments
+              </button>
+            </div>
+            <div class="hero-meta">
+              <div class="meta-item">
+                <span class="meta-key">Active patients</span>
+                <span class="meta-val">142</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-key">On track</span>
+                <span class="meta-val" style="color: var(--color-success-hi);">118 · 83%</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-key">Needs attention</span>
+                <span class="meta-val" style="color: var(--color-warning-hi);">19</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-key">Critical</span>
+                <span class="meta-val" style="color: var(--color-danger-hi);">5</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-key">AI confidence</span>
+                <span class="meta-val" style="color: var(--color-ai-hi);">94%</span>
+              </div>
+              <div class="hero-actions">
+                <button class="btn ghost">
+                  <i class="ri-share-forward-line" aria-hidden="true"></i>
+                  Brief team
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="hero-side" aria-labelledby="shift-title">
+            <div class="u-row-between">
+              <div>
+                <h4 id="shift-title">Today's shift</h4>
+                <div class="sub">07:00 – 15:00 · Outpatient Wing B</div>
+              </div>
+              <span class="chip primary">
+                <i class="ri-time-line" aria-hidden="true"></i>
+                Live
+              </span>
+            </div>
+
+            <div class="shift-block">
+              <div class="shift-row">
+                <span class="label">Sessions completed</span>
+                <span class="val">5 / 12</span>
+              </div>
+              <div class="shift-row">
+                <span class="label">Documentation</span>
+                <span class="val">3 pending</span>
+              </div>
+              <div class="shift-row">
+                <span class="label">Next session</span>
+                <span class="val">10:30 · E. Vasquez</span>
+              </div>
+              <div class="shift-bar" aria-label="Shift progress">
+                <span class="seg done"></span>
+                <span class="seg done"></span>
+                <span class="seg done"></span>
+                <span class="seg done"></span>
+                <span class="seg done"></span>
+                <span class="seg now" title="Current"></span>
+                <span class="seg busy"></span>
+                <span class="seg"></span>
+                <span class="seg"></span>
+                <span class="seg"></span>
+                <span class="seg"></span>
+                <span class="seg"></span>
+              </div>
+              <div class="u-row-between" style="font-size: 10px; color: var(--text-muted);">
+                <span>07:00</span>
+                <span>11:00 (now)</span>
+                <span>15:00</span>
+              </div>
+            </div>
+
+            <div class="u-stack gap-3" style="margin-top: 6px;">
+              <div class="u-row-between" style="font-size: var(--fs-sm);">
+                <span class="muted">Caseload health</span>
+                <span class="u-num" style="font-weight: var(--fw-semibold);">8.6 <small class="muted">/ 10</small></span>
+              </div>
+              <div class="progress success">
+                <div class="bar" style="width: 86%;"></div>
+              </div>
+              <div class="u-row-between" style="font-size: var(--fs-xs); color: var(--text-tertiary);">
+                <span>Patient satisfaction</span>
+                <span class="u-num">4.82 / 5.0</span>
+              </div>
+            </div>
+
+            <div class="u-row gap-2" style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-default);">
+              <button class="btn sm u-grow" style="justify-content: flex-start;">
+                <i class="ri-calendar-line" aria-hidden="true"></i> View schedule
+              </button>
+              <button class="icon-btn" title="Handoff notes">
+                <i class="ri-arrow-right-circle-line" aria-hidden="true"></i>
+              </button>
+            </div>
+          </aside>
+        </section>
+
+        <!-- ===============================================================
+             SECTION 2 · STAT CARDS
+             =============================================================== -->
+        <section aria-labelledby="kpi-title">
+          <h2 id="kpi-title" class="u-sr">Key performance indicators</h2>
+          <div class="stat-grid">
+            <article class="stat-card" style="--card-accent: #2563EB; --card-accent-soft: rgba(37,99,235,0.14);">
+              <div class="stat-top">
+                <span class="stat-label">Active Caseload</span>
+                <span class="stat-icon" aria-hidden="true">
+                  <i class="ri-user-heart-line"></i>
+                </span>
+              </div>
+              <div class="stat-value">142<span class="unit">patients</span></div>
+              <div class="stat-trend">
+                <span class="trend-pill up"><i class="ri-arrow-up-line"></i> 8</span>
+                <span>vs. last week</span>
+              </div>
+              <svg class="stat-spark" viewBox="0 0 200 36" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 28 L20 24 L40 26 L60 20 L80 22 L100 16 L120 18 L140 12 L160 14 L180 8 L200 10 L200 36 L0 36 Z" fill="url(#g1)"/>
+                <path d="M0 28 L20 24 L40 26 L60 20 L80 22 L100 16 L120 18 L140 12 L160 14 L180 8 L200 10" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </article>
+
+            <article class="stat-card" style="--card-accent: #10B981; --card-accent-soft: rgba(16,185,129,0.14);">
+              <div class="stat-top">
+                <span class="stat-label">Outcome Goals Met</span>
+                <span class="stat-icon" aria-hidden="true" style="background: var(--color-success-soft); color: var(--color-success-hi);">
+                  <i class="ri-checkbox-circle-line"></i>
+                </span>
+              </div>
+              <div class="stat-value">87.3<span class="unit">%</span></div>
+              <div class="stat-trend">
+                <span class="trend-pill up"><i class="ri-arrow-up-line"></i> 4.2%</span>
+                <span>30-day</span>
+              </div>
+              <svg class="stat-spark" viewBox="0 0 200 36" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="g2" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#10B981" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 26 L20 22 L40 24 L60 18 L80 20 L100 14 L120 16 L140 10 L160 12 L180 6 L200 8 L200 36 L0 36 Z" fill="url(#g2)"/>
+                <path d="M0 26 L20 22 L40 24 L60 18 L80 20 L100 14 L120 16 L140 10 L160 12 L180 6 L200 8" fill="none" stroke="#10B981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </article>
+
+            <article class="stat-card" style="--card-accent: #F59E0B; --card-accent-soft: rgba(245,158,11,0.14);">
+              <div class="stat-top">
+                <span class="stat-label">Avg. Pain Reduction</span>
+                <span class="stat-icon" aria-hidden="true" style="background: var(--color-warning-soft); color: var(--color-warning-hi);">
+                  <i class="ri-heart-pulse-line"></i>
+                </span>
+              </div>
+              <div class="stat-value">−3.4<span class="unit">/10</span></div>
+              <div class="stat-trend">
+                <span class="trend-pill up"><i class="ri-arrow-down-line"></i> 0.6</span>
+                <span>improving</span>
+              </div>
+              <svg class="stat-spark" viewBox="0 0 200 36" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="g3" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 8 L20 12 L40 10 L60 16 L80 14 L100 20 L120 18 L140 24 L160 22 L180 28 L200 30 L200 36 L0 36 Z" fill="url(#g3)"/>
+                <path d="M0 8 L20 12 L40 10 L60 16 L80 14 L100 20 L120 18 L140 24 L160 22 L180 28 L200 30" fill="none" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </article>
+
+            <article class="stat-card" style="--card-accent: #8B5CF6; --card-accent-soft: rgba(139,92,246,0.14);">
+              <div class="stat-top">
+                <span class="stat-label">Meridian AI Insights</span>
+                <span class="stat-icon" aria-hidden="true" style="background: var(--color-ai-soft); color: var(--color-ai-hi);">
+                  <i class="ri-sparkling-2-fill"></i>
+                </span>
+              </div>
+              <div class="stat-value">24<span class="unit">new</span></div>
+              <div class="stat-trend">
+                <span class="trend-pill up"><i class="ri-arrow-up-line"></i> 9</span>
+                <span>last 24h</span>
+              </div>
+              <svg class="stat-spark" viewBox="0 0 200 36" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="g4" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 22 L20 26 L40 18 L60 22 L80 14 L100 18 L120 10 L140 14 L160 6 L180 10 L200 4 L200 36 L0 36 Z" fill="url(#g4)"/>
+                <path d="M0 22 L20 26 L40 18 L60 22 L80 14 L100 18 L120 10 L140 14 L160 6 L180 10 L200 4" fill="none" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </article>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             SECTION 3 · AI BRIEFING + RISK SCORING
+             =============================================================== -->
+        <section class="ai-section" aria-labelledby="ai-briefing-title">
+          <h2 id="ai-briefing-title" class="u-sr">Meridian AI briefing and risk scoring</h2>
+
+          <!-- AI Briefing -->
+          <article class="panel ai-panel" aria-labelledby="ai-brief-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">
+                  <span class="dot ai" aria-hidden="true"></span>
+                  <span>Meridian AI · Daily Briefing</span>
+                </div>
+                <h3 id="ai-brief-title">Caseload pulse — what changed since yesterday</h3>
+                <div class="sub">Synthesized from 1,284 data points across vitals, adherence, and PROMs · Updated 2 min ago</div>
+              </div>
+              <div class="actions">
+                <span class="chip ai"><i class="ri-shield-check-line"></i> Explainable</span>
+                <button class="btn ghost sm" title="Refresh">
+                  <i class="ri-refresh-line" aria-hidden="true"></i>
+                </button>
+                <button class="btn ghost sm" title="Open in full">
+                  <i class="ri-expand-diagonal-line" aria-hidden="true"></i>
+                </button>
+              </div>
+            </header>
+            <div class="panel-body">
+              <p class="ai-summary">
+                Across your <strong>142 active patients</strong>, <mark>19 (13%)</mark> require attention
+                and <mark>5 (4%)</mark> are flagged critical. Caseload-wide <strong>ROM adherence is up
+                6.1%</strong> week-over-week, while pain scores dropped to a 90-day low
+                <strong>(mean 2.8/10)</strong>. Three patients exhibit recovery patterns
+                <strong>statistically similar to the delayed-recovery cohort</strong> — protocol
+                re-evaluation is recommended within 48 hours.
+              </p>
+
+              <div class="ai-keypoints">
+                <div class="ai-keypoint">
+                  <span class="kp-icon"><i class="ri-arrow-up-line" aria-hidden="true"></i></span>
+                  <span><strong>Adherence up.</strong> 92% of patients met their weekly exercise target,
+                    the highest rate this quarter.</span>
+                </div>
+                <div class="ai-keypoint">
+                  <span class="kp-icon" style="background: var(--color-warning-soft); color: var(--color-warning-hi);">
+                    <i class="ri-alert-line" aria-hidden="true"></i>
+                  </span>
+                  <span><strong>Marcus Whitfield (PT-04218)</strong> shows a 14° decline in knee flexion
+                    over 48h — likely related to <em>missed sessions on Jun 18-19</em>. Recommend
+                    telehealth check-in.</span>
+                </div>
+                <div class="ai-keypoint">
+                  <span class="kp-icon" style="background: var(--color-success-soft); color: var(--color-success-hi);">
+                    <i class="ri-checkbox-circle-line" aria-hidden="true"></i>
+                  </span>
+                  <span><strong>Elena Vasquez (PT-04102)</strong> is ready to graduate from Phase II
+                    to Phase III — functional milestones met 4 days ahead of schedule.</span>
+                </div>
+                <div class="ai-keypoint">
+                  <span class="kp-icon" style="background: var(--color-primary-soft); color: var(--color-primary-hi);">
+                    <i class="ri-flow-chart" aria-hidden="true"></i>
+                  </span>
+                  <span><strong>Cohort insight.</strong> Post-op knee patients on the new closed-chain
+                    protocol show 18% faster quad recovery vs. historical control
+                    <span class="muted">(p &lt; 0.05, n = 64)</span>.</span>
+                </div>
+              </div>
+
+              <div class="ai-actions">
+                <button class="btn ai">
+                  <i class="ri-magic-line" aria-hidden="true"></i>
+                  Generate full briefing
+                </button>
+                <button class="btn">
+                  <i class="ri-user-voice-line" aria-hidden="true"></i>
+                  Read aloud (3 min)
+                </button>
+                <button class="btn ghost">
+                  <i class="ri-question-answer-line" aria-hidden="true"></i>
+                  Ask follow-up
+                </button>
+                <button class="btn ghost">
+                  <i class="ri-share-forward-line" aria-hidden="true"></i>
+                  Share with team
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Risk Scoring -->
+          <article class="risk-card" aria-labelledby="risk-title">
+            <header class="panel-head" style="padding: 0;">
+              <div class="titles">
+                <div class="eyebrow">
+                  <span class="dot warning" aria-hidden="true"></span>
+                  <span>Risk Stratification</span>
+                </div>
+                <h3 id="risk-title">Composite recovery risk</h3>
+                <div class="sub">Weighted across 12 clinical, behavioral, and biometric signals</div>
+              </div>
+              <div class="actions">
+                <span class="chip warning"><i class="ri-alert-line"></i> Moderate</span>
+              </div>
+            </header>
+
+            <div class="risk-gauge" aria-label="Risk score 62 of 100, moderate">
+              <svg viewBox="0 0 220 130" role="img" aria-label="Risk gauge">
+                <path class="arc-track" d="M 20 120 A 90 90 0 0 1 200 120" stroke-width="14"/>
+                <path class="arc-fill" d="M 20 120 A 90 90 0 0 1 200 120" stroke-width="14"
+                      stroke="url(#riskGrad)"
+                      stroke-dasharray="282.74"
+                      stroke-dashoffset="107.44"
+                      filter="drop-shadow(0 0 6px rgba(245,158,11,0.5))"/>
+                <defs>
+                  <linearGradient id="riskGrad" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0%" stop-color="#10B981"/>
+                    <stop offset="50%" stop-color="#F59E0B"/>
+                    <stop offset="100%" stop-color="#EF4444"/>
+                  </linearGradient>
+                </defs>
+                <g font-family="var(--font-mono)" font-size="9" fill="var(--text-muted)">
+                  <text x="14" y="128">0</text>
+                  <text x="100" y="38" text-anchor="middle">50</text>
+                  <text x="200" y="128" text-anchor="end">100</text>
+                </g>
+              </svg>
+              <div class="risk-center">
+                <div class="score u-num">62</div>
+                <div class="label">Composite risk</div>
+                <div class="state">Moderate · trending −4 wk/wk</div>
+              </div>
+            </div>
+
+            <div class="risk-factors">
+              <div class="risk-factor">
+                <span class="name"><i class="ri-pulse-line"></i> Adherence deviation</span>
+                <span class="weight">
+                  <span class="bar"><span class="progress warning"><span class="bar" style="width: 78%;"></span></span></span>
+                  <span class="pct">78%</span>
+                </span>
+              </div>
+              <div class="risk-factor">
+                <span class="name"><i class="ri-heart-pulse-line"></i> Pain progression</span>
+                <span class="weight">
+                  <span class="bar"><span class="progress danger"><span class="bar" style="width: 64%;"></span></span></span>
+                  <span class="pct">64%</span>
+                </span>
+              </div>
+              <div class="risk-factor">
+                <span class="name"><i class="ri-mental-health-line"></i> PROMs trend</span>
+                <span class="weight">
+                  <span class="bar"><span class="progress"><span class="bar" style="width: 48%;"></span></span></span>
+                  <span class="pct">48%</span>
+                </span>
+              </div>
+              <div class="risk-factor">
+                <span class="name"><i class="ri-rest-time-line"></i> Sleep quality</span>
+                <span class="weight">
+                  <span class="bar"><span class="progress success"><span class="bar" style="width: 22%;"></span></span></span>
+                  <span class="pct">22%</span>
+                </span>
+              </div>
+              <div class="risk-factor">
+                <span class="name"><i class="ri-brain-line"></i> Comorbidity index</span>
+                <span class="weight">
+                  <span class="bar"><span class="progress"><span class="bar" style="width: 55%;"></span></span></span>
+                  <span class="pct">55%</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="u-row gap-2" style="padding-top: 12px; border-top: 1px solid var(--border-default);">
+              <button class="btn sm u-grow" style="justify-content: flex-start;">
+                <i class="ri-flow-chart" aria-hidden="true"></i> Why this score?
+              </button>
+              <button class="btn sm">
+                <i class="ri-download-2-line" aria-hidden="true"></i> Export
+              </button>
+            </div>
+          </article>
+        </section>
+
+        <!-- ===============================================================
+             SECTION 4 · TRENDS + AI INSIGHTS LIST
+             =============================================================== -->
+        <section class="grid-2" aria-labelledby="trends-title">
+          <h2 id="trends-title" class="u-sr">Caseload trends and AI insight feed</h2>
+
+          <!-- Trends chart -->
+          <article class="panel" aria-labelledby="trend-chart-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">
+                  <span class="pulse" aria-hidden="true"></span>
+                  <span>Caseload trend · 30 day</span>
+                </div>
+                <h3 id="trend-chart-title">Adherence vs. pain vs. ROM velocity</h3>
+                <div class="sub">Normalized · 142 patients · confidence band 95%</div>
+              </div>
+              <div class="actions">
+                <div class="segmented" role="tablist" aria-label="Time range">
+                  <button class="seg" role="tab">7D</button>
+                  <button class="seg active" role="tab" aria-selected="true">30D</button>
+                  <button class="seg" role="tab">90D</button>
+                  <button class="seg" role="tab">1Y</button>
+                </div>
+                <button class="btn ghost sm" title="Filter"><i class="ri-filter-3-line" aria-hidden="true"></i></button>
+                <button class="btn ghost sm" title="More"><i class="ri-more-2-fill" aria-hidden="true"></i></button>
+              </div>
+            </header>
+            <div class="panel-body tight" style="padding: 8px 22px 0;">
+              <div class="chart" id="trendChart">
+                <svg viewBox="0 0 800 260" preserveAspectRatio="none" role="img" aria-label="Line chart of caseload trends">
+                  <defs>
+                    <linearGradient id="lineA" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.30"/>
+                      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="lineB" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#10B981" stop-opacity="0.25"/>
+                      <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Grid -->
+                  <g stroke="var(--chart-grid)" stroke-width="1">
+                    <line x1="40" y1="40"  x2="780" y2="40"/>
+                    <line x1="40" y1="90"  x2="780" y2="90"/>
+                    <line x1="40" y1="140" x2="780" y2="140"/>
+                    <line x1="40" y1="190" x2="780" y2="190"/>
+                    <line x1="40" y1="220" x2="780" y2="220"/>
+                  </g>
+                  <!-- Y axis labels -->
+                  <g font-family="var(--font-mono)" font-size="10" fill="var(--text-muted)">
+                    <text x="32" y="44"  text-anchor="end">100</text>
+                    <text x="32" y="94"  text-anchor="end">75</text>
+                    <text x="32" y="144" text-anchor="end">50</text>
+                    <text x="32" y="194" text-anchor="end">25</text>
+                    <text x="32" y="224" text-anchor="end">0</text>
+                  </g>
+                  <!-- X axis labels -->
+                  <g font-family="var(--font-mono)" font-size="10" fill="var(--text-muted)">
+                    <text x="40"  y="248" text-anchor="middle">Jun 01</text>
+                    <text x="160" y="248" text-anchor="middle">Jun 08</text>
+                    <text x="280" y="248" text-anchor="middle">Jun 15</text>
+                    <text x="400" y="248" text-anchor="middle">Jun 22</text>
+                    <text x="520" y="248" text-anchor="middle">Jun 29</text>
+                    <text x="640" y="248" text-anchor="middle">Jul 06</text>
+                    <text x="760" y="248" text-anchor="middle">Jul 13</text>
+                  </g>
+                  <!-- Area + line A (adherence) -->
+                  <path d="M40 140 L100 132 L160 128 L220 120 L280 116 L340 110 L400 102 L460 100 L520 96 L580 92 L640 88 L700 84 L760 80 L760 220 L40 220 Z" fill="url(#lineA)"/>
+                  <path d="M40 140 L100 132 L160 128 L220 120 L280 116 L340 110 L400 102 L460 100 L520 96 L580 92 L640 88 L700 84 L760 80" fill="none" stroke="#3B82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Area + line B (ROM velocity) -->
+                  <path d="M40 110 L100 118 L160 116 L220 122 L280 128 L340 132 L400 138 L460 142 L520 148 L580 152 L640 156 L700 160 L760 168 L760 220 L40 220 Z" fill="url(#lineB)"/>
+                  <path d="M40 110 L100 118 L160 116 L220 122 L280 128 L340 132 L400 138 L460 142 L520 148 L580 152 L640 156 L700 160 L760 168" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Line C (pain) -->
+                  <path d="M40 60 L100 70 L160 80 L220 90 L280 110 L340 130 L400 145 L460 158 L520 168 L580 178 L640 186 L700 192 L760 198" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0"/>
+                  <!-- Dots on latest -->
+                  <g>
+                    <circle cx="760" cy="80"  r="4.5" fill="#3B82F6" stroke="#0B0F17" stroke-width="2"/>
+                    <circle cx="760" cy="168" r="4.5" fill="#10B981" stroke="#0B0F17" stroke-width="2"/>
+                    <circle cx="760" cy="198" r="4.5" fill="#F59E0B" stroke="#0B0F17" stroke-width="2"/>
+                  </g>
+                  <!-- AI annotation -->
+                  <g>
+                    <line x1="540" y1="40" x2="540" y2="220" stroke="rgba(139,92,246,0.4)" stroke-dasharray="3 4"/>
+                    <rect x="498" y="50" width="84" height="22" rx="6" fill="rgba(139,92,246,0.18)" stroke="rgba(139,92,246,0.4)"/>
+                    <text x="540" y="65" text-anchor="middle" font-family="var(--font-sans)" font-size="10" fill="var(--color-ai-hi)" font-weight="600">Meridian insight</text>
+                  </g>
+                </svg>
+                <div class="chart-tooltip" id="trendTooltip" role="tooltip">
+                  <div class="tt-title">Jun 22</div>
+                  <div class="tt-row"><span><span class="dot" style="background:#3B82F6;width:8px;height:8px;"></span> Adherence</span><span class="val">94%</span></div>
+                  <div class="tt-row"><span><span class="dot" style="background:#10B981;width:8px;height:8px;"></span> ROM velocity</span><span class="val">68°/wk</span></div>
+                  <div class="tt-row"><span><span class="dot" style="background:#F59E0B;width:8px;height:8px;"></span> Pain (avg)</span><span class="val">2.8/10</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <span class="li"><span class="sw" style="background:#3B82F6;"></span> Adherence</span>
+              <span class="li"><span class="sw" style="background:#10B981;"></span> ROM velocity</span>
+              <span class="li"><span class="sw" style="background:#F59E0B;"></span> Pain (inverted)</span>
+              <span class="li" style="margin-left:auto;">AI confidence 94%</span>
+            </div>
+          </article>
+
+          <!-- AI Insights list -->
+          <article class="panel ai-panel" aria-labelledby="insights-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">
+                  <span class="dot ai" aria-hidden="true"></span>
+                  <span>Meridian AI · Live insight feed</span>
+                </div>
+                <h3 id="insights-title">Top 5 insights for you right now</h3>
+                <div class="sub">Ranked by clinical impact · auto-updated every 5 min</div>
+              </div>
+              <div class="actions">
+                <span class="chip ai"><i class="ri-sparkling-2-fill"></i> 24 pending</span>
+                <button class="btn ghost sm" title="Filter"><i class="ri-filter-3-line" aria-hidden="true"></i></button>
+              </div>
+            </header>
+            <div class="panel-body">
+              <div class="insight-list">
+                <div class="insight-row">
+                  <div class="i-icon" style="background: var(--color-danger-soft); color: var(--color-danger-hi);">
+                    <i class="ri-alert-pulse-line" aria-hidden="true"></i>
+                  </div>
+                  <div class="i-main">
+                    <div class="i-title">Marcus Whitfield — Recovery regression detected</div>
+                    <div class="i-meta">
+                      Knee flexion <strong>−14°</strong> in 48h · Adherence dropped to <strong>42%</strong> · AI confidence <strong>92%</strong>
+                    </div>
+                  </div>
+                  <div class="i-action">
+                    <span class="chip danger" style="font-size: 10px;">Critical</span>
+                    <i class="ri-arrow-right-s-line" aria-hidden="true" style="color: var(--text-tertiary);"></i>
+                  </div>
+                </div>
+
+                <div class="insight-row">
+                  <div class="i-icon" style="background: var(--color-ai-soft); color: var(--color-ai-hi);">
+                    <i class="ri-magic-line" aria-hidden="true"></i>
+                  </div>
+                  <div class="i-main">
+                    <div class="i-title">Suggested protocol adjustment — 3 patients</div>
+                    <div class="i-meta">
+                      Phase II closed-chain protocol may be intensified for <strong>Whitfield, Park, Patel</strong>. Based on 1,920 cohort outcomes.
+                    </div>
+                  </div>
+                  <div class="i-action">
+                    <span class="chip ai" style="font-size: 10px;">Recommend</span>
+                    <i class="ri-arrow-right-s-line" aria-hidden="true" style="color: var(--text-tertiary);"></i>
+                  </div>
+                </div>
+
+                <div class="insight-row">
+                  <div class="i-icon" style="background: var(--color-success-soft); color: var(--color-success-hi);">
+                    <i class="ri-checkbox-circle-line" aria-hidden="true"></i>
+                  </div>
+                  <div class="i-main">
+                    <div class="i-title">Elena Vasquez — Ready to graduate to Phase III</div>
+                    <div class="i-meta">
+                      All functional milestones met <strong>4 days early</strong> · TUG test improved <strong>31%</strong>.
+                    </div>
+                  </div>
+                  <div class="i-action">
+                    <span class="chip success" style="font-size: 10px;">Milestone</span>
+                    <i class="ri-arrow-right-s-line" aria-hidden="true" style="color: var(--text-tertiary);"></i>
+                  </div>
+                </div>
+
+                <div class="insight-row">
+                  <div class="i-icon" style="background: var(--color-warning-soft); color: var(--color-warning-hi);">
+                    <i class="ri-time-line" aria-hidden="true"></i>
+                  </div>
+                  <div class="i-main">
+                    <div class="i-title">No-show risk — 5 patients this week</div>
+                    <div class="i-meta">
+                      <strong>Park (84%), Gomez (71%), Hassan (66%)</strong> show engagement decay. Suggested outreach: SMS + AI-generated check-in.
+                    </div>
+                  </div>
+                  <div class="i-action">
+                    <span class="chip warning" style="font-size: 10px;">Predict</span>
+                    <i class="ri-arrow-right-s-line" aria-hidden="true" style="color: var(--text-tertiary);"></i>
+                  </div>
+                </div>
+
+                <div class="insight-row">
+                  <div class="i-icon" style="background: var(--color-primary-soft); color: var(--color-primary-hi);">
+                    <i class="ri-flow-chart" aria-hidden="true"></i>
+                  </div>
+                  <div class="i-main">
+                    <div class="i-title">Cohort insight — Post-op knee</div>
+                    <div class="i-meta">
+                      New closed-chain protocol yields <strong>18% faster quad recovery</strong> vs. control (n=64, p &lt; 0.05).
+                    </div>
+                  </div>
+                  <div class="i-action">
+                    <span class="chip primary" style="font-size: 10px;">Research</span>
+                    <i class="ri-arrow-right-s-line" aria-hidden="true" style="color: var(--text-tertiary);"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <footer class="panel-foot">
+              <span>Showing 5 of 24 active insights</span>
+              <a href="#ai-insights" class="text-sm" style="color: var(--color-ai-hi); font-weight: var(--fw-semibold);">Open Meridian AI →</a>
+            </footer>
+          </article>
+        </section>
+
+        <!-- ===============================================================
+             SECTION 5 · PATIENT PRIORITY QUEUE
+             =============================================================== -->
+        <section aria-labelledby="patients-title">
+          <article class="panel" aria-labelledby="patients-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">
+                  <span class="dot warning" aria-hidden="true"></span>
+                  <span>Patient priority queue</span>
+                </div>
+                <h3 id="patients-title">Who needs you most — ranked by Meridian AI</h3>
+                <div class="sub">Composite score = risk × acuity × engagement decay</div>
+              </div>
+              <div class="actions">
+                <div class="tabs" role="tablist" aria-label="Patient filters">
+                  <button class="tab active" role="tab" aria-selected="true">Priority <span class="count">5</span></button>
+                  <button class="tab" role="tab">Today <span class="count">12</span></button>
+                  <button class="tab" role="tab">Pending <span class="count">3</span></button>
+                  <button class="tab" role="tab">All <span class="count">142</span></button>
+                </div>
+                <button class="btn ghost sm" title="Sort"><i class="ri-sort-desc" aria-hidden="true"></i></button>
+                <button class="btn ghost sm" title="Filter"><i class="ri-filter-3-line" aria-hidden="true"></i></button>
+                <button class="btn sm"><i class="ri-add-line" aria-hidden="true"></i> Add patient</button>
+              </div>
+            </header>
+            <div class="panel-body tight">
+              <div class="table-wrap">
+                <table class="data" aria-label="Patient priority table">
+                  <thead>
+                    <tr>
+                      <th style="width:36px;"><input type="checkbox" aria-label="Select all"/></th>
+                      <th>Patient</th>
+                      <th>Condition</th>
+                      <th>Day</th>
+                      <th>Adherence</th>
+                      <th>ROM Δ (7d)</th>
+                      <th>Pain</th>
+                      <th>AI Risk</th>
+                      <th>Next session</th>
+                      <th style="width:1%;"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="checkbox" aria-label="Select Marcus Whitfield"/></td>
+                      <td>
+                        <div class="patient-cell">
+                          <div class="avatar avatar-soft">MW</div>
+                          <div>
+                            <div class="pname">Marcus Whitfield</div>
+                            <div class="pmeta">PT-04218 · 47y · M</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>ACL Reconstruction</td>
+                      <td class="num">12</td>
+                      <td class="num">42%</td>
+                      <td class="num" style="color: var(--color-danger-hi); font-weight:600;">−14°</td>
+                      <td class="num">6.4</td>
+                      <td><span class="chip danger"><i class="ri-alert-pulse-line"></i> 92</span></td>
+                      <td>Today · 14:30</td>
+                      <td>
+                        <div class="u-row gap-1">
+                          <button class="icon-btn" title="Open chart" aria-label="Open chart"><i class="ri-file-user-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" title="Call" aria-label="Call"><i class="ri-phone-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" title="More" aria-label="More"><i class="ri-more-2-fill" aria-hidden="true"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" aria-label="Select David Park"/></td>
+                      <td>
+                        <div class="patient-cell">
+                          <div class="avatar" style="background: linear-gradient(135deg, #F59E0B, #EF4444);">DP</div>
+                          <div>
+                            <div class="pname">David Park</div>
+                            <div class="pmeta">PT-03891 · 34y · M</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Rotator Cuff Repair</td>
+                      <td class="num">8</td>
+                      <td class="num">68%</td>
+                      <td class="num" style="color: var(--color-warning-hi); font-weight:600;">−4°</td>
+                      <td class="num">5.2</td>
+                      <td><span class="chip warning"><i class="ri-time-line"></i> 78</span></td>
+                      <td>Today · 16:00</td>
+                      <td>
+                        <div class="u-row gap-1">
+                          <button class="icon-btn" aria-label="Open chart"><i class="ri-file-user-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" aria-label="Call"><i class="ri-phone-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" aria-label="More"><i class="ri-more-2-fill" aria-hidden="true"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" aria-label="Select Aisha Patel"/></td>
+                      <td>
+                        <div class="patient-cell">
+                          <div class="avatar" style="background: linear-gradient(135deg, #06B6D4, #2563EB);">AP</div>
+                          <div>
+                            <div class="pname">Aisha Patel</div>
+                            <div class="pmeta">PT-04421 · 52y · F</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Total Hip Arthroplasty</td>
+                      <td class="num">21</td>
+                      <td class="num">84%</td>
+                      <td class="num" style="color: var(--color-success-hi); font-weight:600;">+8°</td>
+                      <td class="num">3.1</td>
+                      <td><span class="chip warning"><i class="ri-time-line"></i> 71</span></td>
+                      <td>Tomorrow · 09:00</td>
+                      <td>
+                        <div class="u-row gap-1">
+                          <button class="icon-btn" aria-label="Open chart"><i class="ri-file-user-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" aria-label="Call"><i class="ri-phone-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" aria-label="More"><i class="ri-more-2-fill" aria-hidden="true"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" aria-label="Select Elena Vasquez"/></td>
+                      <td>
+                        <div class="patient-cell">
+                          <div class="avatar" style="background: linear-gradient(135deg, #10B981, #06B6D4);">EV</div>
+                          <div>
+                            <div class="pname">Elena Vasquez</div>
+                            <div class="pmeta">PT-04102 · 62y · F</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Total Knee Arthroplasty</td>
+                      <td class="num">28</td>
+                      <td class="num">96%</td>
+                      <td class="num" style="color: var(--color-success-hi); font-weight:600;">+12°</td>
+                      <td class="num">1.8</td>
+                      <td><span class="chip success"><i class="ri-checkbox-circle-line"></i> 24</span></td>
+                      <td>Today · 10:30</td>
+                      <td>
+                        <div class="u-row gap-1">
+                          <button class="icon-btn" aria-label="Open chart"><i class="ri-file-user-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" aria-label="Call"><i class="ri-phone-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" aria-label="More"><i class="ri-more-2-fill" aria-hidden="true"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" aria-label="Select James Hassan"/></td>
+                      <td>
+                        <div class="patient-cell">
+                          <div class="avatar" style="background: linear-gradient(135deg, #8B5CF6, #2563EB);">JH</div>
+                          <div>
+                            <div class="pname">James Hassan</div>
+                            <div class="pmeta">PT-03987 · 41y · M</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Lumbar Disc Herniation</td>
+                      <td class="num">35</td>
+                      <td class="num">61%</td>
+                      <td class="num" style="color: var(--color-warning-hi); font-weight:600;">−2°</td>
+                      <td class="num">4.6</td>
+                      <td><span class="chip warning"><i class="ri-time-line"></i> 66</span></td>
+                      <td>Wed · 11:00</td>
+                      <td>
+                        <div class="u-row gap-1">
+                          <button class="icon-btn" aria-label="Open chart"><i class="ri-file-user-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" aria-label="Call"><i class="ri-phone-line" aria-hidden="true"></i></button>
+                          <button class="icon-btn" aria-label="More"><i class="ri-more-2-fill" aria-hidden="true"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <footer class="panel-foot">
+              <span>5 of 142 patients · Composite score refresh: 2 min ago</span>
+              <div class="u-row gap-2">
+                <button class="btn ghost sm">Export CSV</button>
+                <button class="btn sm primary">Open full patient list <i class="ri-arrow-right-line" aria-hidden="true"></i></button>
+              </div>
+            </footer>
+          </article>
+        </section>
+
+        <!-- ===============================================================
+             SECTION 6 · PATIENT CARDS + SESSIONS
+             =============================================================== -->
+        <section class="grid-2" aria-labelledby="care-title">
+          <h2 id="care-title" class="u-sr">Active care overview</h2>
+
+          <!-- Patient cards -->
+          <article class="panel" aria-labelledby="pcard-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">
+                  <span class="dot success" aria-hidden="true"></span>
+                  <span>Active rehabilitation</span>
+                </div>
+                <h3 id="pcard-title">Patients on track</h3>
+                <div class="sub">ROM and pain trajectories aligned with protocol</div>
+              </div>
+              <div class="actions">
+                <button class="btn ghost sm"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button>
+                <button class="btn ghost sm"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
+                <button class="btn sm">View all 118</button>
+              </div>
+            </header>
+            <div class="panel-body">
+              <div class="patient-grid">
+                <article class="patient-card" tabindex="0">
+                  <div class="pc-head">
+                    <div class="avatar lg avatar-soft">EV</div>
+                    <div class="who">
+                      <div class="pname">Elena Vasquez</div>
+                      <div class="pmeta">TKA · Day 28 · Phase II → III</div>
+                    </div>
+                    <span class="chip success">+12°</span>
+                  </div>
+                  <div class="pc-metrics">
+                    <div class="pc-metric">
+                      <span class="k">ROM</span>
+                      <span class="v">118<small>°</small></span>
+                    </div>
+                    <div class="pc-metric">
+                      <span class="k">Pain</span>
+                      <span class="v">1.8<small>/10</small></span>
+                    </div>
+                    <div class="pc-metric">
+                      <span class="k">Adh</span>
+                      <span class="v">96<small>%</small></span>
+                    </div>
+                  </div>
+                  <div class="pc-foot">
+                    <div class="pc-tags">
+                      <span class="chip primary">Phase III ready</span>
+                    </div>
+                    <span class="pc-action">Open <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+                  </div>
+                </article>
+
+                <article class="patient-card" tabindex="0">
+                  <div class="pc-head">
+                    <div class="avatar lg" style="background: linear-gradient(135deg, #10B981, #06B6D4);">SO</div>
+                    <div class="who">
+                      <div class="pname">Sophia Olufemi</div>
+                      <div class="pmeta">Rotator Cuff · Day 14 · Phase II</div>
+                    </div>
+                    <span class="chip success">+9°</span>
+                  </div>
+                  <div class="pc-metrics">
+                    <div class="pc-metric">
+                      <span class="k">ROM</span>
+                      <span class="v">142<small>°</small></span>
+                    </div>
+                    <div class="pc-metric">
+                      <span class="k">Pain</span>
+                      <span class="v">2.4<small>/10</small></span>
+                    </div>
+                    <div class="pc-metric">
+                      <span class="k">Adh</span>
+                      <span class="v">91<small>%</small></span>
+                    </div>
+                  </div>
+                  <div class="pc-foot">
+                    <div class="pc-tags">
+                      <span class="chip info">Active</span>
+                    </div>
+                    <span class="pc-action">Open <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+                  </div>
+                </article>
+
+                <article class="patient-card" tabindex="0">
+                  <div class="pc-head">
+                    <div class="avatar lg" style="background: linear-gradient(135deg, #06B6D4, #2563EB);">AP</div>
+                    <div class="who">
+                      <div class="pname">Aisha Patel</div>
+                      <div class="pmeta">THA · Day 21 · Phase II</div>
+                    </div>
+                    <span class="chip warning">+8°</span>
+                  </div>
+                  <div class="pc-metrics">
+                    <div class="pc-metric">
+                      <span class="k">ROM</span>
+                      <span class="v">102<small>°</small></span>
+                    </div>
+                    <div class="pc-metric">
+                      <span class="k">Pain</span>
+                      <span class="v">3.1<small>/10</small></span>
+                    </div>
+                    <div class="pc-metric">
+                      <span class="k">Adh</span>
+                      <span class="v">84<small>%</small></span>
+                    </div>
+                  </div>
+                  <div class="pc-foot">
+                    <div class="pc-tags">
+                      <span class="chip warning">Watch</span>
+                    </div>
+                    <span class="pc-action">Open <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </article>
+
+          <!-- Today's sessions timeline -->
+          <article class="panel" aria-labelledby="session-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">
+                  <span class="dot info" aria-hidden="true"></span>
+                  <span>Today · 22 June</span>
+                </div>
+                <h3 id="session-title">Session timeline</h3>
+                <div class="sub">5 / 12 completed · next at 10:30</div>
+              </div>
+              <div class="actions">
+                <div class="segmented" role="tablist" aria-label="View mode">
+                  <button class="seg active" role="tab">Timeline</button>
+                  <button class="seg" role="tab">List</button>
+                  <button class="seg" role="tab">Map</button>
+                </div>
+                <button class="btn sm"><i class="ri-add-line" aria-hidden="true"></i> New session</button>
+              </div>
+            </header>
+            <div class="panel-body">
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-title">07:30 · Linda Tran <span class="muted">— Shoulder mobilization (in-person)</span></div>
+                  <div class="tl-meta">Completed 08:15 · Pain 2.1 → 1.6 · ROM +6°</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">08:30 · Robert Kim <span class="muted">— Post-op knee (in-person)</span></div>
+                  <div class="tl-meta">Completed 09:20 · Gait analysis · Cleared for Phase II</div>
+                </div>
+                <div class="tl-item ai">
+                  <div class="tl-title">09:30 · Team huddle <span class="muted">— Meridian AI attended</span></div>
+                  <div class="tl-meta">8 staff · 3 new patients reviewed · 2 protocol updates</div>
+                </div>
+                <div class="tl-item warn">
+                  <div class="tl-title">10:30 · Elena Vasquez <span class="muted">— Telehealth · TKA Day 28</span></div>
+                  <div class="tl-meta">Phase transition assessment · Meridian AI ready</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">11:30 · Marcus Whitfield <span class="muted">— In-person · ACL Day 12</span></div>
+                  <div class="tl-meta">Recovery regression review · goniometer + force plate</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">13:00 · Sophia Olufemi <span class="muted">— In-person</span></div>
+                  <div class="tl-meta">Rotator cuff · Phase II strengthening</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">14:30 · David Park <span class="muted">— In-person</span></div>
+                  <div class="tl-meta">Pain review + DASH questionnaire</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">15:30 · Documentation block <span class="muted">— Auto-drafts queued: 7</span></div>
+                  <div class="tl-meta">3 pending your sign-off</div>
+                </div>
+              </div>
+            </div>
+            <footer class="panel-foot">
+              <span>Next session in <strong class="u-num">48 min</strong></span>
+              <a href="#schedule" class="text-sm" style="color: var(--color-primary-hi); font-weight: var(--fw-semibold);">Open scheduler →</a>
+            </footer>
+          </article>
+        </section>
+
+        <!-- ===============================================================
+             SECTION 7 · OUTCOMES + PROTOCOL ANALYTICS
+             =============================================================== -->
+        <section class="grid-3" aria-labelledby="outcomes-title">
+          <h2 id="outcomes-title" class="u-sr">Outcomes, protocols, and system status</h2>
+
+          <article class="panel" aria-labelledby="donut-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">Outcome distribution</div>
+                <h3 id="donut-title">Patients by recovery stage</h3>
+              </div>
+            </header>
+            <div class="panel-body" style="display:flex; gap:18px; align-items:center;">
+              <svg viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="Donut chart">
+                <circle cx="70" cy="70" r="56" fill="none" stroke="var(--bg-elevated)" stroke-width="14"/>
+                <!-- 83% on track (green) -->
+                <circle cx="70" cy="70" r="56" fill="none" stroke="#10B981" stroke-width="14"
+                  stroke-dasharray="291.97 351.86" stroke-dashoffset="0" transform="rotate(-90 70 70)" stroke-linecap="round"/>
+                <!-- 13% needs attention (warning) -->
+                <circle cx="70" cy="70" r="56" fill="none" stroke="#F59E0B" stroke-width="14"
+                  stroke-dasharray="45.74 351.86" stroke-dashoffset="-291.97" transform="rotate(-90 70 70)" stroke-linecap="round"/>
+                <!-- 4% critical (danger) -->
+                <circle cx="70" cy="70" r="56" fill="none" stroke="#EF4444" stroke-width="14"
+                  stroke-dasharray="14.07 351.86" stroke-dashoffset="-337.71" transform="rotate(-90 70 70)" stroke-linecap="round"/>
+                <text x="70" y="66" text-anchor="middle" font-family="var(--font-serif)" font-size="22" font-weight="300" fill="var(--text-primary)">142</text>
+                <text x="70" y="82" text-anchor="middle" font-family="var(--font-sans)" font-size="9" fill="var(--text-tertiary)" letter-spacing="0.12em">PATIENTS</text>
+              </svg>
+              <div class="u-stack gap-3" style="flex:1;">
+                <div class="u-row-between">
+                  <span class="u-row gap-2"><span class="dot success"></span><span class="text-sm">On track</span></span>
+                  <strong class="u-num">118 · 83%</strong>
+                </div>
+                <div class="u-row-between">
+                  <span class="u-row gap-2"><span class="dot warning"></span><span class="text-sm">Needs attention</span></span>
+                  <strong class="u-num">19 · 13%</strong>
+                </div>
+                <div class="u-row-between">
+                  <span class="u-row gap-2"><span class="dot danger"></span><span class="text-sm">Critical</span></span>
+                  <strong class="u-num">5 · 4%</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="u-row-between" style="font-size: var(--fs-xs); color: var(--text-tertiary);">
+                  <span>Predicted graduation</span>
+                  <strong class="u-num" style="color: var(--text-primary);">32 days</strong>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel" aria-labelledby="proto-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">Protocol adherence</div>
+                <h3 id="proto-title">Top protocols by volume</h3>
+              </div>
+              <button class="btn ghost sm"><i class="ri-more-2-fill" aria-hidden="true"></i></button>
+            </header>
+            <div class="panel-body" style="padding-top: 0;">
+              <div class="u-stack gap-4" style="padding: 4px 0;">
+                <div>
+                  <div class="u-row-between" style="font-size: var(--fs-sm); margin-bottom: 6px;">
+                    <span>ACL Post-Op Phase II</span>
+                    <span class="u-num" style="font-weight:600;">94%</span>
+                  </div>
+                  <div class="progress success"><div class="bar" style="width:94%;"></div></div>
+                  <div class="muted text-xs" style="margin-top:4px;">38 patients · 6 clinicians</div>
+                </div>
+                <div>
+                  <div class="u-row-between" style="font-size: var(--fs-sm); margin-bottom: 6px;">
+                    <span>TKA Early Mobilization</span>
+                    <span class="u-num" style="font-weight:600;">91%</span>
+                  </div>
+                  <div class="progress success"><div class="bar" style="width:91%;"></div></div>
+                  <div class="muted text-xs" style="margin-top:4px;">26 patients · 5 clinicians</div>
+                </div>
+                <div>
+                  <div class="u-row-between" style="font-size: var(--fs-sm); margin-bottom: 6px;">
+                    <span>Rotator Cuff Repair</span>
+                    <span class="u-num" style="font-weight:600;">87%</span>
+                  </div>
+                  <div class="progress"><div class="bar" style="width:87%;"></div></div>
+                  <div class="muted text-xs" style="margin-top:4px;">22 patients · 4 clinicians</div>
+                </div>
+                <div>
+                  <div class="u-row-between" style="font-size: var(--fs-sm); margin-bottom: 6px;">
+                    <span>Lumbar Stabilization</span>
+                    <span class="u-num" style="font-weight:600;">79%</span>
+                  </div>
+                  <div class="progress warning"><div class="bar" style="width:79%;"></div></div>
+                  <div class="muted text-xs" style="margin-top:4px;">18 patients · 3 clinicians</div>
+                </div>
+                <div>
+                  <div class="u-row-between" style="font-size: var(--fs-sm); margin-bottom: 6px;">
+                    <span>Cervical Radiculopathy</span>
+                    <span class="u-num" style="font-weight:600;">72%</span>
+                  </div>
+                  <div class="progress warning"><div class="bar" style="width:72%;"></div></div>
+                  <div class="muted text-xs" style="margin-top:4px;">14 patients · 3 clinicians</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel" aria-labelledby="ai-status-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow"><span class="dot ai"></span><span>Meridian AI · runtime</span></div>
+                <h3 id="ai-status-title">Model status &amp; trust</h3>
+              </div>
+            </header>
+            <div class="panel-body" style="padding-top: 0;">
+              <div class="u-stack gap-4" style="padding: 4px 0;">
+                <div class="u-row-between">
+                  <span class="u-row gap-2 text-sm"><i class="ri-cpu-line" style="color: var(--color-ai-hi);"></i> Inference engine</span>
+                  <span class="chip success">Healthy</span>
+                </div>
+                <div class="u-row-between">
+                  <span class="u-row gap-2 text-sm"><i class="ri-time-line" style="color: var(--text-tertiary);"></i> Latency p95</span>
+                  <strong class="u-num text-sm">218 ms</strong>
+                </div>
+                <div class="u-row-between">
+                  <span class="u-row gap-2 text-sm"><i class="ri-database-2-line" style="color: var(--text-tertiary);"></i> Data freshness</span>
+                  <strong class="u-num text-sm">2.4 min</strong>
+                </div>
+                <div class="u-row-between">
+                  <span class="u-row gap-2 text-sm"><i class="ri-shield-check-line" style="color: var(--text-tertiary);"></i> Drift index</span>
+                  <strong class="u-num text-sm">0.04 <span class="muted">/ 1.0</span></strong>
+                </div>
+                <div class="u-row-between">
+                  <span class="u-row gap-2 text-sm"><i class="ri-eye-line" style="color: var(--text-tertiary);"></i> Explainability</span>
+                  <strong class="u-num text-sm">SHAP · On</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="u-stack gap-2">
+                  <div class="u-row-between text-sm">
+                    <span>Trained on</span>
+                    <span class="u-num">428,910 encounters</span>
+                  </div>
+                  <div class="u-row-between text-sm">
+                    <span>Calibration (Brier)</span>
+                    <span class="u-num">0.071</span>
+                  </div>
+                  <div class="u-row-between text-sm">
+                    <span>Last validated</span>
+                    <span class="u-num">18 Jun 2026</span>
+                  </div>
+                </div>
+                <button class="btn sm u-grow" style="margin-top: 6px;">
+                  <i class="ri-settings-3-line" aria-hidden="true"></i> Model settings
+                </button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- ===============================================================
+             SECTION 8 · BOTTOM ROW — ACTIVITY + QUICK ACTIONS
+             =============================================================== -->
+        <section class="grid-2" aria-labelledby="activity-title">
+          <h2 id="activity-title" class="u-sr">Activity feed and quick actions</h2>
+
+          <article class="panel" aria-labelledby="activity-feed-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow"><span class="dot info"></span><span>Live activity</span></div>
+                <h3 id="activity-feed-title">Caseload activity stream</h3>
+                <div class="sub">Auto-curated by Meridian AI · most relevant first</div>
+              </div>
+              <div class="actions">
+                <div class="segmented" role="tablist" aria-label="Activity scope">
+                  <button class="seg active" role="tab">All</button>
+                  <button class="seg" role="tab">Clinical</button>
+                  <button class="seg" role="tab">AI</button>
+                  <button class="seg" role="tab">Team</button>
+                </div>
+              </div>
+            </header>
+            <div class="panel-body">
+              <div class="timeline">
+                <div class="tl-item ai">
+                  <div class="tl-title">Meridian AI generated a clinical note draft for <strong>Elena Vasquez</strong></div>
+                  <div class="tl-meta">Just now · Auto-saved · awaiting your sign-off · 412 words</div>
+                </div>
+                <div class="tl-item danger">
+                  <div class="tl-title">Critical vitals deviation — <strong>Marcus Whitfield</strong></div>
+                  <div class="tl-meta">4 min ago · Heart rate 102 bpm during warm-up · AI: possible overexertion</div>
+                </div>
+                <div class="tl-item warn">
+                  <div class="tl-title">Missed session — <strong>David Park</strong></div>
+                  <div class="tl-meta">22 min ago · Evening home exercise · 3rd in 5 days</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">Discharge summary ready for review — <strong>Robert Kim</strong></div>
+                  <div class="tl-meta">38 min ago · 6-week program complete · functional goals met</div>
+                </div>
+                <div class="tl-item ai">
+                  <div class="tl-title">Predictive model updated — Recovery trajectories recalculated for 142 patients</div>
+                  <div class="tl-meta">1 hr ago · v4.2.1 · Brier score improved 0.082 → 0.071</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">Insurance authorization approved — <strong>Sophia Olufemi</strong> (Phase III)</div>
+                  <div class="tl-meta">1 hr ago · 12 sessions · Valid through Sep 15</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">Team message from <strong>Dr. Anand</strong> — Surgical referral</div>
+                  <div class="tl-meta">2 hr ago · New patient: James Liu, ACL reconstruction, day -3</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">Equipment calibration — Force plate B12</div>
+                  <div class="tl-meta">3 hr ago · Drift &lt; 0.2% · Next: 22 July</div>
+                </div>
+              </div>
+            </div>
+            <footer class="panel-foot">
+              <span>Showing 8 of 142 events today</span>
+              <a href="#activity" class="text-sm" style="color: var(--color-primary-hi); font-weight: var(--fw-semibold);">Open full timeline →</a>
+            </footer>
+          </article>
+
+          <article class="panel" aria-labelledby="quick-title">
+            <header class="panel-head">
+              <div class="titles">
+                <div class="eyebrow">Quick actions</div>
+                <h3 id="quick-title">Start something</h3>
+                <div class="sub">One-tap access to common clinical workflows</div>
+              </div>
+            </header>
+            <div class="panel-body">
+              <div class="grid-2-eq">
+                <button class="btn lg" style="justify-content:flex-start; padding: 16px;">
+                  <i class="ri-play-circle-line" aria-hidden="true" style="font-size: 20px; color: var(--color-primary-hi);"></i>
+                  <span class="u-stack" style="align-items:flex-start; gap:2px;">
+                    <span style="font-weight: var(--fw-semibold);">Start session</span>
+                    <span class="text-xs muted">Live treatment workflow</span>
+                  </span>
+                </button>
+                <button class="btn lg" style="justify-content:flex-start; padding: 16px;">
+                  <i class="ri-file-list-3-line" aria-hidden="true" style="font-size: 20px; color: var(--color-success-hi);"></i>
+                  <span class="u-stack" style="align-items:flex-start; gap:2px;">
+                    <span style="font-weight: var(--fw-semibold);">New assessment</span>
+                    <span class="text-xs muted">Goniometer, MMT, TUG…</span>
+                  </span>
+                </button>
+                <button class="btn lg" style="justify-content:flex-start; padding: 16px;">
+                  <i class="ri-quill-pen-line" aria-hidden="true" style="font-size: 20px; color: var(--color-warning-hi);"></i>
+                  <span class="u-stack" style="align-items:flex-start; gap:2px;">
+                    <span style="font-weight: var(--fw-semibold);">Write note</span>
+                    <span class="text-xs muted">SOAP, progress, discharge</span>
+                  </span>
+                </button>
+                <button class="btn lg" style="justify-content:flex-start; padding: 16px;">
+                  <i class="ri-add-box-line" aria-hidden="true" style="font-size: 20px; color: var(--color-ai-hi);"></i>
+                  <span class="u-stack" style="align-items:flex-start; gap:2px;">
+                    <span style="font-weight: var(--fw-semibold);">New order</span>
+                    <span class="text-xs muted">Imaging, meds, referrals</span>
+                  </span>
+                </button>
+                <button class="btn lg" style="justify-content:flex-start; padding: 16px;">
+                  <i class="ri-video-on-ai-line" aria-hidden="true" style="font-size: 20px; color: var(--color-secondary-hi);"></i>
+                  <span class="u-stack" style="align-items:flex-start; gap:2px;">
+                    <span style="font-weight: var(--fw-semibold);">Telehealth visit</span>
+                    <span class="text-xs muted">Start or schedule</span>
+                  </span>
+                </button>
+                <button class="btn lg" style="justify-content:flex-start; padding: 16px;">
+                  <i class="ri-user-add-line" aria-hidden="true" style="font-size: 20px; color: var(--color-info);"></i>
+                  <span class="u-stack" style="align-items:flex-start; gap:2px;">
+                    <span style="font-weight: var(--fw-semibold);">Admit patient</span>
+                    <span class="text-xs muted">Intake &amp; assign protocol</span>
+                  </span>
+                </button>
+                <button class="btn lg" style="justify-content:flex-start; padding: 16px;">
+                  <i class="ri-flow-chart" aria-hidden="true" style="font-size: 20px; color: var(--color-ai-hi);"></i>
+                  <span class="u-stack" style="align-items:flex-start; gap:2px;">
+                    <span style="font-weight: var(--fw-semibold);">Ask Meridian AI</span>
+                    <span class="text-xs muted">Natural-language queries</span>
+                  </span>
+                </button>
+                <button class="btn lg" style="justify-content:flex-start; padding: 16px;">
+                  <i class="ri-file-chart-line" aria-hidden="true" style="font-size: 20px; color: var(--color-primary-hi);"></i>
+                  <span class="u-stack" style="align-items:flex-start; gap:2px;">
+                    <span style="font-weight: var(--fw-semibold);">Generate report</span>
+                    <span class="text-xs muted">Outcomes, billing, research</span>
+                  </span>
+                </button>
+              </div>
+
+              <div class="u-row-between" style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-default);">
+                <div class="u-row gap-3">
+                  <div class="avatar-stack">
+                    <span class="avatar sm avatar-soft">DR</span>
+                    <span class="avatar sm" style="background: linear-gradient(135deg, #10B981, #06B6D4);">MK</span>
+                    <span class="avatar sm" style="background: linear-gradient(135deg, #F59E0B, #EF4444);">TA</span>
+                    <span class="avatar sm" style="background: linear-gradient(135deg, #8B5CF6, #2563EB);">+5</span>
+                  </div>
+                  <div class="u-stack" style="line-height: 1.2;">
+                    <span class="text-sm" style="font-weight: var(--fw-semibold);">Team on shift</span>
+                    <span class="muted text-xs">8 clinicians · 2 AI assistants</span>
+                  </div>
+                </div>
+                <button class="btn ghost sm">
+                  <i class="ri-message-2-line" aria-hidden="true"></i> Open team chat
+                </button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- ===============================================================
+             FOOTER STRIP
+             =============================================================== -->
+        <footer class="u-row-between" style="padding: 18px 4px 0; color: var(--text-muted); font-size: var(--fs-xs); border-top: 1px solid var(--border-subtle); margin-top: 8px;">
+          <div class="u-row gap-3">
+            <span class="u-row gap-2"><span class="dot success"></span>All systems operational</span>
+            <span class="divider-v" style="height: 14px;"></span>
+            <span>v4.2.1 · Build 2026.06.19</span>
+            <span class="divider-v" style="height: 14px;"></span>
+            <span>HIPAA · GDPR · SOC 2 Type II</span>
+            <span class="divider-v" style="height: 14px;"></span>
+            <span>Last sync 2 min ago</span>
+          </div>
+          <div class="u-row gap-3">
+            <a href="#docs" style="color: var(--text-tertiary);">Documentation</a>
+            <a href="#status" style="color: var(--text-tertiary);">Status</a>
+            <a href="#changelog" style="color: var(--text-tertiary);">Changelog</a>
+            <a href="#feedback" style="color: var(--text-tertiary);">Feedback</a>
+            <span class="muted">© 2026 Meridian Health Systems</span>
+          </div>
+        </footer>
+
+      </div><!-- /.content-inner -->
+    </main><!-- /.content -->
+  </div><!-- /.main -->
+</div><!-- /.app -->
+
+<!-- =========================================================================
+     SCRIPTS
+     ========================================================================= -->
+<script>
+(function() {
+  'use strict';
+
+  // ---------- Sidebar toggle ----------
+  const app = document.getElementById('app');
+  const toggleBtn = document.getElementById('toggle-sidebar');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const cur = app.getAttribute('data-sidebar');
+      app.setAttribute('data-sidebar', cur === 'expanded' ? 'collapsed' : 'expanded');
+      try { localStorage.setItem('mr_sidebar', app.getAttribute('data-sidebar')); } catch (e) {}
+    });
+    try {
+      const saved = localStorage.getItem('mr_sidebar');
+      if (saved) app.setAttribute('data-sidebar', saved);
+    } catch (e) {}
+  }
+
+  // ---------- Notifications panel ----------
+  const notifBtn = document.getElementById('notifBtn');
+  const notifPanel = document.getElementById('notifPanel');
+  if (notifBtn && notifPanel) {
+    notifBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = notifPanel.classList.toggle('open');
+      notifBtn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', (e) => {
+      if (!notifPanel.contains(e.target) && e.target !== notifBtn && !notifBtn.contains(e.target)) {
+        notifPanel.classList.remove('open');
+        notifBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        notifPanel.classList.remove('open');
+        notifBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  // ---------- Notification tabs ----------
+  document.querySelectorAll('.notif-tabs .notif-tab').forEach((t) => {
+    t.addEventListener('click', () => {
+      t.parentElement.querySelectorAll('.notif-tab').forEach((x) => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+
+  // ---------- Global search ----------
+  const search = document.getElementById('globalSearch');
+  const searchInput = document.getElementById('globalSearchInput');
+  const searchResults = document.getElementById('searchResults');
+  if (search && searchInput && searchResults) {
+    const open = () => search.classList.add('active');
+    const close = () => search.classList.remove('active');
+    searchInput.addEventListener('focus', open);
+    searchInput.addEventListener('input', open);
+    document.addEventListener('click', (e) => {
+      if (!search.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      if (e.key === 'Escape') { close(); searchInput.blur(); }
+    });
+  }
+
+  // ---------- Theme toggle (visual only - dark first) ----------
+  const themeBtn = document.getElementById('themeBtn');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const html = document.documentElement;
+      const t = html.getAttribute('data-theme');
+      html.setAttribute('data-theme', t === 'dark' ? 'light' : 'dark');
+      themeBtn.innerHTML = t === 'dark'
+        ? '<i class="ri-sun-line"></i>'
+        : '<i class="ri-moon-line"></i>';
+    });
+  }
+
+  // ---------- Density toggle ----------
+  const densityBtn = document.getElementById('densityBtn');
+  if (densityBtn) {
+    densityBtn.addEventListener('click', () => {
+      const html = document.documentElement;
+      const d = html.getAttribute('data-density');
+      html.setAttribute('data-density', d === 'comfortable' ? 'compact' : 'comfortable');
+    });
+  }
+
+  // ---------- Tabs / segmented ----------
+  document.querySelectorAll('.tabs').forEach((grp) => {
+    grp.querySelectorAll('.tab').forEach((t) => {
+      t.addEventListener('click', () => {
+        grp.querySelectorAll('.tab').forEach((x) => {
+          x.classList.remove('active');
+          x.setAttribute('aria-selected', 'false');
+        });
+        t.classList.add('active');
+        t.setAttribute('aria-selected', 'true');
+      });
+    });
+  });
+  document.querySelectorAll('.segmented').forEach((grp) => {
+    grp.querySelectorAll('.seg').forEach((t) => {
+      t.addEventListener('click', () => {
+        grp.querySelectorAll('.seg').forEach((x) => {
+          x.classList.remove('active');
+          x.setAttribute('aria-selected', 'false');
+        });
+        t.classList.add('active');
+        t.setAttribute('aria-selected', 'true');
+      });
+    });
+  });
+
+  // ---------- Nav active state ----------
+  document.querySelectorAll('.nav-item').forEach((n) => {
+    n.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelectorAll('.nav-item').forEach((x) => {
+        x.classList.remove('active');
+        x.removeAttribute('aria-current');
+      });
+      n.classList.add('active');
+      n.setAttribute('aria-current', 'page');
+    });
+  });
+
+  // ---------- Patient card keyboard support ----------
+  document.querySelectorAll('.patient-card').forEach((c) => {
+    c.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        c.click();
+      }
+    });
+  });
+
+  // ---------- Tooltip for trend chart ----------
+  const trendChart = document.getElementById('trendChart');
+  const trendTooltip = document.getElementById('trendTooltip');
+  if (trendChart && trendTooltip) {
+    trendChart.addEventListener('mousemove', (e) => {
+      const r = trendChart.getBoundingClientRect();
+      trendTooltip.style.display = 'block';
+      trendTooltip.style.left = (e.clientX - r.left + 12) + 'px';
+      trendTooltip.style.top  = (e.clientY - r.top  + 12) + 'px';
+    });
+    trendChart.addEventListener('mouseleave', () => {
+      trendTooltip.style.display = 'none';
+    });
+  }
+
+  // ---------- Sparkline pulse on insights (visual delight) ----------
+  document.querySelectorAll('.insight-row').forEach((row, i) => {
+    row.style.opacity = '0';
+    row.style.transform = 'translateY(4px)';
+    row.style.transition = 'opacity 320ms ease, transform 320ms ease';
+    setTimeout(() => { row.style.opacity = '1'; row.style.transform = 'translateY(0)'; }, 80 * i);
+  });
+
+  // ---------- Number tickers (light) ----------
+  document.querySelectorAll('.text-data-lg, .text-data').forEach((el) => {
+    el.classList.add('u-num');
+  });
+
+  // ---------- Persist UI prefs ----------
+  try {
+    const d = localStorage.getItem('mr_density');
+    if (d) document.documentElement.setAttribute('data-density', d);
+    const t = localStorage.getItem('mr_theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+
+  document.addEventListener('change-density', (e) => {
+    try { localStorage.setItem('mr_density', e.detail); } catch (err) {}
+  });
+})();
+</script>
+
+</body>
+</html>
